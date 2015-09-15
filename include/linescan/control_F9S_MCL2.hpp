@@ -26,7 +26,7 @@ namespace linescan{
 			send({{read::status}});
 		}
 
-		void start_calibration(){
+		void calibrate(){
 			send({{write::command, 'c'}, {read::start}});
 		}
 

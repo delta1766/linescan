@@ -38,7 +38,7 @@ namespace linescan{
 			send({{write::absolute_position_z}});
 		}
 
-		void start_calibration(){
+		void calibrate(){
 			send({{write::command, 'c'}, {read::start}});
 		}
 
