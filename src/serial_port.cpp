@@ -20,6 +20,8 @@
 namespace linescan{
 
 
+	namespace asio = asio;
+
 	serial_port::serial_port(
 		callback&& callback,
 		bool separator_active,
@@ -66,9 +68,9 @@ namespace linescan{
 
 		port_.open(device);
 
-		port_.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+		port_.set_option(asio::serial_port_base::baud_rate(baud_rate));
 		port_.set_option(
-			boost::asio::serial_port_base::character_size(character_size)
+			asio::serial_port_base::character_size(character_size)
 		);
 		port_.set_option(flow_control(fc));
 		port_.set_option(parity(p));
@@ -105,24 +107,19 @@ namespace linescan{
 			);
 		}
 
-		boost::asio::write(
-			port_,
-			boost::asio::buffer(text.c_str(), text.size())
-		);
+		asio::write(port_, asio::buffer(text.c_str(), text.size()));
 	}
 
 	void serial_port::read(){
 		port_.async_read_some(
-			boost::asio::buffer(recieved_.data(), recieved_.size()),
+			asio::buffer(recieved_.data(), recieved_.size()),
 			[this](
 				boost::system::error_code const& error,
 				std::size_t bytes_transferred
 			){
 				if(error){
 					// is port_.close() ?
-					if(error.value() == boost::asio::error::operation_aborted){
-						return;
-					}
+					if(error.value() == asio::error::operation_aborted) return;
 
 					throw error;
 				}
