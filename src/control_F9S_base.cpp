@@ -5,13 +5,13 @@ namespace linescan{
 
 
 	control_F9S_base::control_F9S_base(std::string const& device):
-		port_([this](std::string const& data){
+		port_([this](std::string&& data){
 			std::cout << "receive: '" << mask_non_print(data) << "'"
 				<< std::endl;
 
 			{
 				std::lock_guard< std::mutex > lock(mutex_);
-				receive_ = data;
+				receive_ = std::move(data);
 			}
 
 			cv_.notify_one();

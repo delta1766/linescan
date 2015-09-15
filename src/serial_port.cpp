@@ -138,7 +138,7 @@ namespace linescan{
 					){
 						auto text = buffer_.substr(0, end);
 						buffer_ = buffer_.substr(end + separator_.size());
-						callback_(text);
+						callback_(std::move(text));
 					}
 				}else{
 					callback_(std::string(

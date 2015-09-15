@@ -26,7 +26,7 @@ namespace linescan{
 
 	class serial_port{
 	public:
-		using callback = std::function< void(std::string const&) >;
+		using callback = std::function< void(std::string&&) >;
 
 
 		serial_port(
