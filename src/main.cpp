@@ -23,23 +23,19 @@ int main()try{
 		if(command.empty()) break;
 
 		if(command == "rs"){
-// 			mcl2.read_status();
 			mcl3.read_status();
 		}else if(command == "calib"){
-// 			mcl2.start_calibration();
-			mcl3.start_calibration();
+			mcl3.calibrate();
 		}else if(command == "x"){
 			mcl3.read_x();
 		}else if(command == "y"){
 			mcl3.read_y();
 		}else if(command == "z"){
 			mcl3.read_z();
-		}else if(command == "s"){
-			mcl3.start();
 		}else if(command == "b"){
 			mcl3.stop();
 		}else if(command == "d"){
-			mcl3.distance();
+			mcl3.move_to_end();
 		}else{
 			std::cout << "Unknown input" << std::endl;
 		}

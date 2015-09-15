@@ -13,6 +13,8 @@
 #include "mask_non_print.hpp"
 
 #include <iostream>
+#include <condition_variable>
+#include <mutex>
 
 
 namespace linescan{
@@ -20,14 +22,7 @@ namespace linescan{
 
 	class control_F9S_base{
 	public:
-		control_F9S_base(std::string const& device):
-			port_([](std::string const& data){
-				std::cout << "read: '" << mask_non_print(data) << "'" << std::endl;
-			}, "\r")
-		{
-			port_.open(device, 9600, 8, flow_control::none, parity::none, stop_bits::two);
-			port_.send(" "); // synchronize baud rate
-		}
+		control_F9S_base(std::string const& device);
 
 
 	protected:
@@ -43,17 +38,17 @@ namespace linescan{
 		};
 
 
-		void send(std::vector< command > const& commands){
-			std::string data;
-			for(auto& command: commands){
-				data += "U" + std::string(1, command.address) + command.data + "\r";
-			}
-			std::cout << "send: '" << mask_non_print(data) << "'" << std::endl;
-			port_.send(data);
-		}
+		void send(std::vector< command > const& commands);
+
+		std::string receive();
 
 
 	private:
+		std::mutex mutex_;
+		std::condition_variable cv_;
+
+		std::string receive_;
+
 		serial_port port_;
 	};
 

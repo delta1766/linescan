@@ -12,6 +12,7 @@
 #include "control_F9S_base.hpp"
 
 #include <iostream>
+#include <regex>
 
 
 namespace linescan{
@@ -26,21 +27,32 @@ namespace linescan{
 			send({{read::status}});
 		}
 
-		void read_x(){
+		double read_x(){
 			send({{write::absolute_position_x}});
+			return 0;
 		}
 
-		void read_y(){
+		double read_y(){
 			send({{write::absolute_position_y}});
+			return 0;
 		}
 
-		void read_z(){
+		double read_z(){
 			send({{write::absolute_position_z}});
+			return 0;
 		}
 
 		/// \brief Move to start and null absolute position registers
 		void calibrate(){
 			send({{write::command, 'c'}, {read::start}});
+
+			auto answer = receive();
+			if(answer == "AAA-.") return;
+
+			throw std::logic_error(
+				"answer after calibrate was '" + answer +
+				"', expected was 'AAA-.'"
+			);
 		}
 
 		/// \brief Move to end position
@@ -49,11 +61,27 @@ namespace linescan{
 		/// from the absolut position registers.
 		void move_to_end(){
 			send({{write::command, 'l'}, {read::start}});
+
+			auto answer = receive();
+			if(answer == "DDD-.") return;
+
+			throw std::logic_error(
+				"answer after move to end was '" + answer +
+				"', expected was 'DDD-.'"
+			);
 		}
 
 		/// \brief Stop all movements
 		void stop(){
 			send({{write::command, 'a'}, {read::start}});
+
+			static std::regex expected("^[AD@]{3}\\.\\-$");
+			auto answer = receive();
+			if(regex_search(answer, expected)) return;
+
+			throw std::logic_error(
+				"answer after stop was '" + answer + "'"
+			);
 		}
 
 

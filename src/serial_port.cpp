@@ -20,7 +20,7 @@
 namespace linescan{
 
 
-	namespace asio = asio;
+	namespace asio = boost::asio;
 
 	serial_port::serial_port(
 		callback&& callback,
