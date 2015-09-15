@@ -29,13 +29,25 @@ namespace linescan{
 		using callback = std::function< void(std::string const&) >;
 
 
-		serial_port(callback&& callback, bool separator_active, std::string&& separator);
+		serial_port(
+			callback&& callback,
+			bool separator_active,
+			std::string&& separator
+		);
+
 		serial_port(callback&& callback, std::string&& separator);
 
 		~serial_port();
 
 
-		void open(std::string const& device, unsigned baud_rate, unsigned character_size, flow_control::type flow_control, parity::type parity, stop_bits::type stop_bits);
+		void open(
+			std::string const& device,
+			unsigned baud_rate,
+			unsigned character_size,
+			flow_control::type flow_control,
+			parity::type parity,
+			stop_bits::type stop_bits
+		);
 
 		void close();
 

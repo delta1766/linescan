@@ -45,7 +45,10 @@ int main()try{
 		}
 	}
 }catch(std::exception const& e){
-	std::cerr << "Exit with exception: [" << boost::typeindex::type_id_runtime(e).pretty_name() << "] " << e.what() << std::endl;
+	std::cerr
+		<< "Exit with exception: ["
+		<< boost::typeindex::type_id_runtime(e).pretty_name() << "] "
+		<< e.what() << std::endl;
 }catch(...){
 	std::cerr << "Exit with unknown exception" << std::endl;
 }
