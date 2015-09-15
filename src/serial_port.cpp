@@ -119,8 +119,9 @@ namespace linescan{
 				std::size_t bytes_transferred
 			){
 				if(error){
+					// is port_.close() ?
 					if(error.value() == boost::asio::error::operation_aborted){
-						return; // port_.close();
+						return;
 					}
 
 					throw error;
