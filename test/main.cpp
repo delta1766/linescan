@@ -14,27 +14,139 @@
 
 
 int main()try{
-	std::size_t reg[26];
+	using namespace linescan;
 
-	std::string buffer;
 	linescan::serial_port mcl3([&](std::string&& data){
-		buffer += data;
+		auto pos = data.find('U');
+		if(pos == std::string::npos) return;
 
-		for(;;){
-			auto pos = buffer.find('U');
-			if(pos == std::string::npos) return;
+		std::uint8_t command = data[pos + 1];
+		data = data.substr(pos + 2);
 
-			buffer = buffer.substr(pos);
+		std::cout
+			<< static_cast< unsigned >(command) << ": '" << data << "'"
+			<< std::endl;
 
-			pos = buffer.find('\r');
-			if(pos == std::string::npos) return;
-
-			auto command = buffer.substr(1, pos - 2);
-			buffer = buffer.substr(pos);
+		switch(command){
+			// read commands
+			case 255:
+			case 0:
+				
+			break;
+			case 1:
+				
+			break;
+			case 2:
+				
+			break;
+			case 3:
+				
+			break;
+			case 4:
+				
+			break;
+			case 5:
+				
+			break;
+			case 6:
+				
+			break;
+			case 7:
+				
+			break;
+			case 8:
+				
+			break;
+			case 9:
+				
+			break;
+			case 10:
+				
+			break;
+			case 11:
+				
+			break;
+			case 12:
+				
+			break;
+			case 17:
+				
+			break;
+			case 21:
+				
+			break;
+			case 22:
+				
+			break;
+			case 23:
+				
+			break;
+			case 25:
+				
+			break;
+			// write commands
+			case 64:
+				
+			break;
+			case 65:
+				
+			break;
+			case 66:
+				
+			break;
+			case 67:
+				
+			break;
+			case 68:
+				
+			break;
+			case 69:
+				
+			break;
+			case 70:
+				
+			break;
+			case 71:
+				
+			break;
+			case 72:
+				
+			break;
+			case 73:
+				
+			break;
+			case 74:
+				
+			break;
+			case 75:
+				
+			break;
+			case 76:
+				
+			break;
+			case 80:
+				
+			break;
+			case 81:
+				
+			break;
+			case 85:
+				
+			break;
+			case 86:
+				
+			break;
+			case 87:
+				
+			break;
+			case 89:
+				
+			break;
 		}
+		mcl3.send("");
 	}, "\r");
 
-	port_.open(
+	mcl3.open(
 		"/dev/pts/4", 9600, 8,
 		flow_control::none, parity::none, stop_bits::two
 	);
