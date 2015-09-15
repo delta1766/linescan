@@ -26,8 +26,7 @@ namespace linescan{
 			}, "\r")
 		{
 			port_.open(device, 9600, 8, flow_control::none, parity::none, stop_bits::two);
-			port_.send(" ");
-// 			port_.send("U\x11""1\r");
+			port_.send(" "); // synchronize baud rate
 		}
 
 
