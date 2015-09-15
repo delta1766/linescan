@@ -38,20 +38,22 @@ namespace linescan{
 			send({{write::absolute_position_z}});
 		}
 
+		/// \brief Move to start and null absolute position registers
 		void calibrate(){
 			send({{write::command, 'c'}, {read::start}});
 		}
 
-		void stop(){
-			send({{write::command, 'a'}, {read::start}});
-		}
-
-		void distance(){
+		/// \brief Move to end position
+		///
+		/// After a calibrate you can move to end and read ranges
+		/// from the absolut position registers.
+		void move_to_end(){
 			send({{write::command, 'l'}, {read::start}});
 		}
 
-		void start(){
-			send({{read::start}});
+		/// \brief Stop all movements
+		void stop(){
+			send({{write::command, 'a'}, {read::start}});
 		}
 
 
