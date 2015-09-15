@@ -142,6 +142,11 @@ int main()try{
 			case 89:
 				
 			break;
+			// unknown
+			default:
+				std::cerr
+					<< "Unknown command " << static_cast< unsigned >(command)
+					<< std::endl;
 		}
 		mcl3.send("");
 	}, "\r");

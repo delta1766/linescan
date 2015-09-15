@@ -15,8 +15,8 @@
 
 
 int main()try{
-	linescan::control_F9S_MCL2 mcl2("/dev/ttyUSB1");
-	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
+// 	linescan::control_F9S_MCL2 mcl2("/dev/ttyUSB1");
+	linescan::control_F9S_MCL3 mcl3("/dev/pts/4");
 
 	std::string command;
 	while(getline(std::cin, command)){

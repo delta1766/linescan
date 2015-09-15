@@ -46,7 +46,8 @@ project linescan
 	usage-requirements <include>include
 	;
 
-lib linescan
+exe linescan
 	:
 	[ glob *.cpp ]
+	/boost//system
 	;
