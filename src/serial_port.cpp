@@ -31,9 +31,7 @@ namespace linescan{
 		port_(io_),
 		separator_active_(separator_active),
 		separator_(std::move(separator))
-	{
-		std::cout << "'" << mask_non_print(separator_) << "'" << std::endl;
-	}
+		{}
 
 	serial_port::serial_port(callback&& callback, std::string&& separator):
 		serial_port(std::move(callback), true, std::move(separator)){}
