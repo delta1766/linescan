@@ -12,6 +12,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
+#include <iomanip>
 
 
 int main()try{
@@ -31,10 +32,84 @@ int main()try{
 	std::atomic< std::int64_t > mask(7);
 	std::atomic< std::int64_t > delay_time_for_replies(2);
 	std::atomic< bool > activate_cts(0);
-	std::atomic< std::int64_t > leadscrew_pitch_x(40000);
-	std::atomic< std::int64_t > leadscrew_pitch_y(40000);
-	std::atomic< std::int64_t > leadscrew_pitch_z(40000);
+	std::atomic< std::int64_t > leadscrew_pitch_x(40'000);
+	std::atomic< std::int64_t > leadscrew_pitch_y(40'000);
+	std::atomic< std::int64_t > leadscrew_pitch_z(40'000);
 	std::atomic< std::int64_t > resolution(10);
+
+	std::int64_t min_x = 0;
+	std::int64_t min_y = 0;
+	std::int64_t min_z = 0;
+	std::int64_t max_x = 1'000'000'000;
+	std::int64_t max_y = 1'000'000'000;
+	std::int64_t max_z = 1'000'000'000;
+
+	std::atomic< std::int64_t > x(0);
+	std::atomic< std::int64_t > y(0);
+	std::atomic< std::int64_t > z(0);
+	std::atomic< std::int64_t > show_add_x(0);
+	std::atomic< std::int64_t > show_add_y(0);
+	std::atomic< std::int64_t > show_add_z(0);
+
+	std::mutex mutex;
+    auto start = std::chrono::high_resolution_clock::now();
+	auto const calc = [&](auto action){
+		std::lock_guard< std::mutex > lock(mutex);
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto distance = end - start;
+
+		auto speed_x = leadscrew_pitch_x * motor_speed;
+		auto speed_y = leadscrew_pitch_y * motor_speed;
+		auto speed_z = leadscrew_pitch_z * motor_speed;
+
+		switch(command){
+			case 'a': break;
+			case 'c':{
+				
+			} break;
+			case 'e': break;
+			case 'g': break;
+			case 'j': break;
+			case 'l': break;
+			case 'm': break;
+			case 'p': break;
+			case 'r': break;
+			case 's': break;
+			case 'v': break;
+		}
+
+		action();
+
+		start = end;
+
+		std::cout <<
+			std::setw(20) << x + show_add_x << ";" <<
+			std::setw(20) << y + show_add_y << ";" <<
+			std::setw(20) << z + show_add_z << std::endl;
+	};
+
+	bool run = true;
+	auto worker = std::async([&run, &calc]{
+		using namespace std::literals;
+
+		while(run){
+			calc([]{});
+
+			std::this_thread::sleep_for(50ms);
+		}
+	});
+
+	struct on_exit{
+		on_exit(bool& run): run(run) {}
+
+		~on_exit(){
+			run = false;
+		}
+
+		bool& run;
+	};
+
 
 	linescan::serial_port mcl3([&](std::string&& data){
 		auto pos = data.find('U');
