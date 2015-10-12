@@ -168,7 +168,9 @@ int main()try{
 				}
 			}break;
 			case 6:{
-				
+				// Can be:
+				//  'OK...'
+				//  regex '^[AD@]{3}\\-\\.$'
 			}break;
 			case 7:{
 				if(data.size() != 1 || std::string("acegjlmprsv").find(data[0]) == std::string::npos){
