@@ -30,8 +30,11 @@ namespace linescan{
 			command(std::uint8_t address, std::string&& data = ""):
 				address(address), data(std::move(data)) {}
 
-			command(std::uint8_t address, std::uint8_t data):
+			command(std::uint8_t address, char data):
 				address(address), data(1, data) {}
+
+			command(std::uint8_t address, std::int64_t data):
+				address(address), data(std::to_string(data)) {}
 
 			std::uint8_t address;
 			std::string data;

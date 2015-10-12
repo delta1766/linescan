@@ -29,7 +29,15 @@ namespace linescan{
 			device, 9600, 8,
 			flow_control::none, parity::none, stop_bits::two
 		);
-		port_.send(" "); // synchronize baud rate
+
+		// synchronize baud rate
+		port_.send(" ");
+
+		// Request status
+		port_.send("UF\r");
+
+		// Read out status and potentially trash data
+		receive();
 	}
 
 

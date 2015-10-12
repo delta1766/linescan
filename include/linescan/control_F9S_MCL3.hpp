@@ -11,7 +11,10 @@
 
 #include "control_F9S_base.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
+#include <thread>
 #include <regex>
 
 
@@ -20,27 +23,28 @@ namespace linescan{
 
 	class control_F9S_MCL3: public control_F9S_base{
 	public:
-		using control_F9S_base::control_F9S_base;
+		control_F9S_MCL3(std::string const& device):
+			control_F9S_base(device)
+		{
+			write_resolution(10);
+			write_ramp(10);
+			write_leadscrew_pitch_x(10000);
+			write_leadscrew_pitch_y(10000);
+			write_leadscrew_pitch_z(10000);
 
-
-		void read_status(){
-			send({{read::status}});
+			read_x();
+			read_y();
+			read_z();
+			read_pre_x();
+			read_pre_y();
+			read_pre_z();
+			read_resolution();
+			read_ramp();
+			read_leadscrew_pitch_x();
+			read_leadscrew_pitch_y();
+			read_leadscrew_pitch_z();
 		}
 
-		double read_x(){
-			send({{write::absolute_position_x}});
-			return 0;
-		}
-
-		double read_y(){
-			send({{write::absolute_position_y}});
-			return 0;
-		}
-
-		double read_z(){
-			send({{write::absolute_position_z}});
-			return 0;
-		}
 
 		/// \brief Move to start and null absolute position registers
 		void calibrate(){
@@ -75,7 +79,7 @@ namespace linescan{
 		void stop(){
 			send({{write::command, 'a'}, {read::start}});
 
-			static std::regex expected("^[AD@]{3}\\.\\-$");
+			static std::regex expected("^[AD@]{3}\\-\\.$");
 			auto answer = receive();
 			if(regex_search(answer, expected)) return;
 
@@ -84,8 +88,180 @@ namespace linescan{
 			);
 		}
 
+		void move_to(std::int64_t x, std::int64_t y, std::int64_t z){
+			write_pre_x(x);
+			write_pre_y(y);
+			write_pre_z(z);
+			send({{write::command, 'e'}, {read::start}});
+		}
+
+		void move_relative(std::int64_t x, std::int64_t y, std::int64_t z){
+			write_pre_x(x);
+			write_pre_y(y);
+			write_pre_z(z);
+			send({{write::command, 'g'}, {read::start}});
+		}
+
 
 	private:
+		/// \brief sleep for 50ms
+		///
+		/// After write commands without answer you should wait a few ms.
+		void delay()const{
+			using namespace std::literals;
+			std::this_thread::sleep_for(50ms);
+		}
+
+		std::int64_t read_pre_x(){
+			send({{read::preselection_x}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_pre_y(){
+			send({{read::preselection_y}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_pre_z(){
+			send({{read::preselection_z}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_x(){
+			send({{read::absolute_position_x}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_y(){
+			send({{read::absolute_position_y}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_z(){
+			send({{read::absolute_position_z}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		// TODO: Return a struct with parsed data, throw in error case
+		std::string read_status(){
+			send({{read::status}});
+			return receive();
+		}
+
+		// TODO: Make command an enum
+		char read_command(){
+			send({{read::command}});
+			return receive().at(0);
+		}
+
+		std::int64_t read_ramp(){
+			send({{read::ramp}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_motor_speed(){
+			send({{read::motor_speed}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_current_reduction(){
+			send({{read::current_reduction}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		// TODO: Return a struct with parsed data, throw in error case
+		std::string read_mask(){
+			send({{read::mask}});
+			return receive();
+		}
+
+		std::int64_t read_reply_delay(){
+			send({{read::delay_time_for_replies}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_leadscrew_pitch_x(){
+			send({{read::leadscrew_pitch_x}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_leadscrew_pitch_y(){
+			send({{read::leadscrew_pitch_y}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_leadscrew_pitch_z(){
+			send({{read::leadscrew_pitch_z}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+		std::int64_t read_resolution(){
+			send({{read::resolution}});
+			return boost::lexical_cast< std::int64_t >(receive());
+		}
+
+
+		void write_pre_x(std::int64_t value){
+			send({{write::preselection_x, value}});
+			delay();
+		}
+
+		void write_pre_y(std::int64_t value){
+			send({{write::preselection_y, value}});
+			delay();
+		}
+
+		void write_pre_z(std::int64_t value){
+			send({{write::preselection_z, value}});
+			delay();
+		}
+
+		void write_x(std::int64_t value){
+			send({{write::absolute_position_x, value}});
+			delay();
+		}
+
+		void write_y(std::int64_t value){
+			send({{write::absolute_position_y, value}});
+			delay();
+		}
+
+		void write_z(std::int64_t value){
+			send({{write::absolute_position_z, value}});
+			delay();
+		}
+
+		void write_leadscrew_pitch_x(std::int64_t value){
+			send({{write::leadscrew_pitch_x, value}});
+			delay();
+		}
+
+		void write_leadscrew_pitch_y(std::int64_t value){
+			send({{write::leadscrew_pitch_y, value}});
+			delay();
+		}
+
+		void write_leadscrew_pitch_z(std::int64_t value){
+			send({{write::leadscrew_pitch_z, value}});
+			delay();
+		}
+
+		void write_ramp(std::int64_t value){
+			send({{write::ramp, value}});
+			delay();
+		}
+
+		void write_motor_speed(std::int64_t value){
+			send({{write::motor_speed, value}});
+			delay();
+		}
+
+		void write_resolution(std::int64_t value){
+			send({{write::resolution, value}});
+			delay();
+		}
+
+
 		struct read{
 			enum: std::uint8_t{
 				preselection_x = 64,

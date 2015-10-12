@@ -16,25 +16,23 @@
 
 int main()try{
 // 	linescan::control_F9S_MCL2 mcl2("/dev/ttyUSB1");
-	linescan::control_F9S_MCL3 mcl3("/dev/pts/4");
+	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
 
 	std::string command;
 	while(getline(std::cin, command)){
 		if(command.empty()) break;
 
-		if(command == "rs"){
-			mcl3.read_status();
-		}else if(command == "calib"){
+		if(command == "calib"){
 			mcl3.calibrate();
-		}else if(command == "x"){
-			mcl3.read_x();
-		}else if(command == "y"){
-			mcl3.read_y();
-		}else if(command == "z"){
-			mcl3.read_z();
-		}else if(command == "b"){
+		}else if(command == "stop"){
 			mcl3.stop();
-		}else if(command == "d"){
+		}else if(command == "move"){
+			mcl3.move_to(100000, 100000, 100000);
+		}else if(command == "mover"){
+			mcl3.move_relative(-10000, 10000, -10000);
+		}else if(command == "stop"){
+			mcl3.move_relative(-10000, 10000, -10000);
+		}else if(command == "end"){
 			mcl3.move_to_end();
 		}else{
 			std::cout << "Unknown input" << std::endl;
