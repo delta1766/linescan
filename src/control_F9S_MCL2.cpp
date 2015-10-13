@@ -15,37 +15,66 @@ namespace linescan{
 	control_F9S_MCL2::control_F9S_MCL2(std::string const& device):
 		control_F9S_base(device)
 	{
-		std::cout << "MCL2" << std::endl;
-		for(std::size_t i = 64; i < 90; ++i){
-			if(i == 77) continue;
-			if(i == 78) continue;
-			if(i == 79) continue;
-			if(i == 80) continue;
-			if(i == 81) continue;
-			if(i == 82) continue;
-			if(i == 83) continue;
-			if(i == 84) continue;
-			if(i == 88) continue;
-			std::cout << "get " << i << std::endl;
-			send({i});
-			receive();
+// 		std::cout << "MCL2" << std::endl;
+// 		for(std::size_t i = 64; i < 90; ++i){
+// 			try{
+// 				if(i == 80) continue;
+// 				std::cout << "get " << i << std::endl;
+// 				get({i});
+// 			}catch(...){
+// 				std::cout << "error" << std::endl;
+// 			}
+// 		}
+
+
+		write_resolution(10);
+
+		auto resolution = read_resolution();
+		if(resolution != 10){
+			throw std::logic_error(
+				"MCL2 init resolution error. (value is '" +
+				std::to_string(resolution) + "', should be '10')"
+			);
 		}
-// 		write_resolution(10);
-// 		write_ramp(10);
-// 		write_leadscrew_pitch_x(10000);
-// 		write_leadscrew_pitch_y(10000);
-// 
-// 		if(read_resolution() != 10) throw std::logic_error("init resolution error");
-// 		if(read_ramp() != 10) throw std::logic_error("init ramp error");
-// 		if(read_leadscrew_pitch_x() != 10000) throw std::logic_error("init leadscrew_pitch_x error");
-// 		if(read_leadscrew_pitch_y() != 10000) throw std::logic_error("init leadscrew_pitch_y error");
+
+
+		write_ramp(10);
+
+		auto ramp = read_ramp();
+		if(ramp != 10){
+			throw std::logic_error(
+				"MCL2 init ramp error. (value is '" +
+				std::to_string(ramp) + "', should be '10')"
+			);
+		}
+
+
+		write_leadscrew_pitch_x(10000);
+
+		auto leadscrew_pitch_x = read_leadscrew_pitch_x();
+		if(leadscrew_pitch_x != 10000){
+			throw std::logic_error(
+				"MCL2 init leadscrew_pitch_x error. (value is '" +
+				std::to_string(leadscrew_pitch_x) + "', should be '10')"
+			);
+		}
+
+
+		write_leadscrew_pitch_y(10000);
+
+		auto leadscrew_pitch_y = read_leadscrew_pitch_y();
+		if(leadscrew_pitch_y != 10000){
+			throw std::logic_error(
+				"MCL2 init leadscrew_pitch_y error. (value is '" +
+				std::to_string(leadscrew_pitch_y) + "', should be '10')"
+			);
+		}
 	}
 
 
 	void control_F9S_MCL2::stop(){
-		send({{write::command, 'a'}, {read::start}});
+		auto answer = get({{write::command, 'a'}, {read::start}});
 
-		auto answer = receive();
 		if(regex_search(answer, move_answer_expected)) return;
 
 		throw std::logic_error(
@@ -54,14 +83,15 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL2::move_to(std::int64_t x, std::int64_t y){
-		send({
+		using namespace std::literals;
+
+		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
 			{write::command, 'r'},
 			{read::start}
-		});
+		}, 30s);
 
-		auto answer = receive();
 		if(regex_search(answer, move_answer_expected)) return;
 
 		throw std::logic_error(
@@ -70,14 +100,15 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL2::move_relative(std::int64_t x, std::int64_t y){
-		send({
+		using namespace std::literals;
+
+		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
 			{write::command, 'v'},
 			{read::start}
-		});
+		}, 30s);
 
-		auto answer = receive();
 		if(regex_search(answer, move_answer_expected)) return;
 
 		throw std::logic_error(
@@ -108,80 +139,84 @@ namespace linescan{
 	}
 
 
-	std::regex const control_F9S_MCL2::move_answer_expected("^[AD@]{3}\\-\\.$");
+	std::regex const control_F9S_MCL2::move_answer_expected(
+		"^[AD@]{3}\\-\\.$"
+	);
 
 
 	std::int64_t control_F9S_MCL2::read_pre_x(){
-		send({{read::preselection_x}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::preselection_x}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_pre_y(){
-		send({{read::preselection_y}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::preselection_y}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_x(){
-		send({{read::absolute_position_x}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::absolute_position_x}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_y(){
-		send({{read::absolute_position_y}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::absolute_position_y}})
+		);
 	}
 
 	// TODO: Return a struct with parsed data, throw in error case
 	std::string control_F9S_MCL2::read_status(){
-		send({{read::status}});
-		return receive();
+		return get({{read::status}});
 	}
 
 	// TODO: Make command an enum
 	char control_F9S_MCL2::read_command(){
-		send({{read::command}});
-		return receive().at(0);
+		return get({{read::command}}).at(0);
 	}
 
 	std::int64_t control_F9S_MCL2::read_ramp(){
-		send({{read::ramp}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(get({{read::ramp}}));
 	}
 
 	std::int64_t control_F9S_MCL2::read_motor_speed(){
-		send({{read::motor_speed}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(get({{read::motor_speed}}));
 	}
 
 	std::int64_t control_F9S_MCL2::read_current_reduction(){
-		send({{read::current_reduction}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::current_reduction}})
+		);
 	}
 
 	// TODO: Return a struct with parsed data, throw in error case
 	std::string control_F9S_MCL2::read_mask(){
-		send({{read::mask}});
-		return receive();
+		return get({{read::mask}});
 	}
 
 	std::int64_t control_F9S_MCL2::read_reply_delay(){
-		send({{read::delay_time_for_replies}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::delay_time_for_replies}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_leadscrew_pitch_x(){
-		send({{read::leadscrew_pitch_x}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::leadscrew_pitch_x}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_leadscrew_pitch_y(){
-		send({{read::leadscrew_pitch_y}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(
+			get({{read::leadscrew_pitch_y}})
+		);
 	}
 
 	std::int64_t control_F9S_MCL2::read_resolution(){
-		send({{read::resolution}});
-		return boost::lexical_cast< std::int64_t >(receive());
+		return boost::lexical_cast< std::int64_t >(get({{read::resolution}}));
 	}
 
 

@@ -43,7 +43,37 @@ namespace linescan{
 
 		void send(std::vector< command > const& commands);
 
-		std::string receive();
+		std::string get(
+			std::vector< command > const& commands,
+			std::size_t repetitions = 3
+		);
+
+		template < typename Rep, typename Period >
+		std::string get(
+			std::vector< command > const& commands,
+			std::chrono::duration< Rep, Period > const& timeout,
+			std::size_t repetitions = 3
+		){
+			for(std::size_t i = 0; i < repetitions; ++i){
+				send(commands);
+				auto result = receive(timeout);
+				if(result.second) return result.first;
+				std::cout << "timeout, retry" << std::endl;
+			}
+
+			throw std::runtime_error("no answer");
+		}
+
+		std::pair< std::string, bool > receive();
+
+		template < typename Rep, typename Period >
+		std::pair< std::string, bool > receive(
+			std::chrono::duration< Rep, Period > const& timeout
+		){
+			std::unique_lock< std::mutex > lock(mutex_);
+			bool ok = cv_.wait_for(lock, timeout) == std::cv_status::no_timeout;
+			return {receive_, ok};
+		}
 
 		/// \brief sleep for 50ms
 		///

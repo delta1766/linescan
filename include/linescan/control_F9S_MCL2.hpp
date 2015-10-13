@@ -96,14 +96,10 @@ namespace linescan{
 				current_reduction = 74,
 				mask = 75,
 				delay_time_for_replies = 76,
-// 				leadscrew_pitch_x = 77,
-// 				leadscrew_pitch_y = 78,
-// 				resolution = 79,
 				start = 80,
 				activate_cts = 81,
 				leadscrew_pitch_x = 85,
 				leadscrew_pitch_y = 86,
-				leadscrew_pitch_z = 87,
 				resolution = 89
 			};
 		};
@@ -121,10 +117,10 @@ namespace linescan{
 				current_reduction = 10,
 				mask = 11,
 				delay_time_for_replies = 12,
-				leadscrew_pitch_x = 13,
-				leadscrew_pitch_y = 14,
-				resolution = 15,
-				activate_cts = 17
+				activate_cts = 17,
+				leadscrew_pitch_x = 21,
+				leadscrew_pitch_y = 22,
+				resolution = 25
 			};
 		};
 	};

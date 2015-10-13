@@ -40,6 +40,18 @@ namespace linescan{
 	}
 
 
+	std::string control_F9S_base::get(
+		std::vector< command > const& commands, std::size_t repetitions
+	){
+		using namespace std::literals;
+		return get(commands, 50ms, repetitions);
+	}
+
+	std::pair< std::string, bool > control_F9S_base::receive(){
+		using namespace std::literals;
+		return receive(50ms);
+	}
+
 	void control_F9S_base::send(std::vector< command > const& commands){
 		std::string data;
 		for(auto& command: commands){
@@ -53,18 +65,9 @@ namespace linescan{
 		port_.send(data);
 	}
 
-
 	void control_F9S_base::delay()const{
 		using namespace std::literals;
 		std::this_thread::sleep_for(50ms);
 	}
-
-
-	std::string control_F9S_base::receive(){
-		std::unique_lock< std::mutex > lock(mutex_);
-		cv_.wait(lock);
-		return receive_;
-	}
-
 
 }
