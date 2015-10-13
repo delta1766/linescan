@@ -11,7 +11,11 @@
 
 #include "control_F9S_base.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
+#include <thread>
+#include <regex>
 
 
 namespace linescan{
@@ -19,27 +23,66 @@ namespace linescan{
 
 	class control_F9S_MCL2: public control_F9S_base{
 	public:
-		using control_F9S_base::control_F9S_base;
+		control_F9S_MCL2(std::string const& device);
 
 
-		void read_status(){
-			send({{read::status}});
-		}
+		/// \brief Stop all movements
+		void stop();
 
-		void calibrate(){
-			send({{write::command, 'c'}, {read::start}});
-		}
+		void move_to(std::int64_t x, std::int64_t y);
 
-		void stop(){
-			send({{write::command, 'a'}, {read::start}});
-		}
+		void move_relative(std::int64_t x, std::int64_t y);
 
-		void start(){
-			send({{read::start}});
-		}
+		void set_position(std::int64_t x, std::int64_t y);
+
+		std::array< std::int64_t, 2 > position();
+
+		std::array< std::int64_t, 2 > preselection();
 
 
 	private:
+		static std::regex const move_answer_expected;
+
+		std::int64_t read_pre_x();
+
+		std::int64_t read_pre_y();
+
+		std::int64_t read_x();
+
+		std::int64_t read_y();
+
+		std::string read_status();
+
+		char read_command();
+
+		std::int64_t read_ramp();
+
+		std::int64_t read_motor_speed();
+
+		std::int64_t read_current_reduction();
+
+		std::string read_mask();
+
+		std::int64_t read_reply_delay();
+
+		std::int64_t read_leadscrew_pitch_x();
+
+		std::int64_t read_leadscrew_pitch_y();
+
+		std::int64_t read_resolution();
+
+
+		void write_leadscrew_pitch_x(std::int64_t value);
+
+		void write_leadscrew_pitch_y(std::int64_t value);
+
+		void write_ramp(std::int64_t value);
+
+		void write_motor_speed(std::int64_t value);
+
+		void write_resolution(std::int64_t value);
+
+
 		struct read{
 			enum: std::uint8_t{
 				preselection_x = 64,
@@ -53,8 +96,15 @@ namespace linescan{
 				current_reduction = 74,
 				mask = 75,
 				delay_time_for_replies = 76,
+// 				leadscrew_pitch_x = 77,
+// 				leadscrew_pitch_y = 78,
+// 				resolution = 79,
 				start = 80,
-				activate_cts = 81
+				activate_cts = 81,
+				leadscrew_pitch_x = 85,
+				leadscrew_pitch_y = 86,
+				leadscrew_pitch_z = 87,
+				resolution = 89
 			};
 		};
 
@@ -71,6 +121,9 @@ namespace linescan{
 				current_reduction = 10,
 				mask = 11,
 				delay_time_for_replies = 12,
+				leadscrew_pitch_x = 13,
+				leadscrew_pitch_y = 14,
+				resolution = 15,
 				activate_cts = 17
 			};
 		};

@@ -45,6 +45,11 @@ namespace linescan{
 
 		std::string receive();
 
+		/// \brief sleep for 50ms
+		///
+		/// After write commands without answer you should wait a few ms.
+		void delay()const;
+
 
 	private:
 		std::mutex mutex_;

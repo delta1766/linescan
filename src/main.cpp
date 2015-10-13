@@ -15,8 +15,8 @@
 
 
 int main()try{
-// 	linescan::control_F9S_MCL2 mcl2("/dev/ttyUSB1");
 	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
+	linescan::control_F9S_MCL2 mcl2("/dev/ttyUSB1");
 
 	std::string command;
 	while(getline(std::cin, command)){
@@ -34,6 +34,14 @@ int main()try{
 			mcl3.move_relative(-10000, 10000, -10000);
 		}else if(command == "end"){
 			mcl3.move_to_end();
+		}else if(command == "2stop"){
+			mcl2.stop();
+		}else if(command == "2move"){
+			mcl2.move_to(100000, 100000);
+		}else if(command == "2mover"){
+			mcl2.move_relative(0, 0);
+		}else if(command == "2stop"){
+			mcl2.stop();
 		}else{
 			std::cout << "Unknown input" << std::endl;
 		}

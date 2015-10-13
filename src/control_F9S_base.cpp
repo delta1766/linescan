@@ -8,6 +8,8 @@
 //-----------------------------------------------------------------------------
 #include <linescan/control_F9S_base.hpp>
 
+#include <thread>
+
 
 namespace linescan{
 
@@ -30,9 +32,6 @@ namespace linescan{
 			flow_control::none, parity::none, stop_bits::two
 		);
 
-		// synchronize baud rate
-		port_.send(" ");
-
 		// Request status
 		port_.send("UF\r");
 
@@ -52,6 +51,12 @@ namespace linescan{
 			<< std::endl;
 
 		port_.send(data);
+	}
+
+
+	void control_F9S_base::delay()const{
+		using namespace std::literals;
+		std::this_thread::sleep_for(50ms);
 	}
 
 
