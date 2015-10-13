@@ -15,17 +15,6 @@ namespace linescan{
 	control_F9S_MCL3::control_F9S_MCL3(std::string const& device):
 		control_F9S_base(device)
 	{
-// 		std::cout << "MCL3" << std::endl;
-// 		for(std::size_t i = 64; i < 90; ++i){
-// 			try{
-// 				if(i == 80) continue;
-// 				std::cout << "get " << i << std::endl;
-// 				get({i});
-// 			}catch(...){
-// 				std::cout << "error" << std::endl;
-// 			}
-// 		}
-
 		write_resolution(10);
 
 		auto resolution = read_resolution();
