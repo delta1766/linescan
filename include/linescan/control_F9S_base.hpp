@@ -42,6 +42,7 @@ namespace linescan{
 
 
 		void send(std::vector< command > const& commands);
+		void send(char const* data);
 
 		std::string get(
 			std::vector< command > const& commands,

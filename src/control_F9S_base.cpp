@@ -65,6 +65,10 @@ namespace linescan{
 		port_.send(data);
 	}
 
+	void control_F9S_base::send(char const* data){
+		port_.send(data);
+	}
+
 	void control_F9S_base::delay()const{
 		using namespace std::literals;
 		std::this_thread::sleep_for(50ms);

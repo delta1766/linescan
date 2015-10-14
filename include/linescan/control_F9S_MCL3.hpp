@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <regex>
+#include <mutex>
 
 
 namespace linescan{
@@ -43,6 +44,8 @@ namespace linescan{
 
 		void move_relative(std::int64_t x, std::int64_t y, std::int64_t z);
 
+		void activate_joystick();
+
 		std::array< std::int64_t, 3 > position();
 
 		std::array< std::int64_t, 3 > preselection();
@@ -50,6 +53,14 @@ namespace linescan{
 
 	private:
 		static std::regex const move_answer_expected;
+
+
+		bool joystick_;
+
+		std::mutex joystick_mutex_;
+
+
+		void deactivate_joystick();
 
 		std::int64_t read_pre_x();
 

@@ -7,6 +7,14 @@ use-project /boost
 	: $(LIBRARIES)/boost
 	;
 
+lib libueye_api : : 
+    # watch out for empty spaces, they are mandatory
+    <file>/usr/lib/libueye_api.so ;
+
+lib libpng12 : : 
+    # watch out for empty spaces, they are mandatory
+    <file>/usr/lib/x86_64-linux-gnu/libpng12.so ;
+
 project linescan
 	:
 	source-location src
@@ -38,6 +46,7 @@ project linescan
 	<toolset>clang:<include>/usr/include/libcxxabi
 
 	<include>$(LIBRARIES)/boost
+	<include>/usr/include/libpng12
 	:
 	usage-requirements <include>include
 	;
@@ -45,5 +54,7 @@ project linescan
 exe linescan
 	:
 	[ glob *.cpp ]
+	libueye_api
+	libpng12
 	/boost//system
 	;

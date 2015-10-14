@@ -13,7 +13,8 @@ namespace linescan{
 
 
 	control_F9S_MCL3::control_F9S_MCL3(std::string const& device):
-		control_F9S_base(device)
+		control_F9S_base(device),
+		joystick_(false)
 	{
 		write_resolution(10);
 
@@ -43,7 +44,7 @@ namespace linescan{
 		if(leadscrew_pitch_x != 10000){
 			throw std::logic_error(
 				"MCL3 init leadscrew_pitch_x error. (value is '" +
-				std::to_string(leadscrew_pitch_x) + "', should be '10')"
+				std::to_string(leadscrew_pitch_x) + "', should be '10000')"
 			);
 		}
 
@@ -54,7 +55,7 @@ namespace linescan{
 		if(leadscrew_pitch_y != 10000){
 			throw std::logic_error(
 				"MCL3 init leadscrew_pitch_y error. (value is '" +
-				std::to_string(leadscrew_pitch_y) + "', should be '10')"
+				std::to_string(leadscrew_pitch_y) + "', should be '10000')"
 			);
 		}
 
@@ -65,14 +66,38 @@ namespace linescan{
 		if(leadscrew_pitch_z != 10000){
 			throw std::logic_error(
 				"MCL3 init leadscrew_pitch_z error. (value is '" +
-				std::to_string(leadscrew_pitch_z) + "', should be '10')"
+				std::to_string(leadscrew_pitch_z) + "', should be '10000')"
 			);
 		}
 	}
 
 
+	void control_F9S_MCL3::activate_joystick(){
+		std::lock_guard< std::mutex > lock(joystick_mutex_);
+		send({{write::command, 'j'}, {read::start}});
+		joystick_ = true;
+	}
+
+	void control_F9S_MCL3::deactivate_joystick(){
+		std::lock_guard< std::mutex > lock(joystick_mutex_);
+		if(!joystick_) return;
+
+		send("j");
+		joystick_ = false;
+
+		auto answer = receive();
+		if(answer.second) return;
+		if(regex_search(answer.first, move_answer_expected)) return;
+
+		throw std::logic_error(
+			"answer after deactivating joystick was '" + answer.first + "'"
+		);
+	}
+
 	void control_F9S_MCL3::calibrate(){
 		using namespace std::literals;
+
+		deactivate_joystick();
 
 		// TODO: respect mask
 		auto answer = get({{write::command, 'c'}, {read::start}}, 30s);
@@ -87,6 +112,8 @@ namespace linescan{
 	void control_F9S_MCL3::move_to_end(){
 		using namespace std::literals;
 
+		deactivate_joystick();
+
 		// TODO: respect mask
 		auto answer = get({{write::command, 'l'}, {read::start}}, 30s);
 		if(answer == "DDD-.") return;
@@ -98,6 +125,8 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL3::stop(){
+		deactivate_joystick();
+
 		auto answer = get({{write::command, 'a'}, {read::start}});
 		if(regex_search(answer, move_answer_expected)) return;
 
@@ -109,6 +138,8 @@ namespace linescan{
 	void control_F9S_MCL3::set_position(
 		std::int64_t x, std::int64_t y, std::int64_t z
 	){
+		deactivate_joystick();
+
 		send({
 			{write::absolute_position_x, x},
 			{write::absolute_position_y, y},
@@ -121,6 +152,8 @@ namespace linescan{
 		std::int64_t x, std::int64_t y, std::int64_t z
 	){
 		using namespace std::literals;
+
+		deactivate_joystick();
 
 		auto answer = get({
 			{write::preselection_x, x},
@@ -141,6 +174,8 @@ namespace linescan{
 		std::int64_t x, std::int64_t y, std::int64_t z
 	){
 		using namespace std::literals;
+
+		deactivate_joystick();
 
 		auto answer = get({
 			{write::preselection_x, x},
