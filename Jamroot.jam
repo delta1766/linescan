@@ -43,7 +43,6 @@ project linescan
 	<toolset>clang:<linkflags>-lpthread
 	<toolset>clang:<linkflags>-lc++abi
 	<toolset>clang:<linkflags>-stdlib=libc++
-	<toolset>clang:<include>/usr/include/libcxxabi
 
 	<include>$(LIBRARIES)/boost
 	<include>/usr/include/libpng12

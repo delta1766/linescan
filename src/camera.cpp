@@ -12,8 +12,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-
 #include <iostream>
+#include <thread>
 
 
 namespace linescan{
@@ -22,7 +22,17 @@ namespace linescan{
 	camera::camera(std::uint32_t cam_id):
 		handle_(cam_id)
 	{
-		auto init = is_InitCamera(&handle_, nullptr);
+		using namespace std::literals;
+
+		int init;
+
+		// try 3 times
+		for(std::size_t i = 0; i < 3; ++i){
+			init = is_InitCamera(&handle_, nullptr);
+			std::this_thread::sleep_for(500ms);
+			if(init == IS_SUCCESS) break;
+		}
+
 		switch(init){
 			case IS_SUCCESS: break;
 			default:
