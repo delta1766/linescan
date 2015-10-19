@@ -51,6 +51,9 @@ namespace linescan{
 		std::array< std::int64_t, 3 > preselection();
 
 
+	protected:
+		std::string name()const override;
+
 	private:
 		static std::regex const move_answer_expected;
 

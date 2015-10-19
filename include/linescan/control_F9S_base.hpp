@@ -41,6 +41,8 @@ namespace linescan{
 		};
 
 
+		virtual std::string name()const = 0;
+
 		void send(std::vector< command > const& commands);
 		void send(char const* data);
 
@@ -62,7 +64,7 @@ namespace linescan{
 				std::cout << "timeout, retry" << std::endl;
 			}
 
-			throw std::runtime_error("no answer");
+			throw std::runtime_error("no answer from " + name());
 		}
 
 		std::pair< std::string, bool > receive();

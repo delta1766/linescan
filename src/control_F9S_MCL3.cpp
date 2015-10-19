@@ -72,6 +72,10 @@ namespace linescan{
 	}
 
 
+	std::string control_F9S_MCL3::name()const{
+		return "MCL3";
+	}
+
 	void control_F9S_MCL3::activate_joystick(){
 		std::lock_guard< std::mutex > lock(joystick_mutex_);
 		send({{write::command, 'j'}, {read::start}});

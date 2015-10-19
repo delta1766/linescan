@@ -41,20 +41,20 @@ namespace linescan{
 				}
 			}
 		}
-
-// 		png::image< png::gray_pixel > output(image.width(), image.height());
-// 		for(std::size_t y = 0; y < image.height(); ++y){
-// 			for(std::size_t x = 0; x < image.width(); ++x){
-// 				output[y][x] = image(x, y) < 255 ? 0 : 255;
-// 			}
-// 		}
-// 		output.write("binary.png");
+/*
+		png::image< png::gray_pixel > output(image.width(), image.height());
+		for(std::size_t y = 0; y < image.height(); ++y){
+			for(std::size_t x = 0; x < image.width(); ++x){
+				output[y][x] = image(x, y) < 255 ? 0 : 255;
+			}
+		}
+		output.write("binary.png");*/
 // 		for(std::size_t y = 0; y < image.height(); ++y){
 // 			for(std::size_t x = 0; x < image.width(); ++x){
 // 				output[y][x] = 0;
 // 			}
 // 		}
-// 
+
 // 		for(std::size_t x = 0; x < image.width(); ++x){
 // 			auto pos1 = static_cast< std::size_t >(result[x]);
 // 			auto pos2 = static_cast< std::size_t >(result[x] - 0.5f);

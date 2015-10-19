@@ -25,8 +25,17 @@ namespace linescan{
 		bitmap< std::uint8_t > image();
 
 
+		std::uint32_t width()const;
+		std::uint32_t height()const;
+		double pixel_size_in_um()const;
+
+
 		void close();
 
+		double exposure_in_ms_min()const;
+		double exposure_in_ms_max()const;
+		double exposure_in_ms_inc()const;
+		double exposure_in_ms()const;
 
 	private:
 		std::uint32_t handle_;
@@ -35,6 +44,11 @@ namespace linescan{
 		std::uint32_t height_;
 
 		double pixel_size_in_um_;
+
+		double exposure_in_ms_min_;
+		double exposure_in_ms_max_;
+		double exposure_in_ms_inc_;
+		double exposure_in_ms_;
 	};
 
 
