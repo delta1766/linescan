@@ -258,7 +258,7 @@ namespace linescan{
 					return "The initialization of the sensor failed.";
 				default: return "unknown error";
 			}
-		}() + std::to_string(code));
+		}() + " (" + std::to_string(code) + ")");
 	}
 
 	camera::camera(std::uint32_t cam_id):
@@ -276,14 +276,6 @@ namespace linescan{
 		}
 
 		throw_on_error(init, "is_InitCamera");
-
-		switch(init){
-			case IS_SUCCESS: break;
-			default:
-				throw std::runtime_error(
-					"is_InitCamera failed: " + std::to_string(init)
-				);
-		}
 
 		SENSORINFO config;
 		throw_on_error(is_GetSensorInfo(handle_, &config), "is_GetSensorInfo");

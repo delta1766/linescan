@@ -40,75 +40,80 @@ int main()try{
 		}else if(command == "measure"){
 			mcl3.move_relative(0, 0, 1000);
 
+			auto diff =
+				(cam.exposure_in_ms_max() - cam.exposure_in_ms_min()) / 10;
+
 // 			double from = 0;
 // 			double to = cam.width() * cam.pixel_size_in_um();
 			std::vector< std::pair< double, double > > lines;
 			for(std::size_t i = 0; i < 20; ++i){
-				using namespace std::literals;
+				for(std::size_t n = 5; n < 10; ++n){
+					using namespace std::literals;
 
-				auto image = cam.image();
+					cam.set_exposure(cam.exposure_in_ms_min() + n * diff);
 
-				{
-					png::image< png::gray_pixel > output(image.width(), image.height());
-					for(std::size_t y = 0; y < image.height(); ++y){
-						for(std::size_t x = 0; x < image.width(); ++x){
-							output[y][x] = image(x, y);
+					std::this_thread::sleep_for(100ms);
+
+					auto image = cam.image();
+
+					{
+						png::image< png::gray_pixel > output(image.width(), image.height());
+						for(std::size_t y = 0; y < image.height(); ++y){
+							for(std::size_t x = 0; x < image.width(); ++x){
+								output[y][x] = image(x, y);
+							}
 						}
+						std::ostringstream os;
+						os
+							<< "img" << std::setfill('0')
+							<< std::setw(4) << i << "_"
+							<< std::setw(4) << n << ".png";
+						output.write(os.str());
 					}
-					std::ostringstream os;
-					os << "img" << std::setw(4) << std::setfill('0') << i << ".png";
-					output.write(os.str());
-				}
 
-				auto pixel_line = calc_line(image);
+					auto pixel_line = calc_line(image);
 
-				std::vector< linescan::point< double > > line;
-				for(std::size_t i = 0; i < pixel_line.size(); ++i){
-					if(pixel_line[i] == 0) continue;
+					std::vector< linescan::point< double > > line;
+					for(std::size_t i = 0; i < pixel_line.size(); ++i){
+						if(pixel_line[i] == 0) continue;
 
-					line.emplace_back(
-						i * cam.pixel_size_in_um(),
-						pixel_line[i] * cam.pixel_size_in_um()
+						line.emplace_back(
+							i * cam.pixel_size_in_um(),
+							pixel_line[i] * cam.pixel_size_in_um()
+						);
+					}
+
+					auto f = linescan::fit_linear_function< double >(
+						line.begin(),
+						line.end()
 					);
-				}
 
-				auto f = linescan::fit_linear_function< double >(
-					line.begin(),
-					line.end()
-				);
+	// 				lines.emplace_back(f(from), f(to));
 
-// 				lines.emplace_back(f(from), f(to));
+					std::cout << "(0; " << f(0) << ") - (100; " << f(100) << ")"
+						<< std::endl;
 
-				std::cout << "(0; " << f(0) << ") - (100; " << f(100) << ")"
-					<< std::endl;
-
-				{
-					png::image< png::gray_pixel > output(image.width(), image.height());
-					for(std::size_t x = 0; x < image.width(); ++x){
-						if(pixel_line[x] == 0) continue;
-						auto pos1 = static_cast< std::size_t >(pixel_line[x]);
-						auto pos2 = static_cast< std::size_t >(pixel_line[x] - 0.5f);
-						if(pos1 == pos2){
-							output[pos1][x] = 255;
-						}else{
-							output[pos1][x] = 128;
-							output[pos2][x] = 128;
+					{
+						png::image< png::gray_pixel > output(image.width(), image.height());
+						for(std::size_t x = 0; x < image.width(); ++x){
+							if(pixel_line[x] == 0) continue;
+							auto pos1 = static_cast< std::size_t >(pixel_line[x]);
+							auto pos2 = static_cast< std::size_t >(pixel_line[x] - 0.5f);
+							if(pos1 == pos2){
+								output[pos1][x] = 255;
+							}else{
+								output[pos1][x] = 128;
+								output[pos2][x] = 128;
+							}
 						}
+						std::ostringstream os;
+						os
+							<< "line" << std::setfill('0')
+							<< std::setw(4) << i << "_"
+							<< std::setw(4) << n << ".png";
+						output.write(os.str());
 					}
-					std::ostringstream os;
-					os << "line" << std::setw(4) << std::setfill('0') << i << ".png";
-					output.write(os.str());
 				}
-
-// 				png::image< png::gray_pixel > output(image.width(), image.height());
-// 				for(std::size_t y = 0; y < image.height(); ++y){
-// 					for(std::size_t x = 0; x < image.width(); ++x){
-// 						output[y][x] = image(x, y);
-// 					}
-// 				}
-// 				std::ostringstream os;
-// 				os << "out" << std::setw(4) << std::setfill('0') << i << ".png";
-// 				output.write(os.str());
 
 				mcl3.move_relative(0, 0, -100);
 			}
