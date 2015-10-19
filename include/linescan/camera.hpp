@@ -37,6 +37,9 @@ namespace linescan{
 		double exposure_in_ms_inc()const;
 		double exposure_in_ms()const;
 
+		void set_exposure(double time_in_ms);
+
+
 	private:
 		std::uint32_t handle_;
 
@@ -48,7 +51,6 @@ namespace linescan{
 		double exposure_in_ms_min_;
 		double exposure_in_ms_max_;
 		double exposure_in_ms_inc_;
-		double exposure_in_ms_;
 	};
 
 

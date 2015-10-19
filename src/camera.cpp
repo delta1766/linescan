@@ -325,13 +325,6 @@ namespace linescan{
 			&exposure_in_ms_inc_,
 			sizeof(exposure_in_ms_inc_)
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
-
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE,
-			&exposure_in_ms_,
-			sizeof(exposure_in_ms_)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE)");
 	}
 
 
@@ -385,7 +378,26 @@ namespace linescan{
 	}
 
 	double camera::exposure_in_ms()const{
-		return exposure_in_ms_;
+		double exposure_in_ms;
+
+		throw_on_error(is_Exposure(
+			handle_,
+			IS_EXPOSURE_CMD_GET_EXPOSURE,
+			&exposure_in_ms,
+			sizeof(exposure_in_ms)
+		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE)");
+
+		return exposure_in_ms;
+	}
+
+
+	void camera::set_exposure(double time_in_ms){
+		throw_on_error(is_Exposure(
+			handle_,
+			IS_EXPOSURE_CMD_SET_EXPOSURE,
+			&time_in_ms,
+			sizeof(time_in_ms)
+		), "is_Exposure(IS_EXPOSURE_CMD_SET_EXPOSURE)");
 	}
 
 
