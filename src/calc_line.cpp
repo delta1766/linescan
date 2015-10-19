@@ -19,6 +19,26 @@ namespace linescan{
 	std::vector< float > calc_line(bitmap< std::uint8_t > image){
 		std::vector< float > result(image.width());
 
+		for(std::size_t y = 0; y < image.height(); ++y){
+			for(std::size_t x = 0; x < image.width(); ++x){
+				image(x, y) = image(x, y) < 255 ? 0 : 255;
+			}
+		}
+
+		auto copy = image;
+		for(std::size_t y = 2; y < image.height() - 2; ++y){
+			for(std::size_t x = 2; x < image.width() - 2; ++x){
+				for(std::size_t b = 0; b < 5; ++b){
+					for(std::size_t a = 0; a < 5; ++a){
+						if(!image(x + a - 2, y + b - 2)) continue;
+						copy(x, y) = 255;
+					}
+				}
+			}
+		}
+
+		image = copy;
+
 		for(std::size_t x = 0; x < image.width(); ++x){
 			std::size_t max_length = 0;
 			std::size_t start = 0;
