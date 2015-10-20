@@ -8,12 +8,12 @@ use-project /boost
 	;
 
 lib libueye_api : : 
-    # watch out for empty spaces, they are mandatory
-    <file>/usr/lib/libueye_api.so ;
+	# watch out for empty spaces, they are mandatory
+	<file>/usr/lib/libueye_api.so ;
 
 lib libpng12 : : 
-    # watch out for empty spaces, they are mandatory
-    <file>/usr/lib/x86_64-linux-gnu/libpng12.so ;
+	# watch out for empty spaces, they are mandatory
+	<file>/usr/lib/x86_64-linux-gnu/libpng12.so ;
 
 project linescan
 	:
@@ -44,7 +44,6 @@ project linescan
 	<toolset>clang:<linkflags>-lc++abi
 	<toolset>clang:<linkflags>-stdlib=libc++
 
-	<include>$(LIBRARIES)/boost
 	<include>/usr/include/libpng12
 	:
 	usage-requirements <include>include
