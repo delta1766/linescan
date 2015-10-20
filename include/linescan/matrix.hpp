@@ -15,7 +15,7 @@
 namespace linescan{
 
 
-	template < typename ValueType, std::size_t Rows, std::size_t Columns >
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
 	class matrix{
 	public:
 		/// \brief Type of the data that administrates the bitmap
@@ -65,16 +65,16 @@ namespace linescan{
 
 
 		constexpr value_type& operator()(std::size_t x, std::size_t y){
-			return values_[y * Columns + x];
+			return values_[y * Cols + x];
 		}
 
 		constexpr value_type const& operator()(std::size_t x, std::size_t y)const{
-			return values_[y * Columns + x];
+			return values_[y * Cols + x];
 		}
 
 
 		static constexpr std::size_t width(){
-			return Columns;
+			return Cols;
 		}
 
 		static constexpr std::size_t height(){
@@ -83,7 +83,7 @@ namespace linescan{
 
 
 	private:
-		value_type values_[Rows * Columns];
+		value_type values_[Cols * Rows];
 	};
 
 
