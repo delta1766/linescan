@@ -36,13 +36,6 @@ namespace linescan{
 	bitmap< std::int32_t > amplitude(bitmap< std::uint8_t > const& image){
 		auto gx = gradient_x(image);
 		auto gy = gradient_y(image);
-		bitmap< std::int32_t > result(gx.size());
-
-		for(std::size_t y = 0; y < result.height(); ++y){
-			for(std::size_t x = 0; x < result.width(); ++x){
-				result(x, y) = gx(x, y) * gx(x, y) + gy(x, y) * gy(x, y);
-			}
-		}
 
 		return pixel_wise([](auto x, auto y){ return x * x + y * y; }, gx, gy);
 	}
@@ -53,17 +46,17 @@ namespace linescan{
 
 		double min = edge(0, 0);
 		double max = edge(0, 0);
-		for(std::size_t y = 0; y < edge.height(); ++y){
-			for(std::size_t x = 0; x < edge.width(); ++x){
-				if(min > edge(x, y)) min = edge(x, y);
-				if(max < edge(x, y)) max = edge(x, y);
-			}
-		}
+		pixel_wise([&min, &max](auto v){
+			if(min > v) min = v;
+			if(max < v) max = v;
+		}, edge);
 
 		png::image< png::gray_pixel > output(image.width(), image.height());
 		for(std::size_t y = 0; y < edge.height(); ++y){
 			for(std::size_t x = 0; x < edge.width(); ++x){
-				output[y + 1][x + 1] = static_cast< std::uint8_t >((edge(x, y) - min) / max * 255);
+				output[y + 1][x + 1] = static_cast< std::uint8_t >(
+					(edge(x, y) - min) / max * 255
+				);
 			}
 		}
 

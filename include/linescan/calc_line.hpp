@@ -17,7 +17,7 @@
 namespace linescan{
 
 
-	std::vector< float > calc_line(bitmap< std::uint8_t > image);
+	std::vector< float > calc_line(bitmap< std::uint8_t > const& image);
 
 
 }
