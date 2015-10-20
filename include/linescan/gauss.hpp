@@ -32,7 +32,6 @@ namespace linescan{
 			auto value =
 				std::exp(- ((x * x) / (2 * variance * variance))) /
 				(variance * std::sqrt(2 * M_PI));
-			std::cout << value << std::endl;
 
 			m1(0, i) = value;
 
