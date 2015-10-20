@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/calc_line.hpp>
 
-#include <linescan/convolution.hpp>
+#include <linescan/pixel_wise.hpp>
 
 #include <png++/png.hpp>
 
@@ -17,33 +17,32 @@ namespace linescan{
 
 
 	std::vector< float > calc_line(bitmap< std::uint8_t > image){
-		std::vector< float > result(image.width());
+		auto binary = pixel_wise(image, [](std::uint8_t v){ return v < 255; });
 
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
-				image(x, y) = image(x, y) < 255 ? 0 : 255;
-			}
-		}
+		binary = [&binary]{
+			auto result = binary;
 
-		auto copy = image;
-		for(std::size_t y = 2; y < image.height() - 2; ++y){
-			for(std::size_t x = 2; x < image.width() - 2; ++x){
-				for(std::size_t b = 0; b < 5; ++b){
-					for(std::size_t a = 0; a < 5; ++a){
-						if(!image(x + a - 2, y + b - 2)) continue;
-						copy(x, y) = 255;
+			constexpr std::size_t size = 2;
+			for(std::size_t y = size; y < binary.height() - size; ++y){
+				for(std::size_t x = size; x < binary.width() - size; ++x){
+					for(std::size_t b = 0; b < 2 * size + 1; ++b){
+						for(std::size_t a = 0; a < 2 * size + 1; ++a){
+							if(!binary(x + a - size, y + b - size)) continue;
+							result(x, y) = true;
+						}
 					}
 				}
 			}
-		}
 
-		image = copy;
+			return result;
+		}();
 
-		for(std::size_t x = 0; x < image.width(); ++x){
+		std::vector< float > result(binary.width());
+		for(std::size_t x = 0; x < binary.width(); ++x){
 			std::size_t max_length = 0;
 			std::size_t start = 0;
-			for(std::size_t y = 1; y < image.height(); ++y){
-				if(image(x, y) < 255){
+			for(std::size_t y = 1; y < binary.height(); ++y){
+				if(!binary(x, y)){
 					if(start == 0) continue;
 
 					auto length = y - start;

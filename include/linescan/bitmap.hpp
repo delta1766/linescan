@@ -11,7 +11,8 @@
 
 #include "rect.hpp"
 
-#include <vector>
+#include <boost/container/vector.hpp>
+
 #include <utility>
 #include <stdexcept>
 #include <sstream>
@@ -36,22 +37,22 @@ namespace linescan{
 		using size_type = linescan::size< std::size_t >;
 
 		/// \brief Type of a iterator for data
-		using iterator = typename std::vector< value_type >::iterator;
+		using iterator = typename boost::container::vector< value_type >::iterator;
 
 		/// \brief Type of a iterator for const data
-		using const_iterator = typename std::vector< value_type >::const_iterator;
+		using const_iterator = typename boost::container::vector< value_type >::const_iterator;
 
 		/// \brief Type of a reverse iterator for data
-		using reverse_iterator = typename std::vector< value_type >::reverse_iterator;
+		using reverse_iterator = typename boost::container::vector< value_type >::reverse_iterator;
 
 		/// \brief Type of a reverse iterator for const data
-		using const_reverse_iterator = typename std::vector< value_type >::const_reverse_iterator;
+		using const_reverse_iterator = typename boost::container::vector< value_type >::const_reverse_iterator;
 
 		/// \brief Type of a reference to data
-		using reference = typename std::vector< value_type >::reference;
+		using reference = typename boost::container::vector< value_type >::reference;
 
 		/// \brief Type of a const reference to data
-		using const_reference = typename std::vector< value_type >::const_reference;
+		using const_reference = typename boost::container::vector< value_type >::const_reference;
 
 
 
@@ -263,7 +264,7 @@ namespace linescan{
 		size_type size_;
 
 		/// \brief The data field
-		std::vector< value_type > data_;
+		boost::container::vector< value_type > data_;
 
 
 		/// \brief Get a point without range protection
