@@ -21,6 +21,52 @@
 namespace linescan{
 
 
+	template < typename ValueType >
+	class bitmap;
+
+
+	template < typename ValueType >
+	class offset_view{
+	public:
+		ValueType& operator()(std::size_t x, std::size_t y){
+			return ref_(x_ + x, y_ + y);
+		}
+
+		ValueType const& operator()(std::size_t x, std::size_t y)const{
+			return ref_(x_ + x, y_ + y);
+		}
+
+	private:
+		offset_view(bitmap< ValueType >& ref, std::size_t x, std::size_t y):
+			ref_(ref), x_(x), y_(y) {}
+
+		bitmap< ValueType >& ref_;
+		std::size_t const x_;
+		std::size_t const y_;
+
+	friend class bitmap< ValueType >;
+	};
+
+
+	template < typename ValueType >
+	class const_offset_view{
+	public:
+		ValueType const& operator()(std::size_t x, std::size_t y)const{
+			return ref_(x_ + x, y_ + y);
+		}
+
+	private:
+		const_offset_view(bitmap< ValueType > const& ref, std::size_t x, std::size_t y):
+			ref_(ref), x_(x), y_(y) {}
+
+		bitmap< ValueType > const& ref_;
+		std::size_t const x_;
+		std::size_t const y_;
+
+	friend class bitmap< ValueType >;
+	};
+
+
 	/// \brief A bitmap for data manipulation
 	/// \tparam ValueType Type of the data that administrates the bitmap
 	///
@@ -221,20 +267,20 @@ namespace linescan{
 
 		/// \brief Get a reference to the value by local coordinates
 		/// \throw std::out_of_range in debug build
-		reference operator()(std::size_t x, std::size_t y) {
+		reference operator()(std::size_t x, std::size_t y){
 			return operator()(point_type(x, y));
 		}
 
 		/// \brief Get a reference to the value by local coordinates
 		/// \throw std::out_of_range in debug build
-		reference operator()(point_type const& point) {
+		reference operator()(point_type const& point){
 			throw_if_out_of_range(point);
 			return do_point(point);
 		}
 
 		/// \brief Get the value by local coordinates
 		/// \throw std::out_of_range in debug build
-		const_reference operator()(std::size_t x, std::size_t y)const {
+		const_reference operator()(std::size_t x, std::size_t y)const{
 			return operator()(point_type(x, y));
 		}
 
@@ -243,6 +289,27 @@ namespace linescan{
 		const_reference operator()(point_type const& point)const{
 			throw_if_out_of_range(point);
 			return do_point(point);
+		}
+
+
+		/// \brief Get a reference to the value by local coordinates
+		auto offset_view(std::size_t x, std::size_t y){
+			return linescan::offset_view< value_type >(*this, x, y);
+		}
+
+		/// \brief Get a reference to the value by local coordinates
+		auto offset_view(point_type const& point){
+			return offset_view(point.x(), point.y());
+		}
+
+		/// \brief Get the value by local coordinates
+		auto offset_view(std::size_t x, std::size_t y)const{
+			return linescan::const_offset_view< value_type >(*this, x, y);
+		}
+
+		/// \brief Get the value by local coordinates
+		auto offset_view(point_type const& point)const{
+			return offset_view(point.x(), point.y());
 		}
 
 
