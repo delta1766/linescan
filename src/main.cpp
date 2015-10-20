@@ -12,6 +12,7 @@
 #include <linescan/linear_function.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
+#include <linescan/gauss.hpp>
 
 #include <boost/type_index.hpp>
 
@@ -23,6 +24,7 @@
 
 
 void save(linescan::bitmap< std::uint8_t > const& image, std::string const& name){
+	std::cout << "write " << name << std::endl;
 	png::image< png::gray_pixel > output(image.width(), image.height());
 	for(std::size_t y = 0; y < image.height(); ++y){
 		for(std::size_t x = 0; x < image.width(); ++x){
@@ -33,10 +35,28 @@ void save(linescan::bitmap< std::uint8_t > const& image, std::string const& name
 }
 
 void save(linescan::bitmap< bool > const& image, std::string const& name){
+	std::cout << "write " << name << std::endl;
 	png::image< png::packed_gray_pixel< 1 > > output(image.width(), image.height());
 	for(std::size_t y = 0; y < image.height(); ++y){
 		for(std::size_t x = 0; x < image.width(); ++x){
 			output[y][x] = image(x, y);
+		}
+	}
+	output.write(name);
+}
+
+void save(std::vector< float > const& line, std::size_t height, std::string const& name){
+	std::cout << "write " << name << std::endl;
+	png::image< png::gray_pixel > output(line.size(), height);
+	for(std::size_t x = 0; x < line.size(); ++x){
+		if(line[x] == 0) continue;
+		auto pos1 = static_cast< std::size_t >(line[x]);
+		auto pos2 = static_cast< std::size_t >(line[x] - 0.5f);
+		if(pos1 == pos2){
+			output[pos1][x] = 255;
+		}else{
+			output[pos1][x] = 128;
+			output[pos2][x] = 128;
 		}
 	}
 	output.write(name);
@@ -71,13 +91,21 @@ int main()try{
 
 			save(image, "01_image.png");
 
+			image = linescan::gauss< 5 >(image, 0.7);
+
+			save(image, "02_gauss.png");
+
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
-			save(binary, "02_binary.png");
+			save(binary, "03_binary.png");
 
 			binary = linescan::erode(binary, 5);
 
-			save(binary, "03_erode.png");
+			save(binary, "04_erode.png");
+
+			auto line = linescan::calc_line(binary);
+
+			save(line, binary.height(), "05_line.png");
 		}else if(command == "measure"){
 			mcl3.move_relative(0, 0, 1000);
 
@@ -104,7 +132,16 @@ int main()try{
 						save(image, os.str());
 					}
 
+
 					auto pixel_line = calc_line(image);
+
+					std::ostringstream os;
+					os
+						<< "line" << std::setfill('0')
+						<< std::setw(4) << i << "_"
+						<< std::setw(4) << n << ".png";
+					save(pixel_line, image.height(), os.str());
+
 
 					std::vector< linescan::point< double > > line;
 					for(std::size_t i = 0; i < pixel_line.size(); ++i){
@@ -125,27 +162,6 @@ int main()try{
 
 					std::cout << "(0; " << f(0) << ") - (100; " << f(100) << ")"
 						<< std::endl;
-
-					{
-						png::image< png::gray_pixel > output(image.width(), image.height());
-						for(std::size_t x = 0; x < image.width(); ++x){
-							if(pixel_line[x] == 0) continue;
-							auto pos1 = static_cast< std::size_t >(pixel_line[x]);
-							auto pos2 = static_cast< std::size_t >(pixel_line[x] - 0.5f);
-							if(pos1 == pos2){
-								output[pos1][x] = 255;
-							}else{
-								output[pos1][x] = 128;
-								output[pos2][x] = 128;
-							}
-						}
-						std::ostringstream os;
-						os
-							<< "line" << std::setfill('0')
-							<< std::setw(4) << i << "_"
-							<< std::setw(4) << n << ".png";
-						output.write(os.str());
-					}
 				}
 
 				mcl3.move_relative(0, 0, -100);
