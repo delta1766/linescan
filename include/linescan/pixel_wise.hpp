@@ -16,7 +16,7 @@ namespace linescan{
 
 
 	template < typename T, typename F >
-	inline auto pixel_wise(bitmap< T > const& image, F const& f)
+	inline auto pixel_wise(F const& f, bitmap< T > const& image)
 		-> bitmap< decltype(f(std::declval< T >())) >
 	{
 		bitmap< decltype(f(std::declval< T >())) > result(image.size());
