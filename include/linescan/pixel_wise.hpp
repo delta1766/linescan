@@ -15,15 +15,43 @@
 namespace linescan{
 
 
-	template < typename T, typename F >
-	inline auto pixel_wise(F const& f, bitmap< T > const& image)
-		-> bitmap< decltype(f(std::declval< T >())) >
-	{
-		bitmap< decltype(f(std::declval< T >())) > result(image.size());
+	namespace detail{ namespace pixel_wise{
 
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
-				result(x, y) = f(image(x, y));
+
+		template < typename T >
+		auto size(bitmap< T > const& image){
+			return image.size();
+		}
+
+		template < typename T, typename U, typename ... R >
+		auto size(
+			bitmap< T > const& image1,
+			bitmap< U > const& image2,
+			bitmap< R > const& ... images
+		){
+			if(image1.size() != image2.size()){
+				throw std::logic_error(
+					"pixel_wise have been called with images with different "
+					"sizes"
+				);
+			}
+
+			return size(image2, images ...);
+		}
+
+
+	} }
+
+
+	template < typename F, typename ... T >
+	inline auto pixel_wise(F const& f, bitmap< T > const& ... images){
+		bitmap< decltype(f(std::declval< T >() ...)) > result(
+			detail::pixel_wise::size(images ...)
+		);
+
+		for(std::size_t y = 0; y < result.height(); ++y){
+			for(std::size_t x = 0; x < result.width(); ++x){
+				result(x, y) = f(images(x, y) ...);
 			}
 		}
 

@@ -9,6 +9,7 @@
 #include <linescan/save_edge.hpp>
 
 #include <linescan/convolution.hpp>
+#include <linescan/pixel_wise.hpp>
 
 #include <png++/png.hpp>
 
@@ -43,7 +44,7 @@ namespace linescan{
 			}
 		}
 
-		return result;
+		return pixel_wise([](auto x, auto y){ return x * x + y * y; }, gx, gy);
 	}
 
 

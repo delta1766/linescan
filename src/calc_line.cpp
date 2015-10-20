@@ -17,7 +17,7 @@ namespace linescan{
 
 
 	std::vector< float > calc_line(bitmap< std::uint8_t > image){
-		auto binary = pixel_wise([](std::uint8_t v){ return v < 255; }, image);
+		auto binary = pixel_wise([](auto v){ return v < 255; }, image);
 
 		binary = [&binary]{
 			auto result = binary;
