@@ -15,7 +15,7 @@
 namespace linescan{
 
 
-	void save_edge(bitmap< std::uint8_t > const& image);
+	bitmap< std::int32_t > edge_amplitude(bitmap< std::uint8_t > const& image);
 
 
 }

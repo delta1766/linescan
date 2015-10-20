@@ -11,8 +11,6 @@
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
 
-#include <png++/png.hpp>
-
 
 namespace linescan{
 
