@@ -8,7 +8,8 @@
 //-----------------------------------------------------------------------------
 #include <linescan/calc_line.hpp>
 
-#include <linescan/pixel_wise.hpp>
+#include <linescan/binarize.hpp>
+#include <linescan/erode.hpp>
 
 #include <png++/png.hpp>
 
@@ -16,31 +17,9 @@
 namespace linescan{
 
 
-	auto binarization(
-		std::uint8_t threshold,
-		bitmap< std::uint8_t > const& image
-	){
-		return pixel_wise([threshold](auto v){ return v < threshold; }, image);
-	}
-
-	auto erode(std::size_t size, bitmap< bool > image){
-		return offset_view_wise([size](auto view){
-			bool result = false;
-
-			for(std::size_t y = 0; y < size; ++y){
-				for(std::size_t x = 0; x < size; ++x){
-					if(!view(x, y)) continue;
-					result = true;
-				}
-			}
-
-			return result;
-		}, size, size, image);
-	}
-
 	std::vector< float > calc_line(bitmap< std::uint8_t > const& image){
-		auto binary = binarization(255, image);
-		binary = erode(5, binary);
+		auto binary = binarize(image, std::uint8_t(255));
+		binary = erode(binary, 5);
 
 		std::vector< float > result(binary.width());
 		for(std::size_t x = 0; x < binary.width(); ++x){
