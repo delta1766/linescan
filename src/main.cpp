@@ -10,6 +10,8 @@
 #include <linescan/camera.hpp>
 #include <linescan/calc_line.hpp>
 #include <linescan/linear_function.hpp>
+#include <linescan/binarize.hpp>
+#include <linescan/erode.hpp>
 
 #include <boost/type_index.hpp>
 
@@ -22,6 +24,16 @@
 
 void save(linescan::bitmap< std::uint8_t > const& image, std::string const& name){
 	png::image< png::gray_pixel > output(image.width(), image.height());
+	for(std::size_t y = 0; y < image.height(); ++y){
+		for(std::size_t x = 0; x < image.width(); ++x){
+			output[y][x] = image(x, y);
+		}
+	}
+	output.write(name);
+}
+
+void save(linescan::bitmap< bool > const& image, std::string const& name){
+	png::image< png::packed_gray_pixel< 1 > > output(image.width(), image.height());
 	for(std::size_t y = 0; y < image.height(); ++y){
 		for(std::size_t x = 0; x < image.width(); ++x){
 			output[y][x] = image(x, y);
@@ -59,27 +71,13 @@ int main()try{
 
 			save(image, "01_image.png");
 
-			for(std::size_t y = 0; y < image.height(); ++y){
-				for(std::size_t x = 0; x < image.width(); ++x){
-					image(x, y) = image(x, y) < 255 ? 0 : 255;
-				}
-			}
+			auto binary = linescan::binarize(image, std::uint8_t(255));
 
-			save(image, "02_binary.png");
+			save(binary, "02_binary.png");
 
-			auto result = image;
-			for(std::size_t y = 2; y < image.height() - 2; ++y){
-				for(std::size_t x = 2; x < image.width() - 2; ++x){
-					for(std::size_t b = 0; b < 5; ++b){
-						for(std::size_t a = 0; a < 5; ++a){
-							if(!image(x + a - 2, y + b - 2)) continue;
-							result(x, y) = 255;
-						}
-					}
-				}
-			}
+			binary = linescan::erode(binary, 5);
 
-			save(result, "03_erode.png");
+			save(binary, "03_erode.png");
 		}else if(command == "measure"){
 			mcl3.move_relative(0, 0, 1000);
 
