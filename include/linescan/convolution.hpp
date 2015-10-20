@@ -46,6 +46,27 @@ namespace linescan{
 		return result;
 	}
 
+	template <
+		typename ResultType,
+		typename BitmapType,
+		typename MatrixType1,
+		typename MatrixType2,
+		std::size_t Rows1,
+		std::size_t Columns1,
+		std::size_t Rows2,
+		std::size_t Columns2
+	>
+	inline bitmap< ResultType > convolution(
+		bitmap< BitmapType > const& image,
+		matrix< MatrixType1, Rows1, Columns1 > const& matrix1,
+		matrix< MatrixType2, Rows2, Columns2 > const& matrix2
+	){
+		return convolution< ResultType >(
+			convolution< ResultType >(image, matrix1),
+			matrix2
+		);
+	}
+
 
 }
 
