@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 
@@ -176,6 +177,91 @@ int main()try{
 // 			diff_100um /= (lines.size() - 1) * 2;
 
 			mcl3.move_relative(0, 0, 1000);
+		}else if(command == "line"){
+			cam.set_exposure(cam.exposure_in_ms_max());
+			std::this_thread::sleep_for(100ms);
+
+			std::ofstream raw("raw.txt");
+			std::ofstream os("line.txt");
+
+			mcl3.move_relative(0, 0, 10000);
+			for(std::size_t i = 0; i < 500; ++i){
+				mcl3.move_relative(0, 300, 0);
+
+				std::vector< std::pair< std::size_t, std::size_t > > lines;
+				for(std::size_t n = 0; n < 60; ++n){
+					auto image = cam.image();
+					auto binary = linescan::binarize(image, std::uint8_t(255));
+					binary = linescan::erode(binary, 5);
+					auto line = linescan::calc_line(binary);
+
+					// add longest contiguous stretch
+					std::size_t from = 0;
+					std::size_t to = 0;
+
+					std::size_t max_length = 0;
+					std::size_t start = 0;
+					for(std::size_t i = 0; i < line.size(); ++i){
+						if(!line[i]){
+							if(start == 0) continue;
+
+							auto length = i - start;
+							if(length > max_length){
+								max_length = length;
+
+								from = start;
+								to = i;
+							}
+
+							start = 0;
+						}else{
+							if(start != 0) continue;
+
+							start = i;
+						}
+					}
+
+					lines.emplace_back(from, to);
+
+					mcl3.move_relative(0, -10, 0);
+				}
+
+				for(auto line: lines){
+					raw << line.first << '\t' << line.second << std::endl;
+				}
+				raw << std::endl;
+
+				// sort by start
+				std::sort(lines.begin(), lines.end(), [](auto a, auto b){
+					return a.first < b.first;
+				});
+				lines.erase(lines.begin(), lines.begin() + 10);
+				lines.erase(lines.end() - 10, lines.end());
+
+				// sort by end
+				std::sort(lines.begin(), lines.end(), [](auto a, auto b){
+					return a.second < b.second;
+				});
+				lines.erase(lines.begin(), lines.begin() + 10);
+				lines.erase(lines.end() - 10, lines.end());
+
+				// calc average of the rest
+				std::pair< double, double > length(0, 0);
+				for(auto line: lines){
+					length.first += line.first;
+					length.second += line.second;
+				}
+				length.first /= lines.size();
+				length.second /= lines.size();
+
+				os << length.first << '\t' << length.second << std::endl;
+
+				mcl3.move_relative(0, 300, 0);
+
+				mcl3.move_relative(0, 0, -200);
+			}
+
+			mcl3.move_relative(0, 0, 10000);
 		}else if(command == "end"){
 			mcl3.move_to_end();
 		}else{
