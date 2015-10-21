@@ -15,7 +15,7 @@
 namespace linescan{
 
 
-	bitmap< std::uint8_t > save_histogram(bitmap< std::uint8_t > const& image);
+	bitmap< std::uint8_t > histogram(bitmap< std::uint8_t > const& image);
 
 
 }
