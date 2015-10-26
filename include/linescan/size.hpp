@@ -89,73 +89,109 @@ namespace linescan{
 	};
 
 	template < typename ValueType >
-	constexpr bool operator==(size< ValueType > const& a, size< ValueType > const& b){
+	constexpr bool operator==(
+		size< ValueType > const& a,
+		size< ValueType > const& b
+	){
 		return a.width() == b.width() && a.height() == b.height();
 	}
 
 	template < typename ValueType >
-	constexpr bool operator!=(size< ValueType > const& a, size< ValueType > const& b){
+	constexpr bool operator!=(
+		size< ValueType > const& a,
+		size< ValueType > const& b
+	){
 		return a != b;
 	}
 
 
 	template < typename ValueType >
-	constexpr size< ValueType >& operator+=(size< ValueType >& a, size< ValueType > const& b){
+	constexpr size< ValueType >& operator+=(
+		size< ValueType >& a,
+		size< ValueType > const& b
+	){
 		a.width()  += b.width();
 		a.height() += b.height();
 		return a;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType >& operator-=(size< ValueType >& a, size< ValueType > const& b){
+	constexpr size< ValueType >& operator-=(
+		size< ValueType >& a,
+		size< ValueType > const& b
+	){
 		a.width()  -= b.width();
 		a.height() -= b.height();
 		return a;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType >& operator*=(size< ValueType >& a, size< ValueType > const& b){
+	constexpr size< ValueType >& operator*=(
+		size< ValueType >& a,
+		size< ValueType > const& b
+	){
 		a.width()  *= b.width();
 		a.height() *= b.height();
 		return a;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType >& operator/=(size< ValueType >& a, size< ValueType > const& b){
+	constexpr size< ValueType >& operator/=(
+		size< ValueType >& a,
+		size< ValueType > const& b
+	){
 		a.width()  /= b.width();
 		a.height() /= b.height();
 		return a;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType >& operator%=(size< ValueType >& a, size< ValueType > const& b){
+	constexpr size< ValueType >& operator%=(
+		size< ValueType >& a,
+		size< ValueType > const& b
+	){
 		a.width()  %= b.width();
 		a.height() %= b.height();
 		return a;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType > operator+(size< ValueType > a, size< ValueType > const& b){
+	constexpr size< ValueType > operator+(
+		size< ValueType > a,
+		size< ValueType > const& b
+	){
 		return a += b;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType > operator-(size< ValueType > a, size< ValueType > const& b){
+	constexpr size< ValueType > operator-(
+		size< ValueType > a,
+		size< ValueType > const& b
+	){
 		return a -= b;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType > operator*(size< ValueType > a, size< ValueType > const& b){
+	constexpr size< ValueType > operator*(
+		size< ValueType > a,
+		size< ValueType > const& b
+	){
 		return a *= b;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType > operator/(size< ValueType > a, size< ValueType > const& b){
+	constexpr size< ValueType > operator/(
+		size< ValueType > a,
+		size< ValueType > const& b
+	){
 		return a /= b;
 	}
 
 	template < typename ValueType >
-	constexpr size< ValueType > operator%(size< ValueType > a, size< ValueType > const& b){
+	constexpr size< ValueType > operator%(
+		size< ValueType > a,
+		size< ValueType > const& b
+	){
 		return a %= b;
 	}
 

@@ -39,35 +39,55 @@ namespace linescan{
 		/// \brief Move constuctor
 		constexpr rect(rect&&) = default;
 
-		/// \brief Constructs a rect on position (0, 0), with size width and height
+		/// \brief Constructs a rect on position (0, 0), with size width and
+		///        height
 		constexpr rect(size_type const& width, size_type const& height):
 			size_(width, height)
 			{}
 
-		/// \brief Constructs a rect on position (0, 0), with size size.width and size.height
+		/// \brief Constructs a rect on position (0, 0), with size size.width
+		///        and size.height
 		constexpr rect(linescan::size< size_type > const& size):
 			size_(size)
 			{}
 
-		/// \brief Constructs a rect on position (x, y), with size width and height
-		constexpr rect(position_type const& x, position_type const& y, size_type const& width, size_type const& height):
+		/// \brief Constructs a rect on position (x, y), with size width and
+		///        height
+		constexpr rect(
+			position_type const& x,
+			position_type const& y,
+			size_type const& width,
+			size_type const& height
+		):
 			top_left_(x, y),
 			size_(width, height)
 			{}
 
-		/// \brief Constructs a rect on position (0, 0), with size bottom_right.x + 1 as width and bottom_right.y + 1 as height
+		/// \brief Constructs a rect on position (0, 0), with size
+		///        bottom_right.x + 1 as width and bottom_right.y + 1 as height
 		constexpr rect(point< position_type > const& bottom_right):
 			size_(bottom_right.x() + 1, bottom_right.y() + 1)
 			{}
 
-		/// \brief Constructs a rect on position (top_left.x, top_left.y), with size bottom_right.x - top_left.x + 1 as width and bottom_right.y - top_left.x + 1 as height
-		constexpr rect(point< position_type > const& top_left, point< position_type > const& bottom_right):
+		/// \brief Constructs a rect on position (top_left.x, top_left.y), with
+		///        size bottom_right.x - top_left.x + 1 as width and
+		///        bottom_right.y - top_left.x + 1 as height
+		constexpr rect(
+			point< position_type > const& top_left,
+			point< position_type > const& bottom_right
+		):
 			top_left_(top_left),
-			size_(bottom_right.x() - top_left.x() + 1, bottom_right.y() - top_left.y() + 1)
-			{}
+			size_(
+				bottom_right.x() - top_left.x() + 1,
+				bottom_right.y() - top_left.y() + 1
+			){}
 
-		/// \brief Constructs a rect on position (top_left.x, top_left.y), with size size.width and size.height
-		constexpr rect(point< position_type > const& top_left, linescan::size< size_type > const& size):
+		/// \brief Constructs a rect on position (top_left.x, top_left.y), with
+		///        size size.width and size.height
+		constexpr rect(
+			point< position_type > const& top_left,
+			linescan::size< size_type > const& size
+		):
 			top_left_(top_left),
 			size_(size)
 			{}
@@ -185,12 +205,17 @@ namespace linescan{
 		}
 
 		/// \brief Set width and height
-		constexpr void set_size(linescan::size< size_type > const& size){
+		constexpr void set_size(
+			linescan::size< size_type > const& size
+		){
 			size_ = size;
 		}
 
 		/// \brief Set width and height
-		constexpr void set_size(size_type const& width, size_type const& height){
+		constexpr void set_size(
+			size_type const& width,
+			size_type const& height
+		){
 			set_size(linescan::size< size_type >{width, height});
 		}
 
@@ -228,13 +253,17 @@ namespace linescan{
 		}
 
 		/// \brief Set the bottom left corner
-		constexpr void set_bottom_left(point< position_type > const& bottomLeft){
+		constexpr void set_bottom_left(
+			point< position_type > const& bottomLeft
+		){
 			set_left(bottomLeft.x);
 			set_bottom(bottomLeft.y);
 		}
 
 		/// \brief Set the bottom right corner
-		constexpr void set_bottom_right(point< position_type > const& bottomRight){
+		constexpr void set_bottom_right(
+			point< position_type > const& bottomRight
+		){
 			set_right(bottomRight.x);
 			set_bottom(bottomRight.y);
 		}
