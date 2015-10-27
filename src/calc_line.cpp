@@ -18,7 +18,7 @@ namespace linescan{
 	std::vector< float > calc_line(bitmap< std::uint8_t > const& image){
 		auto binary = binarize(image, std::uint8_t(255));
 
-		binary = erode(binary, 5);
+		binary = erode(binary, 3);
 
 		return calc_line(binary);
 	}
