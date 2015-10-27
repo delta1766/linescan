@@ -35,7 +35,9 @@ namespace linescan{
 		auto gx = gradient_x(image);
 		auto gy = gradient_y(image);
 
-		return pixel_wise([](auto x, auto y){ return x * x + y * y; }, gx, gy);
+		return pixel_wise([](std::int32_t x, std::int32_t y){
+			return x * x + y * y;
+		}, gx, gy);
 	}
 
 
