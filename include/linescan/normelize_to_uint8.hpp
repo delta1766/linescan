@@ -20,20 +20,17 @@ namespace linescan{
 		auto min = image(0, 0);
 		auto max = image(0, 0);
 		pixel_wise([&min, &max](auto v){
-			if(min > v) min = v;
-			if(max < v) max = v;
+			if(min > v){
+				min = v;
+			}else if(max < v){
+				max = v;
+			}
 		}, image);
 
 		return pixel_wise([&min, &max](auto v){
 			auto r = (static_cast< long double >(v) - min) / max * 255;
 
-			if(r < 0){
-				r = 0;
-			}else if(r > 255){
-				r = 255;
-			}
-
-			return static_cast< std::uint8_t >(r);
+			return static_cast< std::uint8_t >(r < 0 ? 0 : r > 255 ? 255 : r);
 		}, image);
 	}
 
