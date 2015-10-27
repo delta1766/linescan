@@ -97,8 +97,14 @@ namespace linescan{
 		/// \brief Type of a reference to data
 		using reference = typename boost::container::vector< value_type >::reference;
 
-		/// \brief Type of a const reference to data
+		/// \brief Type of a reference to const data
 		using const_reference = typename boost::container::vector< value_type >::const_reference;
+
+		/// \brief Type of a pointer to data
+		using pointer = typename boost::container::vector< value_type >::pointer;
+
+		/// \brief Type of a pointer to const data
+		using const_pointer = typename boost::container::vector< value_type >::const_pointer;
 
 
 
