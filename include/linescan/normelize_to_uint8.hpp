@@ -25,8 +25,7 @@ namespace linescan{
 		}, image);
 
 		return pixel_wise([&min, &max](auto v){
-			auto r = 
-				(static_cast< long double >(v) - min) / max * 255;
+			auto r = (static_cast< long double >(v) - min) / max * 255;
 
 			if(r < 0){
 				r = 0;
