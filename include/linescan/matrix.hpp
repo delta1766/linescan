@@ -27,23 +27,31 @@ namespace linescan{
 		/// \brief Type of bitmap size
 		using size_type = linescan::size< std::size_t >;
 
-// 		/// \brief Type of a iterator for data
-// 		using iterator = typename std::vector< value_type >::iterator;
-// 
-// 		/// \brief Type of a iterator for const data
-// 		using const_iterator = typename std::vector< value_type >::const_iterator;
-// 
-// 		/// \brief Type of a reverse iterator for data
-// 		using reverse_iterator = typename std::vector< value_type >::reverse_iterator;
-// 
-// 		/// \brief Type of a reverse iterator for const data
-// 		using const_reverse_iterator = typename std::vector< value_type >::const_reverse_iterator;
+		/// \brief Type of a iterator for data
+		using iterator =
+			std::iterator< std::random_access_iterator_tag, value_type >;
+
+		/// \brief Type of a iterator for const data
+		using const_iterator =
+			std::iterator< std::random_access_iterator_tag, value_type const >;
+
+		/// \brief Type of a reverse iterator for data
+		using reverse_iterator = std::reverse_iterator< iterator >;
+
+		/// \brief Type of a reverse iterator for const data
+		using const_reverse_iterator = std::reverse_iterator< iterator const >;
 
 		/// \brief Type of a reference to data
 		using reference = value_type&;
 
-		/// \brief Type of a const reference to data
+		/// \brief Type of a reference to const data
 		using const_reference = value_type const&;
+
+		/// \brief Type of a pointer to data
+		using pointer = value_type*;
+
+		/// \brief Type of a pointer to const data
+		using const_pointer = value_type const*;
 
 
 		constexpr matrix():
