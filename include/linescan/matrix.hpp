@@ -58,7 +58,6 @@ namespace linescan{
 		constexpr matrix():
 			values_{{0}} {}
 
-
 		constexpr matrix(value_type const(&values)[Rows][Cols]):
 			values_(to_array(
 				values,
@@ -67,13 +66,9 @@ namespace linescan{
 
 		constexpr matrix(value_type(&&values)[Rows][Cols]):
 			values_(to_array(
-				values,
+				std::move(values),
 				std::make_index_sequence< Cols * Rows >()
 			)){}
-
-// 		template < typename ... T >
-// 		constexpr matrix(T const& ... v):
-// 			values_{ static_cast< value_type >(v) ... } {}
 
 		constexpr matrix(matrix&&) = default;
 
