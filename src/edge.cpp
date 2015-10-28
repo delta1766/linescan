@@ -18,16 +18,16 @@ namespace linescan{
 	bitmap< std::int16_t > gradient_x(bitmap< std::uint8_t > const& image){
 		return convolution< std::int16_t >(
 			image,
-			matrix< std::int16_t, 3, 1 >({{3, 10, 3}}),
-			matrix< std::int16_t, 1, 3 >({{1}, {0}, {-1}})
+			to_col_vector< std::int16_t, 3 >({3, 10, 3}),
+			to_row_vector< std::int16_t, 3 >({1, 0, -1})
 		);
 	}
 
 	bitmap< std::int16_t > gradient_y(bitmap< std::uint8_t > const& image){
 		return convolution< std::int16_t >(
 			image,
-			matrix< std::int16_t, 3, 1 >({{1, 0, -1}}),
-			matrix< std::int16_t, 1, 3 >({{3}, {10}, {3}})
+			to_col_vector< std::int16_t, 3 >({1, 0, -1}),
+			to_row_vector< std::int16_t, 3 >({3, 10, 3})
 		);
 	}
 
