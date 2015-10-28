@@ -9,11 +9,90 @@
 #ifndef _linescan__matrix__hpp_INCLUDED_
 #define _linescan__matrix__hpp_INCLUDED_
 
-#include <utility>
-#include <array>
+#include "to_array.hpp"
 
 
 namespace linescan{
+
+
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
+	class matrix;
+
+	template < typename T, std::size_t N >
+	using square_matrix = matrix< T, N, N >;
+
+	template < typename T, std::size_t Cols >
+	using col_vector = matrix< T, Cols, 1 >;
+
+	template < typename T, std::size_t Rows >
+	using row_vector = matrix< T, 1, Rows >;
+
+
+
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
+	constexpr matrix< ValueType, Cols, Rows >
+	to_matrix(ValueType(&&values)[Rows][Cols]);
+
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
+	constexpr matrix< ValueType, Cols, Rows >
+	to_matrix(ValueType const(&values)[Rows][Cols]);
+
+
+	template < typename ValueType, std::size_t Cols >
+	constexpr col_vector< ValueType, Cols >
+	to_col_vector(ValueType(&&values)[Cols]);
+
+	template < typename ValueType, std::size_t Cols >
+	constexpr col_vector< ValueType, Cols >
+	to_col_vector(ValueType const(&values)[Cols]);
+
+
+	template < typename ValueType, std::size_t Rows >
+	constexpr row_vector< ValueType, Rows >
+	to_row_vector(ValueType(&&values)[Rows]);
+
+	template < typename ValueType, std::size_t Rows >
+	constexpr row_vector< ValueType, Rows >
+	to_row_vector(ValueType const(&values)[Rows]);
+
+
+
+	namespace detail{
+
+
+		template <
+			typename T,
+			std::size_t Cols,
+			std::size_t Rows,
+			std::size_t ... I
+		>
+		constexpr auto to_array(
+			T(&&values)[Rows][Cols],
+			std::index_sequence< I ... >
+		){
+			return std::array< T, Cols * Rows >{{
+				std::move(values[I / Cols][I % Cols]) ...
+			}};
+		}
+
+		template <
+			typename T,
+			std::size_t Cols,
+			std::size_t Rows,
+			std::size_t ... I
+		>
+		constexpr auto to_array(
+			T const(&values)[Rows][Cols],
+			std::index_sequence< I ... >
+		){
+			return std::array< T, Cols * Rows >{{
+				values[I / Cols][I % Cols] ...
+			}};
+		}
+
+
+	}
+
 
 
 	template < typename ValueType, std::size_t Cols, std::size_t Rows >
@@ -58,15 +137,15 @@ namespace linescan{
 		constexpr matrix():
 			values_{{0}} {}
 
-		constexpr matrix(value_type const(&values)[Rows][Cols]):
-			values_(to_array(
-				values,
+		constexpr matrix(value_type(&&values)[Rows][Cols]):
+			values_(detail::to_array(
+				std::move(values),
 				std::make_index_sequence< Cols * Rows >()
 			)){}
 
-		constexpr matrix(value_type(&&values)[Rows][Cols]):
-			values_(to_array(
-				std::move(values),
+		constexpr matrix(value_type const(&values)[Rows][Cols]):
+			values_(detail::to_array(
+				values,
 				std::make_index_sequence< Cols * Rows >()
 			)){}
 
@@ -100,36 +179,74 @@ namespace linescan{
 	private:
 		std::array< value_type, Cols * Rows > values_;
 
-		template < std::size_t ... I >
-		static constexpr auto to_array(
-			value_type const(&values)[Rows][Cols],
-			std::index_sequence< I ... >
-		){
-			return std::array< value_type, Cols * Rows >{{
-				values[I / Rows][I % Rows] ...
-			}};
-		}
 
-		template < std::size_t ... I >
-		static constexpr auto to_array(
-			value_type(&&values)[Rows][Cols],
-			std::index_sequence< I ... >
-		){
-			return std::array< value_type, Cols * Rows >{{
-				std::move(values[I / Rows][I % Rows]) ...
-			}};
-		}
+		template < std::size_t N >
+		constexpr matrix(value_type(&&values)[N]):
+			values_(to_array(std::move(values))){}
+
+		template < std::size_t N >
+		constexpr matrix(value_type const(&values)[N]):
+			values_(to_array(values)){}
+
+
+		template < typename T, std::size_t N >
+		friend constexpr col_vector< T, N >
+		to_col_vector(T const(&values)[N]);
+
+		template < typename T, std::size_t N >
+		friend constexpr col_vector< T, N >
+		to_col_vector(T(&&values)[N]);
+
+
+		template < typename T, std::size_t N >
+		friend constexpr row_vector< T, N >
+		to_row_vector(T const(&values)[N]);
+
+		template < typename T, std::size_t N >
+		friend constexpr row_vector< T, N >
+		to_row_vector(T(&&values)[N]);
 	};
 
 
-	template < typename T, std::size_t N >
-	using square_matrix = matrix< T, N, N >;
 
-	template < typename T, std::size_t Rows >
-	using row_vector = matrix< T, 1, Rows >;
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
+	constexpr matrix< ValueType, Cols, Rows >
+	to_matrix(ValueType(&&values)[Rows][Cols]){
+		return matrix< ValueType, Cols, Rows >(std::move(values));
+	}
 
-	template < typename T, std::size_t Cols >
-	using col_vector = matrix< T, Cols, 1 >;
+	template < typename ValueType, std::size_t Cols, std::size_t Rows >
+	constexpr matrix< ValueType, Cols, Rows >
+	to_matrix(ValueType const(&values)[Rows][Cols]){
+		return matrix< ValueType, Cols, Rows >(values);
+	}
+
+
+	template < typename ValueType, std::size_t Cols >
+	constexpr col_vector< ValueType, Cols >
+	to_col_vector(ValueType(&&values)[Cols]){
+		return col_vector< ValueType, Cols >(values);
+	}
+
+	template < typename ValueType, std::size_t Cols >
+	constexpr col_vector< ValueType, Cols >
+	to_col_vector(ValueType const(&values)[Cols]){
+		return col_vector< ValueType, Cols >(std::move(values));
+	}
+
+
+	template < typename ValueType, std::size_t Rows >
+	constexpr row_vector< ValueType, Rows >
+	to_row_vector(ValueType(&&values)[Rows]){
+		return row_vector< ValueType, Rows >(values);
+	}
+
+	template < typename ValueType, std::size_t Rows >
+	constexpr row_vector< ValueType, Rows >
+	to_row_vector(ValueType const(&values)[Rows]){
+		return row_vector< ValueType, Rows >(std::move(values));
+	}
+
 
 
 }
