@@ -58,10 +58,14 @@ namespace linescan{
 		constexpr matrix():
 			values_{{0}} {}
 
-// 		constexpr matrix(value_type(&&values)[Rows][Cols]):
-// 			values_(std::move(values)) {}
 
 		constexpr matrix(value_type const(&values)[Rows][Cols]):
+			values_(to_array(
+				values,
+				std::make_index_sequence< Cols * Rows >()
+			)){}
+
+		constexpr matrix(value_type(&&values)[Rows][Cols]):
 			values_(to_array(
 				values,
 				std::make_index_sequence< Cols * Rows >()
@@ -76,11 +80,15 @@ namespace linescan{
 		constexpr matrix(matrix const&) = default;
 
 
-		constexpr value_type& operator()(std::size_t x, std::size_t y){
+		constexpr value_type& operator()(
+			std::size_t x, std::size_t y
+		){
 			return values_[y * Cols + x];
 		}
 
-		constexpr value_type const& operator()(std::size_t x, std::size_t y)const{
+		constexpr value_type const& operator()(
+			std::size_t x, std::size_t y
+		)const{
 			return values_[y * Cols + x];
 		}
 
@@ -98,8 +106,23 @@ namespace linescan{
 		std::array< value_type, Cols * Rows > values_;
 
 		template < std::size_t ... I >
-		constexpr auto to_array(value_type const(&values)[Rows][Cols], std::index_sequence< I ... >){
-			return std::array< value_type, Cols * Rows >{{ values[I / Rows][I % Rows] ... }};
+		constexpr auto to_array(
+			value_type const(&values)[Rows][Cols],
+			std::index_sequence< I ... >
+		){
+			return std::array< value_type, Cols * Rows >{{
+				values[I / Rows][I % Rows] ...
+			}};
+		}
+
+		template < std::size_t ... I >
+		constexpr auto to_array(
+			value_type(&&values)[Rows][Cols],
+			std::index_sequence< I ... >
+		){
+			return std::array< value_type, Cols * Rows >{{
+				std::move(values[I / Rows][I % Rows]) ...
+			}};
 		}
 	};
 
