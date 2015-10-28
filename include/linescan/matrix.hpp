@@ -106,7 +106,7 @@ namespace linescan{
 		std::array< value_type, Cols * Rows > values_;
 
 		template < std::size_t ... I >
-		constexpr auto to_array(
+		static constexpr auto to_array(
 			value_type const(&values)[Rows][Cols],
 			std::index_sequence< I ... >
 		){
@@ -116,7 +116,7 @@ namespace linescan{
 		}
 
 		template < std::size_t ... I >
-		constexpr auto to_array(
+		static constexpr auto to_array(
 			value_type(&&values)[Rows][Cols],
 			std::index_sequence< I ... >
 		){
