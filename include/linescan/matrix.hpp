@@ -9,7 +9,8 @@
 #ifndef _linescan__matrix__hpp_INCLUDED_
 #define _linescan__matrix__hpp_INCLUDED_
 
-#include <cstddef>
+#include <utility>
+#include <array>
 
 
 namespace linescan{
@@ -57,15 +58,18 @@ namespace linescan{
 		constexpr matrix():
 			values_{{0}} {}
 
-// 		constexpr matrix(value_type(&& values)[Row][Column]):
+// 		constexpr matrix(value_type(&&values)[Rows][Cols]):
 // 			values_(std::move(values)) {}
-// 
-// 		constexpr matrix(value_type const(& values)[Row][Column]):
-// 			values_(values) {}
 
-		template < typename ... T >
-		constexpr matrix(T const& ... v):
-			values_{ static_cast< value_type >(v) ... } {}
+		constexpr matrix(value_type const(&values)[Rows][Cols]):
+			values_(to_array(
+				values,
+				std::make_index_sequence< Cols * Rows >()
+			)){}
+
+// 		template < typename ... T >
+// 		constexpr matrix(T const& ... v):
+// 			values_{ static_cast< value_type >(v) ... } {}
 
 		constexpr matrix(matrix&&) = default;
 
@@ -91,8 +95,23 @@ namespace linescan{
 
 
 	private:
-		value_type values_[Cols * Rows];
+		std::array< value_type, Cols * Rows > values_;
+
+		template < std::size_t ... I >
+		constexpr auto to_array(value_type const(&values)[Rows][Cols], std::index_sequence< I ... >){
+			return std::array< value_type, Cols * Rows >{{ values[I / Rows][I % Rows] ... }};
+		}
 	};
+
+
+	template < typename T, std::size_t N >
+	using square_matrix = matrix< T, N, N >;
+
+	template < typename T, std::size_t Rows >
+	using row_vector = matrix< T, 1, Rows >;
+
+	template < typename T, std::size_t Cols >
+	using col_vector = matrix< T, Cols, 1 >;
 
 
 }
