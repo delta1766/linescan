@@ -225,26 +225,26 @@ namespace linescan{
 	template < typename ValueType, std::size_t Cols >
 	constexpr col_vector< ValueType, Cols >
 	to_col_vector(ValueType(&&values)[Cols]){
-		return col_vector< ValueType, Cols >(values);
+		return col_vector< ValueType, Cols >(std::move(values));
 	}
 
 	template < typename ValueType, std::size_t Cols >
 	constexpr col_vector< ValueType, Cols >
 	to_col_vector(ValueType const(&values)[Cols]){
-		return col_vector< ValueType, Cols >(std::move(values));
+		return col_vector< ValueType, Cols >(values);
 	}
 
 
 	template < typename ValueType, std::size_t Rows >
 	constexpr row_vector< ValueType, Rows >
 	to_row_vector(ValueType(&&values)[Rows]){
-		return row_vector< ValueType, Rows >(values);
+		return row_vector< ValueType, Rows >(std::move(values));
 	}
 
 	template < typename ValueType, std::size_t Rows >
 	constexpr row_vector< ValueType, Rows >
 	to_row_vector(ValueType const(&values)[Rows]){
-		return row_vector< ValueType, Rows >(std::move(values));
+		return row_vector< ValueType, Rows >(values);
 	}
 
 
