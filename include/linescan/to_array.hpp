@@ -22,7 +22,9 @@ namespace linescan{
 
 		template < typename T, std::size_t N, std::size_t ... I >
 		constexpr auto to_array(T(&&arr)[N], std::index_sequence< I ... >){
-			return std::array< std::remove_cv_t< T >, N >{{ std::move(arr[I]) ... }};
+			return std::array< std::remove_cv_t< T >, N >{{
+				std::move(arr[I]) ...
+			}};
 		}
 
 		template < typename T, std::size_t N, std::size_t ... I >
@@ -36,7 +38,9 @@ namespace linescan{
 
 	template < typename T, std::size_t N >
 	constexpr auto to_array(T(&&arr)[N]){
-		return detail::to_array(std::move(arr), std::make_index_sequence< N >());
+		return detail::to_array(
+			std::move(arr), std::make_index_sequence< N >()
+		);
 	}
 
 	template < typename T, std::size_t N >
