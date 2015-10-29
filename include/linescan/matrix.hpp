@@ -98,28 +98,36 @@ namespace linescan{
 	template < typename ValueType, std::size_t Cols, std::size_t Rows >
 	class matrix{
 	public:
-		/// \brief Type of the data that administrates the bitmap
+		/// \brief Type of the data that administrates the matrix
 		using value_type = ValueType;
 
-		/// \brief Type of points in the bitmap
+		/// \brief Unsigned integral type (std::size_t)
+		using size_type = std::size_t;
+
+		/// \brief Signed integer type (std::ptrdiff_t)
+		using difference_type = std::ptrdiff_t;
+
+		/// \brief Type of points in the matrix
 		using point_type = point< std::size_t >;
 
-		/// \brief Type of bitmap size
-		using size_type = linescan::size< std::size_t >;
+		/// \brief Type of matrix dimensions (cols and rows)
+		using dimension_type = linescan::size< std::size_t >;
 
 		/// \brief Type of a iterator for data
-		using iterator =
-			std::iterator< std::random_access_iterator_tag, value_type >;
+		using iterator = typename
+			std::array< value_type, Cols * Rows >::iterator;
 
 		/// \brief Type of a iterator for const data
-		using const_iterator =
-			std::iterator< std::random_access_iterator_tag, value_type const >;
+		using const_iterator = typename
+			std::array< value_type, Cols * Rows >::const_iterator;
 
 		/// \brief Type of a reverse iterator for data
-		using reverse_iterator = std::reverse_iterator< iterator >;
+		using reverse_iterator = typename
+			std::array< value_type, Cols * Rows >::reverse_iterator;
 
 		/// \brief Type of a reverse iterator for const data
-		using const_reverse_iterator = std::reverse_iterator< iterator const >;
+		using const_reverse_iterator = typename
+			std::array< value_type, Cols * Rows >::const_reverse_iterator;
 
 		/// \brief Type of a reference to data
 		using reference = value_type&;
