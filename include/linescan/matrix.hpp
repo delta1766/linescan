@@ -10,6 +10,8 @@
 #define _linescan__matrix__hpp_INCLUDED_
 
 #include "to_array.hpp"
+#include "point.hpp"
+#include "size.hpp"
 
 
 namespace linescan{
