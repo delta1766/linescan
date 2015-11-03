@@ -65,21 +65,75 @@ void save(linescan::bitmap< std::int32_t > const& image, std::string const& name
 	save(linescan::normelize_to_uint8(image), name);
 }
 
-void save(std::vector< float > const& line, std::size_t height, std::string const& name){
-	std::cout << "write " << name << std::endl;
-	png::image< png::gray_pixel > output(line.size(), height);
-	for(std::size_t x = 0; x < line.size(); ++x){
-		if(line[x] == 0) continue;
-		auto pos1 = static_cast< std::size_t >(line[x]);
-		auto pos2 = static_cast< std::size_t >(line[x] - 0.5f);
-		if(pos1 == pos2){
-			output[pos1][x] = 255;
-		}else{
-			output[pos1][x] = 128;
-			output[pos2][x] = 128;
-		}
+void draw(
+	linescan::bitmap< std::uint8_t >& image,
+	linescan::point< float > const& point
+){
+	auto x = static_cast< int >(point.x());
+	auto y = static_cast< int >(point.y());
+
+	auto dx = point.x() - x;
+	auto dy = point.y() - y;
+
+	auto draw = [&image](int x, int y, float v){
+		if(
+			x < 0 || y < 0 ||
+			x >= static_cast< int >(image.width()) ||
+			y >= static_cast< int >(image.height())
+		) return;
+
+		auto r = image(x, y) + v;
+		image(x, y) = static_cast< std::uint8_t >(r > 255 ? 255 : r);
+	};
+
+	draw(x, y, 255 * (1 - dx) * (1 - dy));
+	draw(x + 1, y, 255 * dx * (1 - dy));
+	draw(x, y + 1, 255 * (1 - dx) * dy);
+	draw(x + 1, y + 1, 255 * dx * dy);
+}
+
+void draw(
+	linescan::bitmap< std::uint8_t >& image,
+	std::vector< linescan::point< float > > const& line
+){
+	for(std::size_t i = 0; i < line.size(); ++i){
+		draw(image, line[i]);
 	}
-	output.write(name);
+}
+
+void draw(
+	linescan::bitmap< std::uint8_t >& image,
+	linescan::linear_function< float > const& fn
+){
+	std::vector< linescan::point< float > > line;
+	for(std::size_t i = 0; i < image.width(); ++i){
+		auto y = fn(i);
+		if(y < 0) continue;
+		if(y >= image.height()) continue;
+		line.emplace_back(i, y);
+	}
+	draw(image, line);
+}
+
+linescan::bitmap< std::uint8_t > draw_top_distance_line(
+	std::vector< float > const& line,
+	std::size_t width,
+	std::size_t height
+){
+	linescan::bitmap< std::uint8_t > image(width, height);
+
+	std::vector< linescan::point< float > > point_line;
+	for(std::size_t i = 0; i < line.size(); ++i){
+		if(line[i] == 0) continue;
+		point_line.emplace_back(i, line[i]);
+	}
+
+	draw(image, point_line);
+	return image;
+}
+
+void save(std::vector< float > const& line, std::size_t height, std::string const& name){
+	save(draw_top_distance_line(line, line.size(), height), name);
 }
 
 
@@ -285,7 +339,7 @@ int main()try{
 // 			mcl3.move_to_end();
 		/*}else */if(command == "load"){
 			linescan::bitmap< std::uint8_t > image;
-			load(image, "scene.png");
+			load(image, "simulation/real_laser.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
@@ -299,13 +353,68 @@ int main()try{
 
 			save(line, binary.height(), "05_line.png");
 
-			load(image, "scene_raw.png");
+// 			load(image, "simulation/real_ref.png");
+// 
+// 			linescan::normelize_to_uint8(image);
+// 
+// 			auto edge = linescan::edge_amplitude(image);
+// 
+// 			save(edge, "06_edge.png");
 
-			linescan::normelize_to_uint8(image);
+			std::vector< linescan::point< float > > line1;
+			std::vector< linescan::point< float > > line2;
+			std::size_t count = 15;
+			for(std::size_t i = 0; i < line.size() - count; ++i){
+				if(line[i] == 0 || line[i + count] == 0) continue;
 
-			auto edge = linescan::edge_amplitude(image);
+				if(line[i] > line[i + count]){
+					line1.emplace_back(i, line[i]);
+					continue;
+				}
 
-			save(edge, "06_edge.png");
+				for(i += count; i < line.size(); ++i){
+					if(line[i] == 0) continue;
+					line2.emplace_back(i, line[i]);
+				}
+			}
+
+			std::cout << line1.size() << std::endl;
+			std::cout << line2.size() << std::endl;
+
+			if(line1.size() > count * 2){
+				line1.erase(line1.begin(), line1.begin() + count);
+				line1.erase(line1.end() - count, line1.end());
+			}else{
+				throw std::logic_error(
+					"To less points in left laser line part"
+				);
+			}
+
+			if(line2.size() > count * 2){
+				line2.erase(line2.begin(), line2.begin() + count);
+				line2.erase(line2.end() - count, line2.end());
+			}else{
+				throw std::logic_error(
+					"To less points in right laser line part"
+				);
+			}
+
+			{
+				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
+				draw(lines, line1);
+				draw(lines, line2);
+				save(lines, "07_lines.png");
+			}
+
+			auto l1 = linescan::fit_linear_function< float >(line1.begin(), line1.end());
+			auto l2 = linescan::fit_linear_function< float >(line2.begin(), line2.end());
+
+			{
+				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
+				draw(lines, l1);
+				draw(lines, l2);
+				save(lines, "08_lines.png");
+			}
 		}else{
 			std::cout << "Unknown input" << std::endl;
 		}

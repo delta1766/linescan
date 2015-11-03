@@ -17,7 +17,9 @@ namespace linescan{
 
 	template < typename T >
 	inline auto binarize(bitmap< T > const& image, T const& threshold){
-		return pixel_wise([threshold](auto v){ return v >= threshold; }, image);
+		return pixel_wise([threshold](auto v){
+			return v >= threshold;
+		}, image);
 	}
 
 
