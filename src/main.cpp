@@ -27,8 +27,6 @@
 #include <iomanip>
 
 
-
-
 int main()try{
 	using namespace std::literals;
 
@@ -235,24 +233,15 @@ int main()try{
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
-			linescan::save(binary, "03_binary.png");
+			linescan::save(binary, "01_binary.png");
 
 			binary = linescan::erode(binary, 3);
 
-			linescan::save(binary, "04_erode.png");
+			linescan::save(binary, "02_erode.png");
 
 			auto line = linescan::calc_top_distance_line(binary);
 
-			linescan::save(line, binary.height(), "05_line.png");
-
-// 			linescan::load(image, "simulation/real_ref.png");
-// 
-// 			linescan::normelize_to_uint8(image);
-// 
-// 			auto edge = linescan::edge_amplitude(image);
-// 
-// 			linescan::save(edge, "06_edge.png");
-
+			linescan::save(line, binary.height(), "03_line.png");
 
 			auto lines = linescan::calc_calibration_lines(line, 15);
 			auto const& line1 = lines.first;
@@ -266,7 +255,7 @@ int main()try{
 			{
 				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
 				linescan::draw(lines, calib_line);
-				linescan::save(lines, "07_calib_line.png");
+				linescan::save(lines, "04_calib_line.png");
 			}
 		}else{
 			std::cout << "Unknown input" << std::endl;
