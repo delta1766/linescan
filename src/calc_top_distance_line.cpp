@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/calc_line.hpp>
+#include <linescan/calc_top_distance_line.hpp>
 
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
@@ -15,15 +15,17 @@
 namespace linescan{
 
 
-	std::vector< float > calc_line(bitmap< std::uint8_t > const& image){
+	std::vector< float > calc_top_distance_line(
+		bitmap< std::uint8_t > const& image
+	){
 		auto binary = binarize(image, std::uint8_t(255));
 
 		binary = erode(binary, 3);
 
-		return calc_line(binary);
+		return calc_top_distance_line(binary);
 	}
 
-	std::vector< float > calc_line(bitmap< bool > const& binary){
+	std::vector< float > calc_top_distance_line(bitmap< bool > const& binary){
 		std::vector< float > result(binary.width());
 		for(std::size_t x = 0; x < binary.width(); ++x){
 			std::size_t max_length = 0;

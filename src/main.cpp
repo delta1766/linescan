@@ -8,7 +8,9 @@
 //-----------------------------------------------------------------------------
 #include <linescan/control_F9S_MCL3.hpp>
 #include <linescan/camera.hpp>
-#include <linescan/calc_line.hpp>
+#include <linescan/calc_top_distance_line.hpp>
+#include <linescan/calc_calibration_lines.hpp>
+#include <linescan/composed_function.hpp>
 #include <linescan/linear_function.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
@@ -101,9 +103,10 @@ void draw(
 	}
 }
 
+template < typename F >
 void draw(
 	linescan::bitmap< std::uint8_t >& image,
-	linescan::linear_function< float > const& fn
+	F const& fn
 ){
 	std::vector< linescan::point< float > > line;
 	for(std::size_t i = 0; i < image.width(); ++i){
@@ -349,7 +352,7 @@ int main()try{
 
 			save(binary, "04_erode.png");
 
-			auto line = linescan::calc_line(binary);
+			auto line = linescan::calc_top_distance_line(binary);
 
 			save(line, binary.height(), "05_line.png");
 
@@ -361,59 +364,20 @@ int main()try{
 // 
 // 			save(edge, "06_edge.png");
 
-			std::vector< linescan::point< float > > line1;
-			std::vector< linescan::point< float > > line2;
-			std::size_t count = 15;
-			for(std::size_t i = 0; i < line.size() - count; ++i){
-				if(line[i] == 0 || line[i + count] == 0) continue;
 
-				if(line[i] > line[i + count]){
-					line1.emplace_back(i, line[i]);
-					continue;
-				}
-
-				for(i += count; i < line.size(); ++i){
-					if(line[i] == 0) continue;
-					line2.emplace_back(i, line[i]);
-				}
-			}
-
-			std::cout << line1.size() << std::endl;
-			std::cout << line2.size() << std::endl;
-
-			if(line1.size() > count * 2){
-				line1.erase(line1.begin(), line1.begin() + count);
-				line1.erase(line1.end() - count, line1.end());
-			}else{
-				throw std::logic_error(
-					"To less points in left laser line part"
-				);
-			}
-
-			if(line2.size() > count * 2){
-				line2.erase(line2.begin(), line2.begin() + count);
-				line2.erase(line2.end() - count, line2.end());
-			}else{
-				throw std::logic_error(
-					"To less points in right laser line part"
-				);
-			}
-
-			{
-				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
-				draw(lines, line1);
-				draw(lines, line2);
-				save(lines, "07_lines.png");
-			}
+			auto lines = linescan::calc_calibration_lines(line, 15);
+			auto const& line1 = lines.first;
+			auto const& line2 = lines.second;
 
 			auto l1 = linescan::fit_linear_function< float >(line1.begin(), line1.end());
 			auto l2 = linescan::fit_linear_function< float >(line2.begin(), line2.end());
 
+			auto calib_line = make_composed_function(l1, intersection(l1, l2), l2);
+
 			{
 				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
-				draw(lines, l1);
-				draw(lines, l2);
-				save(lines, "08_lines.png");
+				draw(lines, calib_line);
+				save(lines, "07_calib_line.png");
 			}
 		}else{
 			std::cout << "Unknown input" << std::endl;

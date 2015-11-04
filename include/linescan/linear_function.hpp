@@ -15,15 +15,17 @@ namespace linescan{
 
 	template < typename T >
 	struct linear_function{
-		constexpr linear_function(T const& a, T const& b):
+		using value_type = T;
+
+		constexpr linear_function(value_type const& a, value_type const& b):
 			a(a),
 			b(b)
 			{}
 
-		T const a;
-		T const b;
+		value_type const a;
+		value_type const b;
 
-		constexpr T operator()(T const& x)const{
+		constexpr value_type operator()(value_type const& x)const{
 			return x * a + b;
 		}
 	};
@@ -58,6 +60,13 @@ namespace linescan{
 		return linear_function< Result >(a, b);
 	}
 
+	template < typename T >
+	constexpr T intersection(
+		linear_function< T > const& lhs,
+		linear_function< T > const& rhs
+	){
+		return (lhs.b - rhs.b) / (rhs.a - lhs.a);
+	}
 
 }
 
