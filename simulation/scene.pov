@@ -34,20 +34,20 @@ camera {
 
 
 // principal light
-light_source{
-	< 0, 0, 0 >
-	color < 3, 3, 3 >
-	spotlight
-	radius 45
-	falloff 0
-	tightness 0
-	point_at < -1, -1, 1 >
-
-	projected_through { Projector }
-
-	translate < 5,  6,  -5 >
-	rotate< 0, 0, 0 >
-}
+// light_source{
+// 	< 0, 0, 0 >
+// 	color < 3, 3, 3 >
+// 	spotlight
+// 	radius 45
+// 	falloff 0
+// 	tightness 0
+// 	point_at < -1, -1, 1 >
+// 
+// 	projected_through { Projector }
+// 
+// 	translate < 5,  6,  -5 >
+// 	rotate< 0, 0, 0 >
+// }
 
 
 // object{
@@ -63,12 +63,27 @@ light_source{
 }
 
 
-plane { x, 0
-	pigment {
-		checker color White, color Black scale 0.25
+object {
+	plane {
+		x, 0
 	}
-	finish{FinishStd}
+	texture {
+		pigment { White }
+	}
+	texture {
+		pigment {
+			image_map {
+				png "gitter.png" 
+				interpolate 2
+				once
+			}
+			rotate < 0, 45, 0 >
+			scale 3
+		}
+		finish{ FinishStd }
+	}
 }
+
 
 plane { y, 0
 	pigment {
@@ -77,11 +92,25 @@ plane { y, 0
 	finish{FinishStd}
 }
 
-plane { z, 0
-	pigment {
-		checker color White, color Black scale 0.25
+object {
+	plane {
+		z, 0
+		texture {
+			pigment { White }
+		}
+		texture {
+			pigment {
+				image_map {
+					png "gitter.png" 
+					interpolate 2
+					once
+				}
+				rotate < 0, 45, 0 >
+				scale 3
+			}
+			finish{ FinishStd }
+		}
 	}
-	finish{FinishStd}
 }
 
 
