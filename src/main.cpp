@@ -16,11 +16,10 @@
 #include <linescan/erode.hpp>
 #include <linescan/gauss.hpp>
 #include <linescan/edge.hpp>
-#include <linescan/normelize_to_uint8.hpp>
+#include <linescan/load.hpp>
+#include <linescan/save.hpp>
 
 #include <boost/type_index.hpp>
-
-#include <png++/png.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -28,116 +27,6 @@
 #include <iomanip>
 
 
-void load(linescan::bitmap< std::uint8_t >& image, std::string const& name){
-	std::cout << "read " << name << std::endl;
-	png::image< png::gray_pixel > output;
-	output.read(name);
-	image.resize(output.get_width(), output.get_height());
-	for(std::size_t y = 0; y < output.get_height(); ++y){
-		for(std::size_t x = 0; x < output.get_width(); ++x){
-			image(x, y) = output[y][x];
-		}
-	}
-}
-
-
-void save(linescan::bitmap< std::uint8_t > const& image, std::string const& name){
-	std::cout << "write " << name << std::endl;
-	png::image< png::gray_pixel > output(image.width(), image.height());
-	for(std::size_t y = 0; y < image.height(); ++y){
-		for(std::size_t x = 0; x < image.width(); ++x){
-			output[y][x] = image(x, y);
-		}
-	}
-	output.write(name);
-}
-
-void save(linescan::bitmap< bool > const& image, std::string const& name){
-	std::cout << "write " << name << std::endl;
-	png::image< png::packed_gray_pixel< 1 > > output(image.width(), image.height());
-	for(std::size_t y = 0; y < image.height(); ++y){
-		for(std::size_t x = 0; x < image.width(); ++x){
-			output[y][x] = image(x, y);
-		}
-	}
-	output.write(name);
-}
-
-void save(linescan::bitmap< std::int32_t > const& image, std::string const& name){
-	save(linescan::normelize_to_uint8(image), name);
-}
-
-void draw(
-	linescan::bitmap< std::uint8_t >& image,
-	linescan::point< float > const& point
-){
-	auto x = static_cast< int >(point.x());
-	auto y = static_cast< int >(point.y());
-
-	auto dx = point.x() - x;
-	auto dy = point.y() - y;
-
-	auto draw = [&image](int x, int y, float v){
-		if(
-			x < 0 || y < 0 ||
-			x >= static_cast< int >(image.width()) ||
-			y >= static_cast< int >(image.height())
-		) return;
-
-		auto r = image(x, y) + v;
-		image(x, y) = static_cast< std::uint8_t >(r > 255 ? 255 : r);
-	};
-
-	draw(x, y, 255 * (1 - dx) * (1 - dy));
-	draw(x + 1, y, 255 * dx * (1 - dy));
-	draw(x, y + 1, 255 * (1 - dx) * dy);
-	draw(x + 1, y + 1, 255 * dx * dy);
-}
-
-void draw(
-	linescan::bitmap< std::uint8_t >& image,
-	std::vector< linescan::point< float > > const& line
-){
-	for(std::size_t i = 0; i < line.size(); ++i){
-		draw(image, line[i]);
-	}
-}
-
-template < typename F >
-void draw(
-	linescan::bitmap< std::uint8_t >& image,
-	F const& fn
-){
-	std::vector< linescan::point< float > > line;
-	for(std::size_t i = 0; i < image.width(); ++i){
-		auto y = fn(i);
-		if(y < 0) continue;
-		if(y >= image.height()) continue;
-		line.emplace_back(i, y);
-	}
-	draw(image, line);
-}
-
-linescan::bitmap< std::uint8_t > draw_top_distance_line(
-	std::vector< float > const& line,
-	std::size_t width,
-	std::size_t height
-){
-	linescan::bitmap< std::uint8_t > image(width, height);
-
-	std::vector< linescan::point< float > > point_line;
-	for(std::size_t i = 0; i < line.size(); ++i){
-		if(line[i] == 0) continue;
-		point_line.emplace_back(i, line[i]);
-	}
-
-	draw(image, point_line);
-	return image;
-}
-
-void save(std::vector< float > const& line, std::size_t height, std::string const& name){
-	save(draw_top_distance_line(line, line.size(), height), name);
-}
 
 
 int main()try{
@@ -342,27 +231,27 @@ int main()try{
 // 			mcl3.move_to_end();
 		/*}else */if(command == "load"){
 			linescan::bitmap< std::uint8_t > image;
-			load(image, "simulation/real_laser.png");
+			linescan::load(image, "simulation/real_laser.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
-			save(binary, "03_binary.png");
+			linescan::save(binary, "03_binary.png");
 
 			binary = linescan::erode(binary, 3);
 
-			save(binary, "04_erode.png");
+			linescan::save(binary, "04_erode.png");
 
 			auto line = linescan::calc_top_distance_line(binary);
 
-			save(line, binary.height(), "05_line.png");
+			linescan::save(line, binary.height(), "05_line.png");
 
-// 			load(image, "simulation/real_ref.png");
+// 			linescan::load(image, "simulation/real_ref.png");
 // 
 // 			linescan::normelize_to_uint8(image);
 // 
 // 			auto edge = linescan::edge_amplitude(image);
 // 
-// 			save(edge, "06_edge.png");
+// 			linescan::save(edge, "06_edge.png");
 
 
 			auto lines = linescan::calc_calibration_lines(line, 15);
@@ -376,8 +265,8 @@ int main()try{
 
 			{
 				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
-				draw(lines, calib_line);
-				save(lines, "07_calib_line.png");
+				linescan::draw(lines, calib_line);
+				linescan::save(lines, "07_calib_line.png");
 			}
 		}else{
 			std::cout << "Unknown input" << std::endl;
