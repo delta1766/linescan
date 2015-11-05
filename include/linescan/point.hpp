@@ -72,7 +72,7 @@ namespace linescan{
 		constexpr point& operator=(point&&) = default;
 
 
-		/// \brief Get true, if width and height are positiv
+		/// \brief Get true, if x and y are positiv
 		constexpr bool is_positive()const{
 			return x() >= value_type() && y() >= value_type();
 		}
@@ -88,7 +88,7 @@ namespace linescan{
 		point< ValueType > const& a,
 		point< ValueType > const& b
 	){
-		return a.width() == b.width() && a.height() == b.height();
+		return a.x() == b.x() && a.y() == b.y();
 	}
 
 	template < typename ValueType >
@@ -105,8 +105,8 @@ namespace linescan{
 		point< ValueType >& a,
 		point< ValueType > const& b
 	){
-		a.width()  += b.width();
-		a.height() += b.height();
+		a.x() += b.x();
+		a.y() += b.y();
 		return a;
 	}
 
@@ -115,8 +115,8 @@ namespace linescan{
 		point< ValueType >& a,
 		point< ValueType > const& b
 	){
-		a.width()  -= b.width();
-		a.height() -= b.height();
+		a.x() -= b.x();
+		a.y() -= b.y();
 		return a;
 	}
 
@@ -125,8 +125,8 @@ namespace linescan{
 		point< ValueType >& a,
 		point< ValueType > const& b
 	){
-		a.width()  *= b.width();
-		a.height() *= b.height();
+		a.x() *= b.x();
+		a.y() *= b.y();
 		return a;
 	}
 
@@ -135,8 +135,8 @@ namespace linescan{
 		point< ValueType >& a,
 		point< ValueType > const& b
 	){
-		a.width()  /= b.width();
-		a.height() /= b.height();
+		a.x() /= b.x();
+		a.y() /= b.y();
 		return a;
 	}
 
@@ -145,8 +145,8 @@ namespace linescan{
 		point< ValueType >& a,
 		point< ValueType > const& b
 	){
-		a.width()  %= b.width();
-		a.height() %= b.height();
+		a.x() %= b.x();
+		a.y() %= b.y();
 		return a;
 	}
 
