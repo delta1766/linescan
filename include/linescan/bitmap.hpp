@@ -21,6 +21,9 @@
 namespace linescan{
 
 
+	template < typename T >
+	using vector = boost::container::vector< T >;
+
 	template < typename ValueType >
 	class bitmap;
 
@@ -83,28 +86,28 @@ namespace linescan{
 		using size_type = linescan::size< std::size_t >;
 
 		/// \brief Type of a iterator for data
-		using iterator = typename boost::container::vector< value_type >::iterator;
+		using iterator = typename vector< value_type >::iterator;
 
 		/// \brief Type of a iterator for const data
-		using const_iterator = typename boost::container::vector< value_type >::const_iterator;
+		using const_iterator = typename vector< value_type >::const_iterator;
 
 		/// \brief Type of a reverse iterator for data
-		using reverse_iterator = typename boost::container::vector< value_type >::reverse_iterator;
+		using reverse_iterator = typename vector< value_type >::reverse_iterator;
 
 		/// \brief Type of a reverse iterator for const data
-		using const_reverse_iterator = typename boost::container::vector< value_type >::const_reverse_iterator;
+		using const_reverse_iterator = typename vector< value_type >::const_reverse_iterator;
 
 		/// \brief Type of a reference to data
-		using reference = typename boost::container::vector< value_type >::reference;
+		using reference = typename vector< value_type >::reference;
 
 		/// \brief Type of a reference to const data
-		using const_reference = typename boost::container::vector< value_type >::const_reference;
+		using const_reference = typename vector< value_type >::const_reference;
 
 		/// \brief Type of a pointer to data
-		using pointer = typename boost::container::vector< value_type >::pointer;
+		using pointer = typename vector< value_type >::pointer;
 
 		/// \brief Type of a pointer to const data
-		using const_pointer = typename boost::container::vector< value_type >::const_pointer;
+		using const_pointer = typename vector< value_type >::const_pointer;
 
 
 
@@ -337,7 +340,7 @@ namespace linescan{
 		size_type size_;
 
 		/// \brief The data field
-		boost::container::vector< value_type > data_;
+		vector< value_type > data_;
 
 
 		/// \brief Get a point without range protection
