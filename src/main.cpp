@@ -19,6 +19,8 @@
 #include <linescan/edge.hpp>
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
+#include <linescan/invert.hpp>
+#include <linescan/point_io.hpp>
 
 #include <boost/type_index.hpp>
 
@@ -270,8 +272,41 @@ int main()try{
 
 			linescan::save(binary, "12_erode.png");
 
-			auto points = linescan::collect_points(binary);
-			(void)points;
+			binary = linescan::invert(binary);
+
+			linescan::save(binary, "13_invert.png");
+
+			auto point_and_counts = linescan::collect_points(binary);
+
+			if(point_and_counts.size() < 8){
+				throw std::logic_error(
+					"not 8 points fount in reference image"
+				);
+			}else if(point_and_counts.size() > 8){
+				// Sort by size
+				std::sort(point_and_counts.begin(), point_and_counts.end(),
+					[](auto& a, auto& b){
+						return a.second < b.second;
+					});
+
+				// keep the 8 biggest, remove the rest
+				point_and_counts.erase(
+					point_and_counts.begin() + 8,
+					point_and_counts.end()
+				);
+			}
+
+			linescan::vector< linescan::point< float > > ref_points;
+			ref_points.reserve(8);
+			for(auto& v: point_and_counts) ref_points.push_back(v.first);
+
+			for(auto& v: ref_points) std::cout << v << std::endl;
+
+			{
+				linescan::bitmap< std::uint8_t > image(binary.width(), binary.height());
+				linescan::draw(image, ref_points);
+				linescan::save(image, "14_ref.png");
+			}
 		}else{
 			std::cout << "Unknown input" << std::endl;
 		}
