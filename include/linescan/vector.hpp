@@ -6,22 +6,18 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__calc_top_distance_line__hpp_INCLUDED_
-#define _linescan__calc_top_distance_line__hpp_INCLUDED_
+#ifndef _linescan__vector__hpp_INCLUDED_
+#define _linescan__vector__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include <boost/container/vector.hpp>
 
 
 namespace linescan{
 
 
-	vector< float > calc_top_distance_line(
-		bitmap< std::uint8_t > const& image
-	);
-
-	vector< float > calc_top_distance_line(
-		bitmap< bool > const& image
-	);
+	/// \brief Use boost::container::vector as linescan::vector
+	template < typename T >
+	using vector = boost::container::vector< T >;
 
 
 }

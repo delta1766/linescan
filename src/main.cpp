@@ -12,6 +12,7 @@
 #include <linescan/calc_calibration_lines.hpp>
 #include <linescan/composed_function.hpp>
 #include <linescan/linear_function.hpp>
+#include <linescan/collect_points.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
 #include <linescan/gauss.hpp>
@@ -78,7 +79,7 @@ int main()try{
 // 
 // // 			double from = 0;
 // // 			double to = cam.width() * cam.pixel_size_in_um();
-// 			std::vector< std::pair< double, double > > lines;
+// 			vector< std::pair< double, double > > lines;
 // 			for(std::size_t i = 0; i < 20; ++i){
 // 				for(std::size_t n = 5; n < 10; ++n){
 // 					cam.set_exposure(cam.exposure_in_ms_min() + n * diff);
@@ -107,7 +108,7 @@ int main()try{
 // 					save(pixel_line, image.height(), os.str());
 // 
 // 
-// 					std::vector< linescan::point< double > > line;
+// 					vector< linescan::point< double > > line;
 // 					for(std::size_t i = 0; i < pixel_line.size(); ++i){
 // 						if(pixel_line[i] == 0) continue;
 // 
@@ -151,7 +152,7 @@ int main()try{
 // 			for(std::size_t i = 0; i < 500; ++i){
 // 				mcl3.move_relative(0, 300, 0);
 // 
-// 				std::vector< std::pair< std::size_t, std::size_t > > lines;
+// 				vector< std::pair< std::size_t, std::size_t > > lines;
 // 				for(std::size_t n = 0; n < 60; ++n){
 // 					auto image = cam.image();
 // 					auto binary = linescan::binarize(image, std::uint8_t(255));
@@ -227,9 +228,9 @@ int main()try{
 // 			mcl3.move_relative(0, 0, 10000);
 // 		}else if(command == "end"){
 // 			mcl3.move_to_end();
-		/*}else */if(command == "load"){
+		/*}else */if(command == "laser"){
 			linescan::bitmap< std::uint8_t > image;
-			linescan::load(image, "simulation/real_laser.png");
+			linescan::load(image, "simulation/real2_laser.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
@@ -257,6 +258,20 @@ int main()try{
 				linescan::draw(lines, calib_line);
 				linescan::save(lines, "04_calib_line.png");
 			}
+		}else if(command == "ref"){
+			linescan::bitmap< std::uint8_t > image;
+			linescan::load(image, "simulation/real2_ref.png");
+
+			auto binary = linescan::binarize(image, std::uint8_t(20));
+
+			linescan::save(binary, "11_binary.png");
+
+			binary = linescan::erode(binary, 3);
+
+			linescan::save(binary, "12_erode.png");
+
+			auto points = linescan::collect_points(binary);
+			(void)points;
 		}else{
 			std::cout << "Unknown input" << std::endl;
 		}

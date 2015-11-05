@@ -11,6 +11,7 @@
 
 #include "serial_port.hpp"
 #include "mask_non_print.hpp"
+#include "vector.hpp"
 
 #include <iostream>
 #include <condition_variable>
@@ -43,17 +44,17 @@ namespace linescan{
 
 		virtual std::string name()const = 0;
 
-		void send(std::vector< command > const& commands);
+		void send(vector< command > const& commands);
 		void send(char const* data);
 
 		std::string get(
-			std::vector< command > const& commands,
+			vector< command > const& commands,
 			std::size_t repetitions = 3
 		);
 
 		template < typename Rep, typename Period >
 		std::string get(
-			std::vector< command > const& commands,
+			vector< command > const& commands,
 			std::chrono::duration< Rep, Period > const& timeout,
 			std::size_t repetitions = 3
 		){

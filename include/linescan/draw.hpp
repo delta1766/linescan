@@ -11,8 +11,6 @@
 
 #include "bitmap.hpp"
 
-#include <vector>
-
 
 namespace linescan{
 
@@ -21,18 +19,18 @@ namespace linescan{
 
 	void draw(
 		bitmap< std::uint8_t >& image,
-		std::vector< point< float > > const& line
+		vector< point< float > > const& line
 	);
 
 	bitmap< std::uint8_t > draw_top_distance_line(
-		std::vector< float > const& line,
+		vector< float > const& line,
 		std::size_t width,
 		std::size_t height
 	);
 
 	template < typename F >
 	inline void draw(bitmap< std::uint8_t >& image, F const& fn){
-		std::vector< point< std::decay_t< decltype(fn(std::size_t())) > > >
+		vector< point< std::decay_t< decltype(fn(std::size_t())) > > >
 			line;
 
 		for(std::size_t i = 0; i < image.width(); ++i){

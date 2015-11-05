@@ -38,7 +38,7 @@ namespace linescan{
 
 	void draw(
 		bitmap< std::uint8_t >& image,
-		std::vector< point< float > > const& line
+		vector< point< float > > const& line
 	){
 		for(std::size_t i = 0; i < line.size(); ++i){
 			draw(image, line[i]);
@@ -46,13 +46,13 @@ namespace linescan{
 	}
 
 	bitmap< std::uint8_t > draw_top_distance_line(
-		std::vector< float > const& line,
+		vector< float > const& line,
 		std::size_t width,
 		std::size_t height
 	){
 		bitmap< std::uint8_t > image(width, height);
 
-		std::vector< point< float > > point_line;
+		vector< point< float > > point_line;
 		for(std::size_t i = 0; i < line.size(); ++i){
 			if(line[i] == 0) continue;
 			point_line.emplace_back(i, line[i]);

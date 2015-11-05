@@ -41,7 +41,7 @@ namespace linescan{
 
 
 	std::string control_F9S_base::get(
-		std::vector< command > const& commands, std::size_t repetitions
+		vector< command > const& commands, std::size_t repetitions
 	){
 		using namespace std::literals;
 		return get(commands, 50ms, repetitions);
@@ -52,7 +52,7 @@ namespace linescan{
 		return receive(50ms);
 	}
 
-	void control_F9S_base::send(std::vector< command > const& commands){
+	void control_F9S_base::send(vector< command > const& commands){
 		std::string data;
 		for(auto& command: commands){
 			data += "U" + std::string(1, command.address) +

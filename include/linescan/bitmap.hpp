@@ -10,8 +10,7 @@
 #define _linescan__bitmap__hpp_INCLUDED_
 
 #include "rect.hpp"
-
-#include <boost/container/vector.hpp>
+#include "vector.hpp"
 
 #include <utility>
 #include <stdexcept>
@@ -20,9 +19,6 @@
 
 namespace linescan{
 
-
-	template < typename T >
-	using vector = boost::container::vector< T >;
 
 	template < typename ValueType >
 	class bitmap;

@@ -29,7 +29,7 @@ namespace linescan{
 	}
 
 	inline void save(
-		std::vector< float > const& line,
+		vector< float > const& line,
 		std::size_t height,
 		std::string const& name
 	){

@@ -10,17 +10,17 @@
 #define _linescan__calc_calibration_lines__hpp_INCLUDED_
 
 #include "point.hpp"
+#include "vector.hpp"
 
-#include <vector>
 #include <utility>
 
 
 namespace linescan{
 
 
-	std::pair< std::vector< point< float > >, std::vector< point< float > > >
+	std::pair< vector< point< float > >, vector< point< float > > >
 	calc_calibration_lines(
-		std::vector< float > const& top_distance_line,
+		vector< float > const& top_distance_line,
 		std::size_t count
 	);
 
