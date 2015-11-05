@@ -83,6 +83,112 @@ namespace linescan{
 		value_type y_;
 	};
 
+	template < typename ValueType >
+	constexpr bool operator==(
+		point< ValueType > const& a,
+		point< ValueType > const& b
+	){
+		return a.width() == b.width() && a.height() == b.height();
+	}
+
+	template < typename ValueType >
+	constexpr bool operator!=(
+		point< ValueType > const& a,
+		point< ValueType > const& b
+	){
+		return !(a == b);
+	}
+
+
+	template < typename ValueType >
+	constexpr point< ValueType >& operator+=(
+		point< ValueType >& a,
+		point< ValueType > const& b
+	){
+		a.width()  += b.width();
+		a.height() += b.height();
+		return a;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType >& operator-=(
+		point< ValueType >& a,
+		point< ValueType > const& b
+	){
+		a.width()  -= b.width();
+		a.height() -= b.height();
+		return a;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType >& operator*=(
+		point< ValueType >& a,
+		point< ValueType > const& b
+	){
+		a.width()  *= b.width();
+		a.height() *= b.height();
+		return a;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType >& operator/=(
+		point< ValueType >& a,
+		point< ValueType > const& b
+	){
+		a.width()  /= b.width();
+		a.height() /= b.height();
+		return a;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType >& operator%=(
+		point< ValueType >& a,
+		point< ValueType > const& b
+	){
+		a.width()  %= b.width();
+		a.height() %= b.height();
+		return a;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType > operator+(
+		point< ValueType > a,
+		point< ValueType > const& b
+	){
+		return a += b;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType > operator-(
+		point< ValueType > a,
+		point< ValueType > const& b
+	){
+		return a -= b;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType > operator*(
+		point< ValueType > a,
+		point< ValueType > const& b
+	){
+		return a *= b;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType > operator/(
+		point< ValueType > a,
+		point< ValueType > const& b
+	){
+		return a /= b;
+	}
+
+	template < typename ValueType >
+	constexpr point< ValueType > operator%(
+		point< ValueType > a,
+		point< ValueType > const& b
+	){
+		return a %= b;
+	}
 
 }
 
