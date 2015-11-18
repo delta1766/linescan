@@ -21,6 +21,11 @@
 #include <linescan/save.hpp>
 #include <linescan/invert.hpp>
 
+#include <mitrax/output.hpp>
+#include <mitrax/point_io.hpp>
+#include <mitrax/operator.hpp>
+#include <mitrax/gaussian_elimination.hpp>
+
 #include <boost/type_index.hpp>
 
 #include <iostream>
@@ -31,6 +36,7 @@
 
 int main()try{
 	using namespace std::literals;
+	using namespace mitrax::literals;
 
 // 	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
 // 
@@ -308,8 +314,116 @@ int main()try{
 				linescan::draw(image, ref_points);
 				linescan::save(image, "14_ref.png");
 			}
+
+			std::sort(ref_points.begin(), ref_points.end(),
+				[](auto const& a, auto const& b){
+					return a.x() < b.x();
+				});
+
+			std::sort(ref_points.begin() + 0, ref_points.begin() + 1,
+				[](auto const& a, auto const& b){
+					return a.y() < b.y();
+				});
+
+			std::sort(ref_points.begin() + 2, ref_points.begin() + 3,
+				[](auto const& a, auto const& b){
+					return a.y() < b.y();
+				});
+
+			std::sort(ref_points.begin() + 4, ref_points.begin() + 5,
+				[](auto const& a, auto const& b){
+					return a.y() < b.y();
+				});
+
+			std::sort(ref_points.begin() + 6, ref_points.begin() + 8,
+				[](auto const& a, auto const& b){
+					return a.y() < b.y();
+				});
+
+			std::swap(ref_points[4], ref_points[6]);
+			std::swap(ref_points[5], ref_points[7]);
+
+			for(auto& v: ref_points) std::cout << v << std::endl;
+
+			auto matrix_kernel = [](auto iter){
+				auto x0 = iter[0].x();
+				auto y0 = iter[0].y();
+				auto x1 = iter[1].x();
+				auto y1 = iter[1].y();
+				auto x2 = iter[2].x();
+				auto y2 = iter[2].y();
+				auto x3 = iter[3].x();
+				auto y3 = iter[3].y();
+
+				auto b1 = mitrax::make_matrix< float >(9_C, 9_R, {
+					{-x0, -y0, -1,   0,   0,  0, 160 * x0, 160 * y0, 160},
+					{  0,   0,  0, -x0, -y0, -1, 160 * x0, 160 * y0, 160},
+					{-x1, -y1, -1,   0,   0,  0, 160 * x1, 160 * y1, 160},
+					{  0,   0,  0, -x1, -y1, -1,  20 * x1,  20 * y1,  20},
+					{-x2, -y2, -1,   0,   0,  0,  20 * x2,  20 * y2,  20},
+					{  0,   0,  0, -x2, -y2, -1, 160 * x2, 160 * y2, 160},
+					{-x3, -y3, -1,   0,   0,  0,  20 * x3,  20 * y3,  20},
+					{  0,   0,  0, -x3, -y3, -1,  20 * x3,  20 * y3,  20},
+					{  0,   0,  0,   0,   0,  0,        0,        0,   0}
+				});
+
+				auto vec1 = mitrax::matrix_kernel(b1);
+
+				return mitrax::make_matrix< float >(3_C, 3_R, {
+					{vec1[0], vec1[1], vec1[2]},
+					{vec1[3], vec1[4], vec1[5]},
+					{vec1[6], vec1[7], vec1[8]}
+				});
+			};
+
+			auto res1 = matrix_kernel(ref_points.begin());
+			std::cout << res1 << std::endl;
+
+			auto calc1 = [&res1](mitrax::point< float > const& p){
+				auto p1_3d = res1 * mitrax::make_col_vector< float >(3_R,
+					{p.x(), p.y(), 1});
+
+				return mitrax::point< float >(
+					p1_3d[0] / p1_3d[2],
+					p1_3d[1] / p1_3d[2]
+				);
+			};
+
+			std::cout << calc1(ref_points[0]) << std::endl;
+			std::cout << calc1(ref_points[1]) << std::endl;
+			std::cout << calc1(ref_points[2]) << std::endl;
+			std::cout << calc1(ref_points[3]) << std::endl;
+
+			auto res2 = matrix_kernel(ref_points.begin() + 4);
+			std::cout << res2 << std::endl;
+
+			auto calc2 = [&res2](mitrax::point< float > const& p){
+				auto p1_3d = res2 * mitrax::make_col_vector< float >(3_R,
+					{p.x(), p.y(), 1});
+
+				return mitrax::point< float >(
+					p1_3d[0] / p1_3d[2],
+					p1_3d[1] / p1_3d[2]
+				);
+			};
+
+			std::cout << calc2(ref_points[4]) << std::endl;
+			std::cout << calc2(ref_points[5]) << std::endl;
+			std::cout << calc2(ref_points[6]) << std::endl;
+			std::cout << calc2(ref_points[7]) << std::endl;
 		}else{
 			std::cout << "Unknown input" << std::endl;
+
+			auto m = mitrax::make_matrix< float >(5_C, 5_R, {
+				{ 2, 2, 3, 4, 5},
+				{ 3, 3, 4, 5, 6},
+				{ 5, 4, 5, 6, 7},
+				{ 7, 5, 6, 7, 8},
+				{11, 6, 7, 8, 9},
+			});
+
+			std::cout << m << std::endl;
+			std::cout << mitrax::matrix_kernel(m) << std::endl;
 		}
 	}
 }catch(std::exception const& e){
