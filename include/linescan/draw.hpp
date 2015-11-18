@@ -9,34 +9,37 @@
 #ifndef _linescan__draw__hpp_INCLUDED_
 #define _linescan__draw__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include "vector.hpp"
+#include "point.hpp"
+
+#include <mitrax/raw_matrix.hpp>
 
 
 namespace linescan{
 
 
-	void draw(bitmap< std::uint8_t >& image, point< float > const& point);
+	void draw(mitrax::raw_bitmap< std::uint8_t >& image, point< float > const& point);
 
 	void draw(
-		bitmap< std::uint8_t >& image,
+		mitrax::raw_bitmap< std::uint8_t >& image,
 		vector< point< float > > const& line
 	);
 
-	bitmap< std::uint8_t > draw_top_distance_line(
+	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
 		vector< float > const& line,
-		std::size_t width,
-		std::size_t height
+		std::size_t cols,
+		std::size_t rows
 	);
 
 	template < typename F >
-	inline void draw(bitmap< std::uint8_t >& image, F const& fn){
+	inline void draw(mitrax::raw_bitmap< std::uint8_t >& image, F const& fn){
 		vector< point< std::decay_t< decltype(fn(std::size_t())) > > >
 			line;
 
-		for(std::size_t i = 0; i < image.width(); ++i){
+		for(std::size_t i = 0; i < image.cols(); ++i){
 			auto y = fn(i);
 			if(y < 0) continue;
-			if(y >= image.height()) continue;
+			if(y >= image.rows()) continue;
 			line.emplace_back(i, y);
 		}
 

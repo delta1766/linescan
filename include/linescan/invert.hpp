@@ -15,7 +15,7 @@
 namespace linescan{
 
 
-	inline auto invert(bitmap< bool > const& image){
+	inline auto invert(mitrax::raw_bitmap< bool > const& image){
 		return pixel_wise([](auto v){
 			return !v;
 		}, image);

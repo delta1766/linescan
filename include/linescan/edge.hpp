@@ -9,13 +9,14 @@
 #ifndef _linescan__save_edge__hpp_INCLUDED_
 #define _linescan__save_edge__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include <mitrax/raw_matrix.hpp>
 
 
 namespace linescan{
 
 
-	bitmap< std::int32_t > edge_amplitude(bitmap< std::uint8_t > const& image);
+	mitrax::raw_bitmap< std::int32_t >
+	edge_amplitude(mitrax::raw_bitmap< std::uint8_t > const& image);
 
 
 }

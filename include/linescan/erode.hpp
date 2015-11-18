@@ -15,13 +15,13 @@
 namespace linescan{
 
 
-	inline auto erode(bitmap< bool > const& image, std::size_t size){
-		return offset_view_wise([size](auto view){
+	inline auto erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
+		return offset_view_wise([](auto const& m){
 			bool result = false;
 
-			for(std::size_t y = 0; y < size; ++y){
-				for(std::size_t x = 0; x < size; ++x){
-					if(!view(x, y)) continue;
+			for(std::size_t y = 0; y < m.rows(); ++y){
+				for(std::size_t x = 0; x < m.cols(); ++x){
+					if(!m(x, y)) continue;
 					result = true;
 				}
 			}

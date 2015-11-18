@@ -9,7 +9,7 @@
 #ifndef _linescan__camera__hpp_INCLUDED_
 #define _linescan__camera__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include <mitrax/raw_matrix.hpp>
 
 
 namespace linescan{
@@ -22,11 +22,11 @@ namespace linescan{
 		~camera();
 
 
-		bitmap< std::uint8_t > image();
+		mitrax::raw_bitmap< std::uint8_t > image();
 
 
-		std::uint32_t width()const;
-		std::uint32_t height()const;
+		std::uint32_t cols()const;
+		std::uint32_t rows()const;
 		double pixel_size_in_um()const;
 
 
@@ -43,8 +43,8 @@ namespace linescan{
 	private:
 		std::uint32_t handle_;
 
-		std::uint32_t width_;
-		std::uint32_t height_;
+		std::uint32_t cols_;
+		std::uint32_t rows_;
 
 		double pixel_size_in_um_;
 

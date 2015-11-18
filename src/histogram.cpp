@@ -8,16 +8,14 @@
 //-----------------------------------------------------------------------------
 #include <linescan/histogram.hpp>
 
-#include <linescan/convolution.hpp>
-
 
 namespace linescan{
 
 
-	bitmap< std::uint8_t > histogram(bitmap< std::uint8_t > const& image){
+	mitrax::raw_bitmap< std::uint8_t > histogram(mitrax::raw_bitmap< std::uint8_t > const& image){
 		std::size_t histogram[256] = {0};
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
+		for(std::size_t y = 0; y < image.rows(); ++y){
+			for(std::size_t x = 0; x < image.cols(); ++x){
 				++histogram[image(x, y)];
 			}
 		}
@@ -25,7 +23,11 @@ namespace linescan{
 		std::size_t max = 0;
 		for(auto v: histogram) if(max < v) max = v;
 
-		bitmap< std::uint8_t > output(256, max / 256);
+		auto output = mitrax::make_matrix< std::uint8_t >(
+			mitrax::cols(256),
+			mitrax::rows(max / 256)
+		);
+
 		for(std::size_t x = 0; x < 256; ++x){
 			for(std::size_t y = 0; y < histogram[x]; ++y){
 				output(x, y) =

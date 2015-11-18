@@ -12,7 +12,10 @@
 namespace linescan{
 
 
-	void draw(bitmap< std::uint8_t >& image, point< float > const& point){
+	void draw(
+		mitrax::raw_bitmap< std::uint8_t >& image,
+		point< float > const& point
+	){
 		auto x = static_cast< int >(point.x());
 		auto y = static_cast< int >(point.y());
 
@@ -22,8 +25,8 @@ namespace linescan{
 		auto draw = [&image](int x, int y, float v){
 			if(
 				x < 0 || y < 0 ||
-				x >= static_cast< int >(image.width()) ||
-				y >= static_cast< int >(image.height())
+				x >= static_cast< int >(image.cols()) ||
+				y >= static_cast< int >(image.rows())
 			) return;
 
 			auto r = image(x, y) + v;
@@ -37,7 +40,7 @@ namespace linescan{
 	}
 
 	void draw(
-		bitmap< std::uint8_t >& image,
+		mitrax::raw_bitmap< std::uint8_t >& image,
 		vector< point< float > > const& line
 	){
 		for(std::size_t i = 0; i < line.size(); ++i){
@@ -45,12 +48,13 @@ namespace linescan{
 		}
 	}
 
-	bitmap< std::uint8_t > draw_top_distance_line(
+	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
 		vector< float > const& line,
-		std::size_t width,
-		std::size_t height
+		std::size_t cols,
+		std::size_t rows
 	){
-		bitmap< std::uint8_t > image(width, height);
+		auto image =
+			mitrax::make_matrix< std::uint8_t >(mitrax::dims(cols, rows));
 
 		vector< point< float > > point_line;
 		for(std::size_t i = 0; i < line.size(); ++i){

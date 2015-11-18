@@ -7,8 +7,8 @@ namespace linescan{
 
 	struct check_environement{
 		check_environement(
-			bitmap< bool > const& image,
-			bitmap< bool >& in_use
+			mitrax::raw_bitmap< bool > const& image,
+			mitrax::raw_bitmap< bool >& in_use
 		):
 			image(image),
 			in_use(in_use)
@@ -16,8 +16,8 @@ namespace linescan{
 
 		void operator()(std::size_t x, std::size_t y){
 			if(
-				x >= in_use.width() ||
-				y >= in_use.height() ||
+				x >= in_use.cols() ||
+				y >= in_use.rows() ||
 				in_use(x, y) ||
 				!image(x, y)
 			) return;
@@ -36,19 +36,21 @@ namespace linescan{
 			(*this)(x + 1, y + 1);
 		};
 
-		bitmap< bool > const& image;
-		bitmap< bool >& in_use;
+		mitrax::raw_bitmap< bool > const& image;
+		mitrax::raw_bitmap< bool >& in_use;
 
 		vector< point< std::size_t > > points;
 	};
 
 	vector< std::pair< point< float >, std::size_t > >
-	collect_points(bitmap< bool > const& image){
-		bitmap< bool > in_use(image.size());
+	collect_points(mitrax::raw_bitmap< bool > const& image){
+		auto in_use =
+			mitrax::make_matrix< bool >(dims(image.cols(), image.rows()));
+
 		vector< std::pair< point< float >, std::size_t > > result;
 
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
+		for(std::size_t y = 0; y < image.rows(); ++y){
+			for(std::size_t x = 0; x < image.cols(); ++x){
 				if(in_use(x, y)) continue;
 
 				if(!image(x, y)){

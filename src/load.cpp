@@ -16,18 +16,22 @@
 namespace linescan{
 
 
-	void load(bitmap< std::uint8_t >& image, std::string const& name){
+	mitrax::raw_bitmap< std::uint8_t > load(std::string const& name){
 		std::cout << "read " << name << std::endl;
 
 		png::image< png::gray_pixel > output;
 		output.read(name);
-		image.resize(output.get_width(), output.get_height());
+		auto image = mitrax::make_matrix< std::uint8_t >(
+			mitrax::dims(output.get_width(), output.get_height())
+		);
 
 		for(std::size_t y = 0; y < output.get_height(); ++y){
 			for(std::size_t x = 0; x < output.get_width(); ++x){
 				image(x, y) = output[y][x];
 			}
 		}
+
+		return image;
 	}
 
 

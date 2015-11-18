@@ -8,30 +8,39 @@
 //-----------------------------------------------------------------------------
 #include <linescan/edge.hpp>
 
-#include <linescan/convolution.hpp>
 #include <linescan/pixel_wise.hpp>
+
+#include <mitrax/convolution.hpp>
 
 
 namespace linescan{
 
 
-	bitmap< std::int16_t > gradient_x(bitmap< std::uint8_t > const& image){
-		return convolution< std::int16_t >(
+	auto gradient_x(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	){
+		using namespace mitrax::literals;
+		return convolution(
 			image,
-			to_col_vector< std::int16_t, 3 >({3, 10, 3}),
-			to_row_vector< std::int16_t, 3 >({1, 0, -1})
+			mitrax::make_col_vector< std::int16_t >(3_R, {3, 10, 3}),
+			mitrax::make_row_vector< std::int16_t >(3_C, {1, 0, -1})
 		);
 	}
 
-	bitmap< std::int16_t > gradient_y(bitmap< std::uint8_t > const& image){
-		return convolution< std::int16_t >(
+	auto gradient_y(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	){
+		using namespace mitrax::literals;
+		return convolution(
 			image,
-			to_col_vector< std::int16_t, 3 >({1, 0, -1}),
-			to_row_vector< std::int16_t, 3 >({3, 10, 3})
+			mitrax::make_col_vector< std::int16_t >(3_R, {1, 0, -1}),
+			mitrax::make_row_vector< std::int16_t >(3_C, {3, 10, 3})
 		);
 	}
 
-	bitmap< std::int32_t > edge_amplitude(bitmap< std::uint8_t > const& image){
+	mitrax::raw_bitmap< std::int32_t > edge_amplitude(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	){
 		auto gx = gradient_x(image);
 		auto gy = gradient_y(image);
 

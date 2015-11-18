@@ -1,7 +1,7 @@
 path-constant LIBRARIES
 	# path to your libraries directory
 	: /media/data/libraries/src
-	; 
+	;
 
 use-project /boost
 	: $(LIBRARIES)/boost
@@ -45,6 +45,7 @@ project linescan
 	<toolset>clang:<linkflags>-stdlib=libc++
 
 	<include>/usr/include/libpng12
+	<include>$(LIBRARIES)/mitrax/include
 	:
 	usage-requirements <include>include
 	;

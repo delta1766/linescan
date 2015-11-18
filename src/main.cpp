@@ -20,7 +20,6 @@
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
 #include <linescan/invert.hpp>
-#include <linescan/point_io.hpp>
 
 #include <boost/type_index.hpp>
 
@@ -72,7 +71,7 @@ int main()try{
 // 
 // 			auto line = linescan::calc_line(binary);
 // 
-// 			save(line, binary.height(), "05_line.png");
+// 			save(line, binary.rows(), "05_line.png");
 // 		}else if(command == "measure"){
 // 			mcl3.move_relative(0, 0, 1000);
 // 
@@ -80,7 +79,7 @@ int main()try{
 // 				(cam.exposure_in_ms_max() - cam.exposure_in_ms_min()) / 9;
 // 
 // // 			double from = 0;
-// // 			double to = cam.width() * cam.pixel_size_in_um();
+// // 			double to = cam.cols() * cam.pixel_size_in_um();
 // 			vector< std::pair< double, double > > lines;
 // 			for(std::size_t i = 0; i < 20; ++i){
 // 				for(std::size_t n = 5; n < 10; ++n){
@@ -107,7 +106,7 @@ int main()try{
 // 						<< "line" << std::setfill('0')
 // 						<< std::setw(4) << i << "_"
 // 						<< std::setw(4) << n << ".png";
-// 					save(pixel_line, image.height(), os.str());
+// 					save(pixel_line, image.rows(), os.str());
 // 
 // 
 // 					vector< linescan::point< double > > line;
@@ -231,8 +230,7 @@ int main()try{
 // 		}else if(command == "end"){
 // 			mcl3.move_to_end();
 		/*}else */if(command == "laser"){
-			linescan::bitmap< std::uint8_t > image;
-			linescan::load(image, "simulation/real2_laser.png");
+			auto image =  linescan::load("simulation/real2_laser.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
 
@@ -244,7 +242,7 @@ int main()try{
 
 			auto line = linescan::calc_top_distance_line(binary);
 
-			linescan::save(line, binary.height(), "03_line.png");
+			linescan::save(line, binary.rows(), "03_line.png");
 
 			auto lines = linescan::calc_calibration_lines(line, 15);
 			auto const& line1 = lines.first;
@@ -256,13 +254,14 @@ int main()try{
 			auto calib_line = make_composed_function(l1, intersection(l1, l2), l2);
 
 			{
-				linescan::bitmap< std::uint8_t > lines(binary.width(), binary.height());
+				auto lines
+					= mitrax::make_matrix< std::uint8_t >(binary.dims());
+
 				linescan::draw(lines, calib_line);
 				linescan::save(lines, "04_calib_line.png");
 			}
 		}else if(command == "ref"){
-			linescan::bitmap< std::uint8_t > image;
-			linescan::load(image, "simulation/real2_ref.png");
+			auto image = linescan::load("simulation/real2_ref.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(20));
 
@@ -300,10 +299,12 @@ int main()try{
 			ref_points.reserve(8);
 			for(auto& v: point_and_counts) ref_points.push_back(v.first);
 
-			for(auto& v: ref_points) std::cout << v << std::endl;
+// 			for(auto& v: ref_points) std::cout << v << std::endl;
 
 			{
-				linescan::bitmap< std::uint8_t > image(binary.width(), binary.height());
+				auto image
+					= mitrax::make_matrix< std::uint8_t >(binary.dims());
+
 				linescan::draw(image, ref_points);
 				linescan::save(image, "14_ref.png");
 			}

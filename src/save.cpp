@@ -16,28 +16,28 @@
 namespace linescan{
 
 
-	void save(bitmap< std::uint8_t > const& image, std::string const& name){
+	void save(mitrax::raw_bitmap< std::uint8_t > const& image, std::string const& name){
 		std::cout << "write " << name << std::endl;
 
-		png::image< png::gray_pixel > output(image.width(), image.height());
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
+		png::image< png::gray_pixel > output(image.cols(), image.rows());
+		for(std::size_t y = 0; y < image.rows(); ++y){
+			for(std::size_t x = 0; x < image.cols(); ++x){
 				output[y][x] = image(x, y);
 			}
 		}
 		output.write(name);
 	}
 
-	void save(bitmap< bool > const& image, std::string const& name){
+	void save(mitrax::raw_bitmap< bool > const& image, std::string const& name){
 		std::cout << "write " << name << std::endl;
 
 		png::image< png::packed_gray_pixel< 1 > > output(
-			image.width(),
-			image.height()
+			image.cols(),
+			image.rows()
 		);
 
-		for(std::size_t y = 0; y < image.height(); ++y){
-			for(std::size_t x = 0; x < image.width(); ++x){
+		for(std::size_t y = 0; y < image.rows(); ++y){
+			for(std::size_t x = 0; x < image.cols(); ++x){
 				output[y][x] = image(x, y);
 			}
 		}

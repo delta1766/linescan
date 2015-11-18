@@ -9,7 +9,6 @@
 #ifndef _linescan__save__hpp_INCLUDED_
 #define _linescan__save__hpp_INCLUDED_
 
-#include "bitmap.hpp"
 #include "draw.hpp"
 #include "normelize_to_uint8.hpp"
 
@@ -17,12 +16,15 @@
 namespace linescan{
 
 
-	void save(bitmap< std::uint8_t > const& image, std::string const& name);
+	void save(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
+		std::string const& name
+	);
 
-	void save(bitmap< bool > const& image, std::string const& name);
+	void save(mitrax::raw_bitmap< bool > const& image, std::string const& name);
 
 	inline void save(
-		bitmap< std::int32_t > const& image,
+		mitrax::raw_bitmap< std::int32_t > const& image,
 		std::string const& name
 	){
 		save(normelize_to_uint8(image), name);
@@ -30,10 +32,10 @@ namespace linescan{
 
 	inline void save(
 		vector< float > const& line,
-		std::size_t height,
+		std::size_t rows,
 		std::string const& name
 	){
-		save(draw_top_distance_line(line, line.size(), height), name);
+		save(draw_top_distance_line(line, line.size(), rows), name);
 	}
 
 

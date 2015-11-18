@@ -9,13 +9,13 @@
 #ifndef _linescan__load__hpp_INCLUDED_
 #define _linescan__load__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include <mitrax/raw_matrix.hpp>
 
 
 namespace linescan{
 
 
-	void load(bitmap< std::uint8_t >& image, std::string const& name);
+	mitrax::raw_bitmap< std::uint8_t > load(std::string const& name);
 
 
 }

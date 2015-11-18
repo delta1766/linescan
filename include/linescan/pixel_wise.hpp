@@ -9,7 +9,7 @@
 #ifndef _linescan__pixel_wise__hpp_INCLUDED_
 #define _linescan__pixel_wise__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include <mitrax/raw_matrix.hpp>
 
 #include <boost/hana.hpp>
 
@@ -21,17 +21,17 @@ namespace linescan{
 
 
 		template < typename T >
-		auto size(bitmap< T > const& image){
-			return image.size();
+		auto size(mitrax::raw_bitmap< T > const& image){
+			return image.dims();
 		}
 
 		template < typename T, typename U, typename ... R >
 		auto size(
-			bitmap< T > const& image1,
-			bitmap< U > const& image2,
-			bitmap< R > const& ... images
+			mitrax::raw_bitmap< T > const& image1,
+			mitrax::raw_bitmap< U > const& image2,
+			mitrax::raw_bitmap< R > const& ... images
 		){
-			if(image1.size() != image2.size()){
+			if(image1.dims() != image2.dims()){
 				throw std::logic_error(
 					"pixel_wise have been called with images with different "
 					"sizes"
@@ -46,7 +46,7 @@ namespace linescan{
 
 
 	template < typename F, typename ... T >
-	inline auto pixel_wise(F const& f, bitmap< T > const& ... images){
+	inline auto pixel_wise(F const& f, mitrax::raw_bitmap< T > const& ... images){
 		namespace hana = boost::hana;
 
 		auto size = detail::pixel_wise::size(images ...);
@@ -56,17 +56,18 @@ namespace linescan{
 				hana::type_c< decltype(f(std::declval< T >() ...)) >
 			),
 			[&size, &images ...](auto& f){
-				for(std::size_t y = 0; y < size.height(); ++y){
-					for(std::size_t x = 0; x < size.width(); ++x){
+				for(std::size_t y = 0; y < size.rows(); ++y){
+					for(std::size_t x = 0; x < size.cols(); ++x){
 						f(images(x, y) ...);
 					}
 				}
 			},
 			[&size, &images ...](auto& f){
-				bitmap< decltype(f(std::declval< T >() ...)) > result(size);
+				auto result = mitrax::make_matrix<
+					decltype(f(std::declval< T >() ...)) >(size);
 
-				for(std::size_t y = 0; y < size.height(); ++y){
-					for(std::size_t x = 0; x < size.width(); ++x){
+				for(std::size_t y = 0; y < size.rows(); ++y){
+					for(std::size_t x = 0; x < size.cols(); ++x){
 						result(x, y) = f(images(x, y) ...);
 					}
 				}
@@ -82,7 +83,7 @@ namespace linescan{
 		F const& f,
 		std::size_t view_size_x,
 		std::size_t view_size_y,
-		bitmap< T > const& ... images
+		mitrax::raw_bitmap< T > const& ... images
 	){
 		namespace hana = boost::hana;
 
@@ -93,25 +94,25 @@ namespace linescan{
 
 		return hana::if_(
 			hana::traits::is_void(hana::type_c< decltype(
-				f(std::declval< const_offset_view< T > >() ...)
+				f(std::declval< mitrax::raw_bitmap< T > >() ...)
 			) > ),
 			[vsx, vsy, &sizes, &images ...](auto& f){
-				for(std::size_t y = 0; y < sizes.height() - vsy; ++y){
-					for(std::size_t x = 0; x < sizes.width() - vsx; ++x){
-						f(images.offset_view(x, y) ...);
+				for(std::size_t y = 0; y < sizes.rows() - vsy; ++y){
+					for(std::size_t x = 0; x < sizes.cols() - vsx; ++x){
+						f(images.sub_matrix(x, y, mitrax::dims(vsx, vsy)) ...);
 					}
 				}
 			},
 			[vsx, vsy, &sizes, &images ...](auto& f){
-				bitmap< decltype(
-					f(std::declval< const_offset_view< T > >() ...)
-				) > result(
-						sizes - size< std::size_t >(vsx, vsy)
-					);
+				auto result = mitrax::make_matrix< decltype(
+					f(images.sub_matrix(0, 0, mitrax::dims(vsx, vsy)) ...)
+				) >(mitrax::dims(sizes.cols() - vsx, sizes.rows() - vsy));
 
-				for(std::size_t y = 0; y < sizes.height() - vsy; ++y){
-					for(std::size_t x = 0; x < sizes.width() - vsx; ++x){
-						result(x, y) = f(images.offset_view(x, y) ...);
+				for(std::size_t y = 0; y < sizes.rows() - vsy; ++y){
+					for(std::size_t x = 0; x < sizes.cols() - vsx; ++x){
+						result(x, y) = f(images.sub_matrix(
+							x, y, mitrax::dims(vsx, vsy)
+						) ...);
 					}
 				}
 

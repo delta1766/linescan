@@ -9,7 +9,10 @@
 #ifndef _linescan__collect_points__hpp_INCLUDED_
 #define _linescan__collect_points__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include "vector.hpp"
+#include "point.hpp"
+
+#include <mitrax/raw_matrix.hpp>
 
 #include <utility>
 
@@ -18,7 +21,7 @@ namespace linescan{
 
 
 	vector< std::pair< point< float >, std::size_t > >
-	collect_points(bitmap< bool > const& image);
+	collect_points(mitrax::raw_bitmap< bool > const& image);
 
 
 }

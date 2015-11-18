@@ -9,7 +9,7 @@
 #ifndef _linescan__gauss__hpp_INCLUDED_
 #define _linescan__gauss__hpp_INCLUDED_
 
-#include "convolution.hpp"
+#include <mitrax/convolution.hpp>
 
 #include <cmath>
 
@@ -18,12 +18,12 @@ namespace linescan{
 
 
 	template < std::size_t Size, typename T >
-	bitmap< std::uint8_t > gauss(
-		bitmap< std::uint8_t > const& image,
+	mitrax::raw_bitmap< std::uint8_t > gauss(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
 		T const& variance
 	){
-		matrix< T, 1, Size > m1;
-		matrix< T, Size, 1 > m2;
+		auto vc = mitrax::make_col_vector< T >(mitrax::row_t< Size >().init());
+		auto vr = mitrax::make_row_vector< T >(mitrax::col_t< Size >().init());
 
 		T sum = 0;
 		for(std::size_t i = 0; i < Size; ++i){
@@ -33,19 +33,19 @@ namespace linescan{
 				std::exp(- ((x * x) / (2 * variance * variance))) /
 				(variance * std::sqrt(2 * M_PI));
 
-			m1(0, i) = value;
+			vc[i] = value;
 
 			sum += value;
 		}
 
 		for(std::size_t i = 0; i < Size; ++i){
-			m1(0, i) /= sum;
-			m2(i, 0) = m1(0, i);
+			vc[i] /= sum;
+			vr[i] = vc[i];
 		}
 
 		return pixel_wise([](auto v){
 			return static_cast< std::uint8_t >(v);
-		}, convolution< T >(convolution< T >(image, m1), m2));
+		}, convolution(image, vc, vr));
 	}
 
 

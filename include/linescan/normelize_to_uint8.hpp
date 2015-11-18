@@ -16,7 +16,8 @@ namespace linescan{
 
 
 	template < typename T >
-	inline bitmap< std::uint8_t > normelize_to_uint8(bitmap< T > const& image){
+	inline mitrax::raw_bitmap< std::uint8_t >
+	normelize_to_uint8(mitrax::raw_bitmap< T > const& image){
 		auto min = image(0, 0);
 		auto max = image(0, 0);
 		pixel_wise([&min, &max](auto v){

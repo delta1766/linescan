@@ -290,10 +290,10 @@ namespace linescan{
 			is_SetColorMode(handle_, IS_CM_MONO8), "is_SetColorMode"
 		);
 
-		width_ = config.nMaxWidth;
-		height_ = config.nMaxHeight;
-		std::cout << "cam width:  " << width_ << std::endl;
-		std::cout << "cam height: " << height_ << std::endl;
+		cols_ = config.nMaxWidth;
+		rows_ = config.nMaxHeight;
+		std::cout << "cam cols():  " << cols_ << std::endl;
+		std::cout << "cam rows(): " << rows_ << std::endl;
 
 		pixel_size_in_um_ = config.wPixelSize / 100.;
 
@@ -349,12 +349,12 @@ namespace linescan{
 		return pixel_size_in_um_;
 	}
 
-	std::uint32_t camera::width()const{
-		return width_;
+	std::uint32_t camera::cols()const{
+		return cols_;
 	}
 
-	std::uint32_t camera::height()const{
-		return height_;
+	std::uint32_t camera::rows()const{
+		return rows_;
 	}
 
 	double camera::exposure_in_ms_min()const{
@@ -393,14 +393,14 @@ namespace linescan{
 	}
 
 
-	bitmap< std::uint8_t > camera::image(){
+	mitrax::raw_bitmap< std::uint8_t > camera::image(){
 		using namespace std::literals;
 
 		int mem_id = 0;
 		char* buffer = nullptr;
 
 		throw_on_error(
-			is_AllocImageMem(handle_, width_, height_, 8, &buffer, &mem_id),
+			is_AllocImageMem(handle_, cols_, rows_, 8, &buffer, &mem_id),
 			"is_AllocImageMem"
 		);
 
@@ -411,8 +411,10 @@ namespace linescan{
 
 		throw_on_error(is_FreezeVideo(handle_, IS_WAIT), "is_FreezeVideo");
 
-		bitmap< std::uint8_t > result(width_, height_);
-		std::copy(buffer, buffer + width_ * height_, result.data());
+		auto result = mitrax::make_matrix< std::uint8_t >(
+			mitrax::cols(cols_), mitrax::rows(rows_)
+		);
+		std::copy(buffer, buffer + cols_ * rows_, result.begin());
 
 		throw_on_error(
 			is_FreeImageMem(handle_, buffer, mem_id),

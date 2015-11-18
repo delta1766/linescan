@@ -9,18 +9,20 @@
 #ifndef _linescan__calc_top_distance_line__hpp_INCLUDED_
 #define _linescan__calc_top_distance_line__hpp_INCLUDED_
 
-#include "bitmap.hpp"
+#include "vector.hpp"
+
+#include <mitrax/raw_matrix.hpp>
 
 
 namespace linescan{
 
 
 	vector< float > calc_top_distance_line(
-		bitmap< std::uint8_t > const& image
+		mitrax::raw_bitmap< std::uint8_t > const& image
 	);
 
 	vector< float > calc_top_distance_line(
-		bitmap< bool > const& image
+		mitrax::raw_bitmap< bool > const& image
 	);
 
 
