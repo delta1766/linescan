@@ -11,7 +11,7 @@
 
 #include "vector.hpp"
 
-#include <mitrax/raw_matrix.hpp>
+#include <mitrax/matrix.hpp>
 
 
 namespace linescan{

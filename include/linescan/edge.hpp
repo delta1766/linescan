@@ -9,7 +9,7 @@
 #ifndef _linescan__save_edge__hpp_INCLUDED_
 #define _linescan__save_edge__hpp_INCLUDED_
 
-#include <mitrax/raw_matrix.hpp>
+#include <mitrax/matrix.hpp>
 
 
 namespace linescan{

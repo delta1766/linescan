@@ -9,7 +9,7 @@
 #ifndef _linescan__load__hpp_INCLUDED_
 #define _linescan__load__hpp_INCLUDED_
 
-#include <mitrax/raw_matrix.hpp>
+#include <mitrax/matrix.hpp>
 
 
 namespace linescan{

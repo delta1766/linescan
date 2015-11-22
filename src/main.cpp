@@ -355,16 +355,25 @@ int main()try{
 				auto x3 = iter[3].x();
 				auto y3 = iter[3].y();
 
+				float tx0 = 160;
+				float ty0 = 160;
+				float tx1 = 160;
+				float ty1 = 20;
+				float tx2 = 20;
+				float ty2 = 160;
+				float tx3 = 20;
+				float ty3 = 20;
+
 				auto b1 = mitrax::make_matrix< float >(9_C, 9_R, {
-					{-x0, -y0, -1,   0,   0,  0, 160 * x0, 160 * y0, 160},
-					{  0,   0,  0, -x0, -y0, -1, 160 * x0, 160 * y0, 160},
-					{-x1, -y1, -1,   0,   0,  0, 160 * x1, 160 * y1, 160},
-					{  0,   0,  0, -x1, -y1, -1,  20 * x1,  20 * y1,  20},
-					{-x2, -y2, -1,   0,   0,  0,  20 * x2,  20 * y2,  20},
-					{  0,   0,  0, -x2, -y2, -1, 160 * x2, 160 * y2, 160},
-					{-x3, -y3, -1,   0,   0,  0,  20 * x3,  20 * y3,  20},
-					{  0,   0,  0, -x3, -y3, -1,  20 * x3,  20 * y3,  20},
-					{  0,   0,  0,   0,   0,  0,        0,        0,   0}
+					{x0, y0, 1,  0,  0, 0, -tx0 * x0, -tx0 * y0, -tx0},
+					{ 0,  0, 0, x0, y0, 1, -ty0 * x0, -ty0 * y0, -ty0},
+					{x1, y1, 1,  0,  0, 0, -tx1 * x1, -tx1 * y1, -tx1},
+					{ 0,  0, 0, x1, y1, 1, -ty1 * x1, -ty1 * y1, -ty1},
+					{x2, y2, 1,  0,  0, 0, -tx2 * x2, -tx2 * y2, -tx2},
+					{ 0,  0, 0, x2, y2, 1, -ty2 * x2, -ty2 * y2, -ty2},
+					{x3, y3, 1,  0,  0, 0, -tx3 * x3, -tx3 * y3, -tx3},
+					{ 0,  0, 0, x3, y3, 1, -ty3 * x3, -ty3 * y3, -ty3},
+					{ 0,  0, 0,  0,  0, 0,         0,         0,    0}
 				});
 
 				auto vec1 = mitrax::matrix_kernel(b1);
@@ -380,8 +389,8 @@ int main()try{
 			std::cout << res1 << std::endl;
 
 			auto calc1 = [&res1](mitrax::point< float > const& p){
-				auto p1_3d = res1 * mitrax::make_col_vector< float >(3_R,
-					{p.x(), p.y(), 1});
+				auto p1_3d = res1 *
+					mitrax::make_col_vector< float >(3_R, {p.x(), p.y(), 1});
 
 				return mitrax::point< float >(
 					p1_3d[0] / p1_3d[2],
@@ -413,17 +422,6 @@ int main()try{
 			std::cout << calc2(ref_points[7]) << std::endl;
 		}else{
 			std::cout << "Unknown input" << std::endl;
-
-			auto m = mitrax::make_matrix< float >(5_C, 5_R, {
-				{ 2, 2, 3, 4, 5},
-				{ 3, 3, 4, 5, 6},
-				{ 5, 4, 5, 6, 7},
-				{ 7, 5, 6, 7, 8},
-				{11, 6, 7, 8, 9},
-			});
-
-			std::cout << m << std::endl;
-			std::cout << mitrax::matrix_kernel(m) << std::endl;
 		}
 	}
 }catch(std::exception const& e){
