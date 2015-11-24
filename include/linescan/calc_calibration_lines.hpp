@@ -18,9 +18,9 @@
 namespace linescan{
 
 
-	std::pair< vector< point< float > >, vector< point< float > > >
+	std::pair< vector< point< double > >, vector< point< double > > >
 	calc_calibration_lines(
-		vector< float > const& top_distance_line,
+		vector< double > const& top_distance_line,
 		std::size_t count
 	);
 

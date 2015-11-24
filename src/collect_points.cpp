@@ -42,12 +42,12 @@ namespace linescan{
 		vector< point< std::size_t > > points;
 	};
 
-	vector< std::pair< point< float >, std::size_t > >
+	vector< std::pair< point< double >, std::size_t > >
 	collect_points(mitrax::raw_bitmap< bool > const& image){
 		auto in_use =
 			mitrax::make_matrix< bool >(dims(image.cols(), image.rows()));
 
-		vector< std::pair< point< float >, std::size_t > > result;
+		vector< std::pair< point< double >, std::size_t > > result;
 
 		for(std::size_t y = 0; y < image.rows(); ++y){
 			for(std::size_t x = 0; x < image.cols(); ++x){
@@ -67,9 +67,9 @@ namespace linescan{
 					point< std::size_t >()
 				);
 
-				result.emplace_back(point< float >(
-					static_cast< float >(sum.x()) / check.points.size(),
-					static_cast< float >(sum.y()) / check.points.size()
+				result.emplace_back(point< double >(
+					static_cast< double >(sum.x()) / check.points.size(),
+					static_cast< double >(sum.y()) / check.points.size()
 				), check.points.size());
 			}
 		}

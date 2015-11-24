@@ -20,7 +20,7 @@
 namespace linescan{
 
 
-	vector< std::pair< point< float >, std::size_t > >
+	vector< std::pair< point< double >, std::size_t > >
 	collect_points(mitrax::raw_bitmap< bool > const& image);
 
 

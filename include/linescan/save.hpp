@@ -31,7 +31,7 @@ namespace linescan{
 	}
 
 	inline void save(
-		vector< float > const& line,
+		vector< double > const& line,
 		std::size_t rows,
 		std::string const& name
 	){

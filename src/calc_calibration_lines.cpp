@@ -12,13 +12,13 @@
 namespace linescan{
 
 
-	std::pair< vector< point< float > >, vector< point< float > > >
+	std::pair< vector< point< double > >, vector< point< double > > >
 	calc_calibration_lines(
-		vector< float > const& line,
+		vector< double > const& line,
 		std::size_t count
 	){
-		vector< linescan::point< float > > line1;
-		vector< linescan::point< float > > line2;
+		vector< linescan::point< double > > line1;
+		vector< linescan::point< double > > line2;
 		for(std::size_t i = 0; i < line.size() - count; ++i){
 			if(line[i] == 0 || line[i + count] == 0) continue;
 

@@ -18,15 +18,15 @@
 namespace linescan{
 
 
-	void draw(mitrax::raw_bitmap< std::uint8_t >& image, point< float > const& point);
+	void draw(mitrax::raw_bitmap< std::uint8_t >& image, point< double > const& point);
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		vector< point< float > > const& line
+		vector< point< double > > const& line
 	);
 
 	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
-		vector< float > const& line,
+		vector< double > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);

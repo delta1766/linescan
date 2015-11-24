@@ -15,7 +15,7 @@
 namespace linescan{
 
 
-	vector< float > calc_top_distance_line(
+	vector< double > calc_top_distance_line(
 		mitrax::raw_bitmap< std::uint8_t > const& image
 	){
 		auto binary = binarize(image, std::uint8_t(255));
@@ -25,10 +25,10 @@ namespace linescan{
 		return calc_top_distance_line(binary);
 	}
 
-	vector< float > calc_top_distance_line(
+	vector< double > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& binary
 	){
-		vector< float > result(binary.cols());
+		vector< double > result(binary.cols());
 		for(std::size_t x = 0; x < binary.cols(); ++x){
 			std::size_t max_length = 0;
 			std::size_t start = 0;
