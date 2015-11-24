@@ -349,14 +349,14 @@ namespace linescan{
 		auto proj = camera_projection(ref_points);
 		auto calc = camera_calculator(proj);
 
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx0, ty0, tz0})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx1, ty1, tz1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx2, ty2, tz2})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx3, ty3, tz3})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx4, ty4, tz4})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx5, ty5, tz5})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx6, ty6, tz6})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx7, ty7, tz7})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx0, ty0, tz0, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx1, ty1, tz1, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx2, ty2, tz2, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx3, ty3, tz3, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx4, ty4, tz4, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx5, ty5, tz5, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx6, ty6, tz6, 1})) << std::endl;
+		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx7, ty7, tz7, 1})) << std::endl;
 
 		auto laser = laser_function();
 	}
