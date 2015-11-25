@@ -359,6 +359,29 @@ namespace linescan{
 		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx7, ty7, tz7, 1})) << std::endl;
 
 		auto laser = laser_function();
+
+		auto x = laser.next;
+		auto p0_y = y_calc(point< double >(x, laser(x)));
+		auto p0_x = x_calc(point< double >(x, laser(x)));
+		auto p0 = point< double >(
+			(p0_y.x() + p0_x.x()) / 2, (p0_y.y() + p0_x.y()) / 2
+		);
+		auto p1 = y_calc(point< double >(x - 100, laser(x - 100)));
+		auto p2 = x_calc(point< double >(x + 100, laser(x + 100)));
+
+		std::cout << p0_y << std::endl;
+		std::cout << p0_x << '\n' << std::endl;
+		std::cout << p0 << std::endl;
+		std::cout << p1 << std::endl;
+		std::cout << p2 << std::endl;
+
+		auto p3_0 = mitrax::make_col_vector< double >(3_R, {0, 0, p0.y()});
+		auto p3_1 = mitrax::make_col_vector< double >(3_R, {0, p1.x(), p1.y()});
+		auto p3_2 = mitrax::make_col_vector< double >(3_R, {p2.x(), 0, p2.y()});
+
+		std::cout << p3_0 << std::endl;
+		std::cout << p3_1 << std::endl;
+		std::cout << p3_2 << std::endl;
 	}
 
 
