@@ -90,6 +90,7 @@ namespace linescan{
 
 	std::array< point< double >, 8 > load_points(){
 		auto image = load("simulation/real2_ref.png");
+// 		auto image = load("simulation/measure/calib0007.png");
 
 		auto binary = binarize(image, std::uint8_t(20));
 
@@ -232,7 +233,8 @@ namespace linescan{
 		using namespace mitrax;
 		using namespace mitrax::literals;
 
-		auto image =  load("simulation/real2_laser.png");
+		auto image = load("simulation/real2_laser.png");
+// 		auto image =  load("simulation/measure/laser0007.png");
 
 		auto binary = binarize(image, std::uint8_t(255));
 
@@ -450,37 +452,65 @@ namespace linescan{
 		std::cout << p_1 << std::endl;
 		std::cout << p_2 << std::endl;
 
+		auto p2d_0 = reduce(proj * expand(p_0));
+		auto p2d_1 = reduce(proj * expand(p_1));
+		auto p2d_2 = reduce(proj * expand(p_2));
+
 		std::cout << "Point on camera projected:" << std::endl;
-		std::cout << reduce(proj * expand(p_0)) << std::endl;
-		std::cout << reduce(proj * expand(p_1)) << std::endl;
-		std::cout << reduce(proj * expand(p_2)) << std::endl;
+		std::cout << p2d_0 << std::endl;
+		std::cout << p2d_1 << std::endl;
+		std::cout << p2d_2 << std::endl;
+
+		auto p3d_0 = reduce(transpose(transpose(expand(p2d_0)) * proj));
+		auto p3d_1 = reduce(transpose(transpose(expand(p2d_1)) * proj));
+		auto p3d_2 = reduce(transpose(transpose(expand(p2d_2)) * proj));
+
+		std::cout << "Point in 3d projected:" << std::endl;
+		std::cout << p3d_0 << std::endl;
+		std::cout << p3d_1 << std::endl;
+		std::cout << p3d_2 << std::endl;
 
 		auto laser_plane = geometry3d::plane< double >(p_0, p_1, p_2);
+
+		auto principal_point = make_col_vector< double >(
+			3_R, {proj(3, 0), proj(3, 1), proj(3, 2)}
+		);
 
 // 		auto cv0 = make_col_vector< double >(3_R, {cp0.x(), cp0.y(), 1});
 // 		auto cv1 = make_col_vector< double >(3_R, {cp1.x(), cp1.y(), 1});
 // 		auto cv2 = make_col_vector< double >(3_R, {cp2.x(), cp2.y(), 1});
-
+// 
 // 		auto line0_0 = gaussian_elimination(proj, cv0, make_col_vector< double >(1_R, {1}));
-// 		auto line0_1 = gaussian_elimination(proj, cv0 * 2, make_col_vector< double >(1_R, {2}));
 // 		auto line1_0 = gaussian_elimination(proj, cv1, make_col_vector< double >(1_R, {1}));
-// 		auto line1_1 = gaussian_elimination(proj, cv1 * 2, make_col_vector< double >(1_R, {2}));
 // 		auto line2_0 = gaussian_elimination(proj, cv2, make_col_vector< double >(1_R, {1}));
-// 		auto line2_1 = gaussian_elimination(proj, cv2 * 2, make_col_vector< double >(1_R, {2}));
+// 
+		std::cout << "Lines in 3D:" << std::endl;
+		std::cout << principal_point << " -> " << p3d_0 << std::endl;
+		std::cout << principal_point << " -> " << p3d_1 << std::endl;
+		std::cout << principal_point << " -> " << p3d_2 << std::endl;
 
-// 		std::cout << "Lines in 3D:" << std::endl;
-// 		std::cout << line0_0 << " -> " << line0_1 << std::endl;
-// 		std::cout << line1_0 << " -> " << line1_1 << std::endl;
-// 		std::cout << line2_0 << " -> " << line2_1 << std::endl;
-// 
-// 		auto line0 = geometry3d::line< double >(reduce(line0_0), reduce(line0_1));
-// 		auto line1 = geometry3d::line< double >(reduce(line1_0), reduce(line1_1));
-// 		auto line2 = geometry3d::line< double >(reduce(line2_0), reduce(line2_1));
-// 
-// 		std::cout << "Projected 3D points:" << std::endl;
-// 		std::cout << intersect(laser_plane, line0) << std::endl;
-// 		std::cout << intersect(laser_plane, line1) << std::endl;
-// 		std::cout << intersect(laser_plane, line2) << std::endl;
+		auto line0 = geometry3d::line< double >(principal_point, p3d_0);
+		auto line1 = geometry3d::line< double >(principal_point, p3d_1);
+		auto line2 = geometry3d::line< double >(principal_point, p3d_2);
+
+		std::cout << "Projected 3D points:" << std::endl;
+		std::cout << intersect(laser_plane, line0) << std::endl;
+		std::cout << intersect(laser_plane, line1) << std::endl;
+		std::cout << intersect(laser_plane, line2) << std::endl;
+
+		auto proj4x4 = make_square_matrix_by_function(4_D,
+			[&proj](size_t x, size_t y)->double{
+				if(y == 3){
+					return 0;
+				}
+				return proj(x, y);
+			});
+		auto C4 = matrix_kernel(proj4x4);
+
+		auto C = reduce(C4);
+		std::cout << C << std::endl;
+		std::cout << proj * C4 << std::endl;
+		std::cout << proj * expand(reduce(C4)) << std::endl;
 	}
 
 
