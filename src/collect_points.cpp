@@ -1,9 +1,11 @@
 #include <linescan/collect_points.hpp>
 
 #include <numeric>
+#include <stack>
 
 
 namespace linescan{
+
 
 	struct check_environement{
 		check_environement(
@@ -15,25 +17,38 @@ namespace linescan{
 			{}
 
 		void operator()(std::size_t x, std::size_t y){
-			if(
-				x >= in_use.cols() ||
-				y >= in_use.rows() ||
-				in_use(x, y) ||
-				!image(x, y)
-			) return;
+			// recursive implementation may kill the stack, therefore iterative
+			std::stack< point< size_t > > stack;
 
-			in_use(x, y) = true;
+			stack.emplace(x, y);
 
-			points.emplace_back(x, y);
+			while(stack.size() > 0){
+				std::size_t x = stack.top().x();
+				std::size_t y = stack.top().y();
 
-			(*this)(x - 1, y - 1);
-			(*this)(x - 1, y);
-			(*this)(x - 1, y + 1);
-			(*this)(x, y - 1);
-			(*this)(x, y + 1);
-			(*this)(x + 1, y - 1);
-			(*this)(x + 1, y);
-			(*this)(x + 1, y + 1);
+				if(
+					x >= in_use.cols() ||
+					y >= in_use.rows() ||
+					in_use(x, y) ||
+					!image(x, y)
+				){
+					stack.pop();
+					continue;
+				}
+
+				in_use(x, y) = true;
+
+				points.emplace_back(x, y);
+
+				stack.emplace(x - 1, y - 1);
+				stack.emplace(x - 1, y);
+				stack.emplace(x - 1, y + 1);
+				stack.emplace(x, y - 1);
+				stack.emplace(x, y + 1);
+				stack.emplace(x + 1, y - 1);
+				stack.emplace(x + 1, y);
+				stack.emplace(x + 1, y + 1);
+			}
 		};
 
 		mitrax::raw_bitmap< bool > const& image;
@@ -44,8 +59,7 @@ namespace linescan{
 
 	vector< std::pair< point< double >, std::size_t > >
 	collect_points(mitrax::raw_bitmap< bool > const& image){
-		auto in_use =
-			mitrax::make_matrix< bool >(dims(image.cols(), image.rows()));
+		auto in_use = mitrax::make_matrix< bool >(image.dims());
 
 		vector< std::pair< point< double >, std::size_t > > result;
 
