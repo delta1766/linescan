@@ -23,9 +23,69 @@
 #include <mitrax/point_io.hpp>
 #include <mitrax/operator.hpp>
 #include <mitrax/gaussian_elimination.hpp>
+#include <mitrax/geometry3d.hpp>
 
 
 namespace linescan{
+
+
+	namespace ref3d{
+
+
+		using namespace mitrax;
+		using namespace mitrax::literals;
+
+
+		constexpr auto plain_x_p0 = make_col_vector< double >(3_R, {  0, 160,  20});
+		constexpr auto plain_x_p1 = make_col_vector< double >(3_R, {  0, 160, 160});
+		constexpr auto plain_x_p2 = make_col_vector< double >(3_R, {  0,  20,  20});
+		constexpr auto plain_x_p3 = make_col_vector< double >(3_R, {  0,  20, 160});
+		constexpr auto plain_y_p0 = make_col_vector< double >(3_R, { 20,   0,  20});
+		constexpr auto plain_y_p1 = make_col_vector< double >(3_R, { 20,   0, 160});
+		constexpr auto plain_y_p2 = make_col_vector< double >(3_R, {160,   0,  20});
+		constexpr auto plain_y_p3 = make_col_vector< double >(3_R, {160,   0, 160});
+
+		constexpr std::array< raw_col_vector< double, 2 >, 4 > ref_x{{
+			make_col_vector< double >(2_R, {plain_x_p2[1], plain_x_p2[2]}),
+			make_col_vector< double >(2_R, {plain_x_p3[1], plain_x_p3[2]}),
+			make_col_vector< double >(2_R, {plain_x_p0[1], plain_x_p0[2]}),
+			make_col_vector< double >(2_R, {plain_x_p1[1], plain_x_p1[2]})
+		}};
+
+		constexpr std::array< raw_col_vector< double, 2 >, 4 > ref_y{{
+			make_col_vector< double >(2_R, {plain_y_p0[0], plain_y_p0[2]}),
+			make_col_vector< double >(2_R, {plain_y_p1[0], plain_y_p1[2]}),
+			make_col_vector< double >(2_R, {plain_y_p2[0], plain_y_p2[2]}),
+			make_col_vector< double >(2_R, {plain_y_p3[0], plain_y_p3[2]})
+		}};
+
+
+	}
+
+
+	template < typename M, size_t C >
+	auto reduce(mitrax::col_vector< M, C > const& v){
+		using namespace mitrax::literals;
+
+		if(v[v.rows() - 1_R] == 0) throw std::logic_error(
+			"can not reduce col_vector dimension, last coordinate is 0"
+		);
+
+		return mitrax::make_col_vector_by_function(
+			v.rows() - 1_R, [&v](size_t i){
+				return v[i] / v[v.rows() - 1_R];
+			});
+	}
+
+	template < typename M, size_t C >
+	auto expand(mitrax::col_vector< M, C > const& v){
+		using namespace mitrax::literals;
+
+		return mitrax::make_col_vector_by_function(
+			v.rows() + 1_R, [&v](size_t i){
+				return i == v.rows() ? 1 : v[i];
+			});
+	}
 
 
 	std::array< point< double >, 8 > load_points(){
@@ -89,34 +149,24 @@ namespace linescan{
 				return a.x() < b.x();
 			});
 
-		std::sort(ref_points.begin() + 0, ref_points.begin() + 1,
-			[](auto const& a, auto const& b){
+		auto pred_y = [](auto const& a, auto const& b){
 				return a.y() < b.y();
-			});
+			};
 
-		std::sort(ref_points.begin() + 2, ref_points.begin() + 3,
-			[](auto const& a, auto const& b){
-				return a.y() < b.y();
-			});
-
-		std::sort(ref_points.begin() + 4, ref_points.begin() + 5,
-			[](auto const& a, auto const& b){
-				return a.y() < b.y();
-			});
-
-		std::sort(ref_points.begin() + 6, ref_points.begin() + 8,
-			[](auto const& a, auto const& b){
-				return a.y() < b.y();
-			});
-
-		std::swap(ref_points[4], ref_points[6]);
-		std::swap(ref_points[5], ref_points[7]);
+		std::sort(ref_points.begin() + 0, ref_points.begin() + 1, pred_y);
+		std::sort(ref_points.begin() + 2, ref_points.begin() + 3, pred_y);
+		std::sort(ref_points.begin() + 4, ref_points.begin() + 5, pred_y);
+		std::sort(ref_points.begin() + 6, ref_points.begin() + 7, pred_y);
 
 		return ref_points;
 	}
 
 
-	auto plane_projection(std::array< point< double >, 4 > const& points){
+	auto plane_projection(
+		std::array< point< double >, 4 > const& points,
+		std::array< mitrax::raw_col_vector< double, 2 >, 4 > const& target
+	){
+		using namespace mitrax;
 		using namespace mitrax::literals;
 
 		auto x0 = points[0].x();
@@ -128,16 +178,16 @@ namespace linescan{
 		auto x3 = points[3].x();
 		auto y3 = points[3].y();
 
-		double tx0 = 160;
-		double ty0 = 160;
-		double tx1 = 160;
-		double ty1 = 20;
-		double tx2 = 20;
-		double ty2 = 160;
-		double tx3 = 20;
-		double ty3 = 20;
+		double tx0 = target[0][0];
+		double ty0 = target[0][1];
+		double tx1 = target[1][0];
+		double ty1 = target[1][1];
+		double tx2 = target[2][0];
+		double ty2 = target[2][1];
+		double tx3 = target[3][0];
+		double ty3 = target[3][1];
 
-		auto b = mitrax::make_matrix< double >(9_C, 9_R, {
+		auto b = make_matrix< double >(9_C, 9_R, {
 			{x0, y0, 1,  0,  0, 0, -tx0 * x0, -tx0 * y0, -tx0},
 			{ 0,  0, 0, x0, y0, 1, -ty0 * x0, -ty0 * y0, -ty0},
 			{x1, y1, 1,  0,  0, 0, -tx1 * x1, -tx1 * y1, -tx1},
@@ -149,9 +199,9 @@ namespace linescan{
 			{ 0,  0, 0,  0,  0, 0,         0,         0,    0}
 		});
 
-		auto vec = mitrax::matrix_kernel(b);
+		auto vec = matrix_kernel(b);
 
-		auto res = mitrax::make_matrix< double >(3_C, 3_R, {
+		auto res = make_matrix< double >(3_C, 3_R, {
 			{vec[0], vec[1], vec[2]},
 			{vec[3], vec[4], vec[5]},
 			{vec[6], vec[7], vec[8]}
@@ -163,13 +213,14 @@ namespace linescan{
 	}
 
 	auto plane_calculator(mitrax::raw_matrix< double, 3, 3 > const& m){
+		using namespace mitrax;
 		using namespace mitrax::literals;
 
-		return [m](mitrax::point< double > const& p){
-			auto p1_3d = m * mitrax::make_col_vector< double >(
+		return [m](point< double > const& p){
+			auto p1_3d = m * make_col_vector< double >(
 				3_R, {p.x(), p.y(), 1});
 
-			return mitrax::point< double >(
+			return point< double >(
 				p1_3d[0] / p1_3d[2],
 				p1_3d[1] / p1_3d[2]
 			);
@@ -178,6 +229,9 @@ namespace linescan{
 
 
 	auto laser_function(){
+		using namespace mitrax;
+		using namespace mitrax::literals;
+
 		auto image =  load("simulation/real2_laser.png");
 
 		auto binary = binarize(image, std::uint8_t(255));
@@ -203,7 +257,7 @@ namespace linescan{
 
 		{
 			auto lines
-				= mitrax::make_matrix< std::uint8_t >(binary.dims());
+				= make_matrix< std::uint8_t >(binary.dims());
 
 			draw(lines, calib_line);
 			save(lines, "04_calib_line.png");
@@ -212,39 +266,8 @@ namespace linescan{
 		return calib_line;
 	}
 
-	constexpr double tx0 = 160;
-	constexpr double ty0 = 0;
-	constexpr double tz0 = 160;
-
-	constexpr double tx1 = 160;
-	constexpr double ty1 = 0;
-	constexpr double tz1 = 20;
-
-	constexpr double tx2 = 20;
-	constexpr double ty2 = 0;
-	constexpr double tz2 = 160;
-
-	constexpr double tx3 = 20;
-	constexpr double ty3 = 0;
-	constexpr double tz3 = 20;
-
-	constexpr double tx4 = 0;
-	constexpr double ty4 = 160;
-	constexpr double tz4 = 160;
-
-	constexpr double tx5 = 0;
-	constexpr double ty5 = 160;
-	constexpr double tz5 = 20;
-
-	constexpr double tx6 = 0;
-	constexpr double ty6 = 20;
-	constexpr double tz6 = 160;
-
-	constexpr double tx7 = 0;
-	constexpr double ty7 = 20;
-	constexpr double tz7 = 20;
-
 	auto camera_projection(std::array< point< double >, 8 > const& ref_points){
+		using namespace mitrax;
 		using namespace mitrax::literals;
 
 		auto x0 = ref_points[0].x(); (void) x0;
@@ -264,7 +287,39 @@ namespace linescan{
 		auto x7 = ref_points[7].x(); (void) x7;
 		auto y7 = ref_points[7].y(); (void) y7;
 
-		auto b = mitrax::make_matrix< double >(12_C, 12_R, {
+		constexpr double tx0 = ref3d::plain_x_p0[0]; (void) tx0;
+		constexpr double ty0 = ref3d::plain_x_p0[1]; (void) ty0;
+		constexpr double tz0 = ref3d::plain_x_p0[2]; (void) tz0;
+
+		constexpr double tx1 = ref3d::plain_x_p1[0]; (void) tx1;
+		constexpr double ty1 = ref3d::plain_x_p1[1]; (void) ty1;
+		constexpr double tz1 = ref3d::plain_x_p1[2]; (void) tz1;
+
+		constexpr double tx2 = ref3d::plain_x_p2[0]; (void) tx2;
+		constexpr double ty2 = ref3d::plain_x_p2[1]; (void) ty2;
+		constexpr double tz2 = ref3d::plain_x_p2[2]; (void) tz2;
+
+		constexpr double tx3 = ref3d::plain_x_p3[0]; (void) tx3;
+		constexpr double ty3 = ref3d::plain_x_p3[1]; (void) ty3;
+		constexpr double tz3 = ref3d::plain_x_p3[2]; (void) tz3;
+
+		constexpr double tx4 = ref3d::plain_y_p0[0]; (void) tx4;
+		constexpr double ty4 = ref3d::plain_y_p0[1]; (void) ty4;
+		constexpr double tz4 = ref3d::plain_y_p0[2]; (void) tz4;
+
+		constexpr double tx5 = ref3d::plain_y_p1[0]; (void) tx5;
+		constexpr double ty5 = ref3d::plain_y_p1[1]; (void) ty5;
+		constexpr double tz5 = ref3d::plain_y_p1[2]; (void) tz5;
+
+		constexpr double tx6 = ref3d::plain_y_p2[0]; (void) tx6;
+		constexpr double ty6 = ref3d::plain_y_p2[1]; (void) ty6;
+		constexpr double tz6 = ref3d::plain_y_p2[2]; (void) tz6;
+
+		constexpr double tx7 = ref3d::plain_y_p3[0]; (void) tx7;
+		constexpr double ty7 = ref3d::plain_y_p3[1]; (void) ty7;
+		constexpr double tz7 = ref3d::plain_y_p3[2]; (void) tz7;
+
+		auto b = make_matrix< double >(12_C, 12_R, {
 			{  0,   0,   0, 0, -tx0, -ty0, -tz0, -1,  y0 * tx0,  y0 * ty0,  y0 * tz0,  y0},
 			{tx0, ty0, tz0, 1,    0,    0,    0,  0, -x0 * tx0, -x0 * ty0, -x0 * tz0, -x0},
 // 			{  0,   0,   0, 0, -tx1, -ty1, -tz1, -1,  y1 * tx1,  y1 * ty1,  y1 * tz1,  y1},
@@ -284,9 +339,9 @@ namespace linescan{
 			{  0,   0,   0, 0,    0,    0,    0,  0,         0,         0,         0,   0}
 		});
 
-		auto vec = mitrax::matrix_kernel(b);
+		auto vec = matrix_kernel(b);
 
-		auto res = mitrax::make_matrix< double >(4_C, 3_R, {
+		auto res = make_matrix< double >(4_C, 3_R, {
 			{vec[0], vec[1], vec[2], vec[3]},
 			{vec[4], vec[5], vec[6], vec[7]},
 			{vec[8], vec[9], vec[10], vec[11]}
@@ -297,20 +352,20 @@ namespace linescan{
 	}
 
 	auto camera_calculator(mitrax::raw_matrix< double, 4, 3 > const& m){
-		using namespace mitrax::literals;
+		using namespace mitrax;
 
-		return [m](mitrax::raw_col_vector< double, 4 > const& p){
-			auto p_3d = m * p;
+		return [m](raw_col_vector< double, 3 > const& p){
+			auto p_3d = m * expand(p);
 
-			return mitrax::point< double >(
+			return point< double >(
 				p_3d[0] / p_3d[2],
 				p_3d[1] / p_3d[2]
 			);
 		};
 	}
 
-
 	void calib(){
+		using namespace mitrax;
 		using namespace mitrax::literals;
 
 		auto ref_points = load_points();
@@ -329,11 +384,11 @@ namespace linescan{
 			ref_points[7]
 		}};
 
-		auto y_proj = plane_projection(y_plane);
-		auto y_calc = plane_calculator(y_proj);
-
-		auto x_proj = plane_projection(x_plane);
+		auto x_proj = plane_projection(x_plane, ref3d::ref_x);
 		auto x_calc = plane_calculator(x_proj);
+
+		auto y_proj = plane_projection(y_plane, ref3d::ref_y);
+		auto y_calc = plane_calculator(y_proj);
 
 		for(auto& v: ref_points) std::cout << v << std::endl;
 
@@ -349,39 +404,83 @@ namespace linescan{
 		auto proj = camera_projection(ref_points);
 		auto calc = camera_calculator(proj);
 
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx0, ty0, tz0, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx1, ty1, tz1, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx2, ty2, tz2, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx3, ty3, tz3, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx4, ty4, tz4, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx5, ty5, tz5, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx6, ty6, tz6, 1})) << std::endl;
-		std::cout << calc(mitrax::make_col_vector< double >(4_R, {tx7, ty7, tz7, 1})) << std::endl;
+		std::cout << calc(ref3d::plain_x_p0) << std::endl;
+		std::cout << calc(ref3d::plain_x_p1) << std::endl;
+		std::cout << calc(ref3d::plain_x_p2) << std::endl;
+		std::cout << calc(ref3d::plain_x_p3) << std::endl;
+		std::cout << calc(ref3d::plain_y_p0) << std::endl;
+		std::cout << calc(ref3d::plain_y_p1) << std::endl;
+		std::cout << calc(ref3d::plain_y_p2) << std::endl;
+		std::cout << calc(ref3d::plain_y_p3) << std::endl;
 
 		auto laser = laser_function();
 
 		auto x = laser.next;
-		auto p0_y = y_calc(point< double >(x, laser(x)));
-		auto p0_x = x_calc(point< double >(x, laser(x)));
+
+		auto cp0 = point< double >(x, laser(x));
+		auto cp1 = point< double >(x - 100, laser(x - 100));
+		auto cp2 = point< double >(x + 100, laser(x + 100));
+
+		std::cout << "Point on camera:" << std::endl;
+		std::cout << cp0 << std::endl;
+		std::cout << cp1 << std::endl;
+		std::cout << cp2 << std::endl;
+
+		auto p0_y = y_calc(cp0);
+		auto p0_x = x_calc(cp0);
 		auto p0 = point< double >(
 			(p0_y.x() + p0_x.x()) / 2, (p0_y.y() + p0_x.y()) / 2
 		);
-		auto p1 = y_calc(point< double >(x - 100, laser(x - 100)));
-		auto p2 = x_calc(point< double >(x + 100, laser(x + 100)));
+		auto p1 = y_calc(cp1);
+		auto p2 = x_calc(cp2);
 
+		std::cout << "Points on x or y plane:" << std::endl;
 		std::cout << p0_y << std::endl;
 		std::cout << p0_x << '\n' << std::endl;
 		std::cout << p0 << std::endl;
 		std::cout << p1 << std::endl;
 		std::cout << p2 << std::endl;
 
-		auto p3_0 = mitrax::make_col_vector< double >(3_R, {0, 0, p0.y()});
-		auto p3_1 = mitrax::make_col_vector< double >(3_R, {0, p1.x(), p1.y()});
-		auto p3_2 = mitrax::make_col_vector< double >(3_R, {p2.x(), 0, p2.y()});
+		auto p_0 = make_col_vector< double >(3_R, {0, 0, p0.y()});
+		auto p_1 = make_col_vector< double >(3_R, {0, p1.x(), p1.y()});
+		auto p_2 = make_col_vector< double >(3_R, {p2.x(), 0, p2.y()});
 
-		std::cout << p3_0 << std::endl;
-		std::cout << p3_1 << std::endl;
-		std::cout << p3_2 << std::endl;
+		std::cout << "Points in 3D:" << std::endl;
+		std::cout << p_0 << std::endl;
+		std::cout << p_1 << std::endl;
+		std::cout << p_2 << std::endl;
+
+		std::cout << "Point on camera projected:" << std::endl;
+		std::cout << reduce(proj * expand(p_0)) << std::endl;
+		std::cout << reduce(proj * expand(p_1)) << std::endl;
+		std::cout << reduce(proj * expand(p_2)) << std::endl;
+
+		auto laser_plane = geometry3d::plane< double >(p_0, p_1, p_2);
+
+// 		auto cv0 = make_col_vector< double >(3_R, {cp0.x(), cp0.y(), 1});
+// 		auto cv1 = make_col_vector< double >(3_R, {cp1.x(), cp1.y(), 1});
+// 		auto cv2 = make_col_vector< double >(3_R, {cp2.x(), cp2.y(), 1});
+
+// 		auto line0_0 = gaussian_elimination(proj, cv0, make_col_vector< double >(1_R, {1}));
+// 		auto line0_1 = gaussian_elimination(proj, cv0 * 2, make_col_vector< double >(1_R, {2}));
+// 		auto line1_0 = gaussian_elimination(proj, cv1, make_col_vector< double >(1_R, {1}));
+// 		auto line1_1 = gaussian_elimination(proj, cv1 * 2, make_col_vector< double >(1_R, {2}));
+// 		auto line2_0 = gaussian_elimination(proj, cv2, make_col_vector< double >(1_R, {1}));
+// 		auto line2_1 = gaussian_elimination(proj, cv2 * 2, make_col_vector< double >(1_R, {2}));
+
+// 		std::cout << "Lines in 3D:" << std::endl;
+// 		std::cout << line0_0 << " -> " << line0_1 << std::endl;
+// 		std::cout << line1_0 << " -> " << line1_1 << std::endl;
+// 		std::cout << line2_0 << " -> " << line2_1 << std::endl;
+// 
+// 		auto line0 = geometry3d::line< double >(reduce(line0_0), reduce(line0_1));
+// 		auto line1 = geometry3d::line< double >(reduce(line1_0), reduce(line1_1));
+// 		auto line2 = geometry3d::line< double >(reduce(line2_0), reduce(line2_1));
+// 
+// 		std::cout << "Projected 3D points:" << std::endl;
+// 		std::cout << intersect(laser_plane, line0) << std::endl;
+// 		std::cout << intersect(laser_plane, line1) << std::endl;
+// 		std::cout << intersect(laser_plane, line2) << std::endl;
 	}
 
 
