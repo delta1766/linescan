@@ -22,12 +22,17 @@
 #include <linescan/invert.hpp>
 #include <linescan/calib.hpp>
 
+#include <mitrax/norm.hpp>
+#include <mitrax/operator.hpp>
+#include <mitrax/output.hpp>
+
 #include <boost/type_index.hpp>
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
 
 int main()try{
@@ -35,7 +40,6 @@ int main()try{
 	using namespace mitrax::literals;
 
 // 	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
-// 
 // 	linescan::camera cam(0);
 
 	std::string command;
@@ -66,6 +70,7 @@ int main()try{
 				std::this_thread::sleep_for(100ms);
 
 				std::cout << "Get calib " << i << std::endl;
+				std::cin.get();
 
 				auto calib = cam.image();
 
@@ -90,8 +95,6 @@ int main()try{
 					linescan::save(laser, os.str());
 				}
 
-				std::cin.get();
-
 				mcl3.move_relative(0, -1000, 0);
 			}
 
@@ -102,6 +105,10 @@ int main()try{
 			linescan::calib();
 		}else{
 			std::cout << "Unknown input" << std::endl;
+			auto v = mitrax::make_col_vector< double >(3_R, {1, 2, 3});
+			v /= vector_norm_2(v);
+			std::cout << v << std::endl;
+			std::cout << transpose(v) * v << std::endl;
 		}
 	}
 }catch(std::exception const& e){

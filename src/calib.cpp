@@ -24,6 +24,10 @@
 #include <mitrax/operator.hpp>
 #include <mitrax/gaussian_elimination.hpp>
 #include <mitrax/geometry3d.hpp>
+#include <mitrax/householder_transformation.hpp>
+#include <mitrax/gauss_newton_algorithm.hpp>
+
+#include <iomanip>
 
 
 namespace linescan{
@@ -53,10 +57,10 @@ namespace linescan{
 		}};
 
 		constexpr std::array< raw_col_vector< double, 2 >, 4 > ref_y{{
-			make_col_vector< double >(2_R, {plain_y_p0[0], plain_y_p0[2]}),
-			make_col_vector< double >(2_R, {plain_y_p1[0], plain_y_p1[2]}),
 			make_col_vector< double >(2_R, {plain_y_p2[0], plain_y_p2[2]}),
-			make_col_vector< double >(2_R, {plain_y_p3[0], plain_y_p3[2]})
+			make_col_vector< double >(2_R, {plain_y_p3[0], plain_y_p3[2]}),
+			make_col_vector< double >(2_R, {plain_y_p0[0], plain_y_p0[2]}),
+			make_col_vector< double >(2_R, {plain_y_p1[0], plain_y_p1[2]})
 		}};
 
 
@@ -89,10 +93,10 @@ namespace linescan{
 
 
 	std::array< point< double >, 8 > load_points(){
-		auto image = load("simulation/real2_ref.png");
-// 		auto image = load("simulation/measure/calib0007.png");
+// 		auto image = load("simulation/real2_ref.png");
+		auto image = load("simulation/measure2/calib0000.png");
 
-		auto binary = binarize(image, std::uint8_t(20));
+		auto binary = binarize(image, std::uint8_t(50));
 
 		save(binary, "11_binary.png");
 
@@ -114,8 +118,13 @@ namespace linescan{
 			// Sort by size
 			std::sort(point_and_counts.begin(), point_and_counts.end(),
 				[](auto& a, auto& b){
-					return a.second < b.second;
+					return a.second > b.second;
 				});
+
+			for(auto& v: point_and_counts){
+				std::cout << std::setw(8) << v.second << ": " << v.first
+					<< std::endl;
+			}
 
 			// keep the 8 biggest, remove the rest
 			point_and_counts.erase(
@@ -154,10 +163,10 @@ namespace linescan{
 				return a.y() < b.y();
 			};
 
-		std::sort(ref_points.begin() + 0, ref_points.begin() + 1, pred_y);
-		std::sort(ref_points.begin() + 2, ref_points.begin() + 3, pred_y);
-		std::sort(ref_points.begin() + 4, ref_points.begin() + 5, pred_y);
-		std::sort(ref_points.begin() + 6, ref_points.begin() + 7, pred_y);
+		std::sort(ref_points.begin() + 0, ref_points.begin() + 2, pred_y);
+		std::sort(ref_points.begin() + 2, ref_points.begin() + 4, pred_y);
+		std::sort(ref_points.begin() + 4, ref_points.begin() + 6, pred_y);
+		std::sort(ref_points.begin() + 6, ref_points.begin() + 8, pred_y);
 
 		return ref_points;
 	}
@@ -188,6 +197,28 @@ namespace linescan{
 		double tx3 = target[3][0];
 		double ty3 = target[3][1];
 
+		std::cout << "Point map 2D" << std::endl;
+		std::cout
+			<< std::setw(9) << x0 << "x"
+			<< std::setw(9) << y0 << " <- "
+			<< std::setw(3) << tx0 << "x"
+			<< std::setw(3) << ty0 << std::endl;
+		std::cout
+			<< std::setw(9) << x1 << "x"
+			<< std::setw(9) << y1 << " <- "
+			<< std::setw(3) << tx1 << "x"
+			<< std::setw(3) << ty1 << std::endl;
+		std::cout
+			<< std::setw(9) << x2 << "x"
+			<< std::setw(9) << y2 << " <- "
+			<< std::setw(3) << tx2 << "x"
+			<< std::setw(3) << ty2 << std::endl;
+		std::cout
+			<< std::setw(9) << x3 << "x"
+			<< std::setw(9) << y3 << " <- "
+			<< std::setw(3) << tx3 << "x"
+			<< std::setw(3) << ty3 << std::endl;
+
 		auto b = make_matrix< double >(9_C, 9_R, {
 			{x0, y0, 1,  0,  0, 0, -tx0 * x0, -tx0 * y0, -tx0},
 			{ 0,  0, 0, x0, y0, 1, -ty0 * x0, -ty0 * y0, -ty0},
@@ -208,7 +239,7 @@ namespace linescan{
 			{vec[6], vec[7], vec[8]}
 		});
 
-		std::cout << res << std::endl;
+		std::cout << "2D-Transform: " << res << std::endl;
 
 		return res;
 	}
@@ -233,8 +264,8 @@ namespace linescan{
 		using namespace mitrax;
 		using namespace mitrax::literals;
 
-		auto image = load("simulation/real2_laser.png");
-// 		auto image =  load("simulation/measure/laser0007.png");
+// 		auto image = load("simulation/real2_laser.png");
+		auto image =  load("simulation/measure2/laser0000.png");
 
 		auto binary = binarize(image, std::uint8_t(255));
 
@@ -321,34 +352,185 @@ namespace linescan{
 		constexpr double ty7 = ref3d::plain_y_p3[1]; (void) ty7;
 		constexpr double tz7 = ref3d::plain_y_p3[2]; (void) tz7;
 
-		auto b = make_matrix< double >(12_C, 12_R, {
-			{  0,   0,   0, 0, -tx0, -ty0, -tz0, -1,  y0 * tx0,  y0 * ty0,  y0 * tz0,  y0},
-			{tx0, ty0, tz0, 1,    0,    0,    0,  0, -x0 * tx0, -x0 * ty0, -x0 * tz0, -x0},
-// 			{  0,   0,   0, 0, -tx1, -ty1, -tz1, -1,  y1 * tx1,  y1 * ty1,  y1 * tz1,  y1},
-// 			{tx1, ty1, tz1, 1,    0,    0,    0,  0, -x1 * tx1, -x1 * ty1, -x1 * tz1, -x1},
-			{  0,   0,   0, 0, -tx2, -ty2, -tz2, -1,  y2 * tx2,  y2 * ty2,  y2 * tz2,  y2},
-			{tx2, ty2, tz2, 1,    0,    0,    0,  0, -x2 * tx2, -x2 * ty2, -x2 * tz2, -x2},
-			{  0,   0,   0, 0, -tx3, -ty3, -tz3, -1,  y3 * tx3,  y3 * ty3,  y3 * tz3,  y3},
-// 			{tx3, ty3, tz3, 1,    0,    0,    0,  0, -x3 * tx3, -x3 * ty3, -x3 * tz3, -x3},
-			{  0,   0,   0, 0, -tx4, -ty4, -tz4, -1,  y4 * tx4,  y4 * ty4,  y4 * tz4,  y4},
-			{tx4, ty4, tz4, 1,    0,    0,    0,  0, -x4 * tx4, -x4 * ty4, -x4 * tz4, -x4},
-			{  0,   0,   0, 0, -tx5, -ty5, -tz5, -1,  y5 * tx5,  y5 * ty5,  y5 * tz5,  y5},
-			{tx5, ty5, tz5, 1,    0,    0,    0,  0, -x5 * tx5, -x5 * ty5, -x5 * tz5, -x5},
-// 			{  0,   0,   0, 0, -tx6, -ty6, -tz6, -1,  y6 * tx6,  y6 * ty6,  y6 * tz6,  y6},
-// 			{tx6, ty6, tz6, 1,    0,    0,    0,  0, -x6 * tx6, -x6 * ty6, -x6 * tz6, -x6},
-			{  0,   0,   0, 0, -tx7, -ty7, -tz7, -1,  y7 * tx7,  y7 * ty7,  y7 * tz7,  y7},
-			{tx7, ty7, tz7, 1,    0,    0,    0,  0, -x7 * tx7, -x7 * ty7, -x7 * tz7, -x7},
-			{  0,   0,   0, 0,    0,    0,    0,  0,         0,         0,         0,   0}
+		std::cout << "Point map 3D" << std::endl;
+		std::cout
+			<< std::setw(9) << x0 << "x"
+			<< std::setw(9) << y0 << " <- "
+			<< std::setw(3) << tx0 << "x"
+			<< std::setw(3) << ty0 << "x"
+			<< std::setw(3) << tz0 << std::endl;
+		std::cout
+			<< std::setw(9) << x1 << "x"
+			<< std::setw(9) << y1 << " <- "
+			<< std::setw(3) << tx1 << "x"
+			<< std::setw(3) << ty1 << "x"
+			<< std::setw(3) << tz1 << std::endl;
+		std::cout
+			<< std::setw(9) << x2 << "x"
+			<< std::setw(9) << y2 << " <- "
+			<< std::setw(3) << tx2 << "x"
+			<< std::setw(3) << ty2 << "x"
+			<< std::setw(3) << tz2 << std::endl;
+		std::cout
+			<< std::setw(9) << x3 << "x"
+			<< std::setw(9) << y3 << " <- "
+			<< std::setw(3) << tx3 << "x"
+			<< std::setw(3) << ty3 << "x"
+			<< std::setw(3) << tz3 << std::endl;
+		std::cout
+			<< std::setw(9) << x4 << "x"
+			<< std::setw(9) << y4 << " <- "
+			<< std::setw(3) << tx4 << "x"
+			<< std::setw(3) << ty4 << "x"
+			<< std::setw(3) << tz4 << std::endl;
+		std::cout
+			<< std::setw(9) << x5 << "x"
+			<< std::setw(9) << y5 << " <- "
+			<< std::setw(3) << tx5 << "x"
+			<< std::setw(3) << ty5 << "x"
+			<< std::setw(3) << tz5 << std::endl;
+		std::cout
+			<< std::setw(9) << x6 << "x"
+			<< std::setw(9) << y6 << " <- "
+			<< std::setw(3) << tx6 << "x"
+			<< std::setw(3) << ty6 << "x"
+			<< std::setw(3) << tz6 << std::endl;
+		std::cout
+			<< std::setw(9) << x7 << "x"
+			<< std::setw(9) << y7 << " <- "
+			<< std::setw(3) << tx7 << "x"
+			<< std::setw(3) << ty7 << "x"
+			<< std::setw(3) << tz7 << std::endl;
+
+// 		auto b = make_matrix< double >(12_C, 12_R, {
+// 			{  0,   0,   0, 0, -tx0, -ty0, -tz0, -1,  y0 * tx0,  y0 * ty0,  y0 * tz0,  y0},
+// 			{tx0, ty0, tz0, 1,    0,    0,    0,  0, -x0 * tx0, -x0 * ty0, -x0 * tz0, -x0},
+// // 			{  0,   0,   0, 0, -tx1, -ty1, -tz1, -1,  y1 * tx1,  y1 * ty1,  y1 * tz1,  y1},
+// // 			{tx1, ty1, tz1, 1,    0,    0,    0,  0, -x1 * tx1, -x1 * ty1, -x1 * tz1, -x1},
+// 			{  0,   0,   0, 0, -tx2, -ty2, -tz2, -1,  y2 * tx2,  y2 * ty2,  y2 * tz2,  y2},
+// 			{tx2, ty2, tz2, 1,    0,    0,    0,  0, -x2 * tx2, -x2 * ty2, -x2 * tz2, -x2},
+// 			{  0,   0,   0, 0, -tx3, -ty3, -tz3, -1,  y3 * tx3,  y3 * ty3,  y3 * tz3,  y3},
+// // 			{tx3, ty3, tz3, 1,    0,    0,    0,  0, -x3 * tx3, -x3 * ty3, -x3 * tz3, -x3},
+// 			{  0,   0,   0, 0, -tx4, -ty4, -tz4, -1,  y4 * tx4,  y4 * ty4,  y4 * tz4,  y4},
+// 			{tx4, ty4, tz4, 1,    0,    0,    0,  0, -x4 * tx4, -x4 * ty4, -x4 * tz4, -x4},
+// 			{  0,   0,   0, 0, -tx5, -ty5, -tz5, -1,  y5 * tx5,  y5 * ty5,  y5 * tz5,  y5},
+// 			{tx5, ty5, tz5, 1,    0,    0,    0,  0, -x5 * tx5, -x5 * ty5, -x5 * tz5, -x5},
+// // 			{  0,   0,   0, 0, -tx6, -ty6, -tz6, -1,  y6 * tx6,  y6 * ty6,  y6 * tz6,  y6},
+// // 			{tx6, ty6, tz6, 1,    0,    0,    0,  0, -x6 * tx6, -x6 * ty6, -x6 * tz6, -x6},
+// 			{  0,   0,   0, 0, -tx7, -ty7, -tz7, -1,  y7 * tx7,  y7 * ty7,  y7 * tz7,  y7},
+// 			{tx7, ty7, tz7, 1,    0,    0,    0,  0, -x7 * tx7, -x7 * ty7, -x7 * tz7, -x7},
+// 			{  0,   0,   0, 0,    0,    0,    0,  0,         0,         0,         0,   0}
+// 		});
+// 
+// 		auto vec = matrix_kernel(b);
+// 		auto res = make_matrix< double >(4_C, 3_R, {
+// 			{vec[0], vec[1], vec[2], vec[3]},
+// 			{vec[4], vec[5], vec[6], vec[7]},
+// 			{vec[8], vec[9], vec[10], vec[11]}
+// 		});
+
+		auto f = [](
+				raw_col_vector< double, 11 > const& p,
+				std::tuple<
+					raw_col_vector< double, 3 >,
+					raw_col_vector< double, 4 >
+				> const& point
+			){
+				auto image_point = std::get< 0 >(point);
+				auto world_point = std::get< 1 >(point);
+				auto res = make_matrix< double >(4_C, 3_R, {
+					{p[0], p[1], p[2], p[3]},
+					{p[4], p[5], p[6], p[7]},
+					{p[8], p[9], p[10], 1}
+				});
+				return vector_norm_2sqr(res * world_point - image_point);
+			};
+
+		auto vec3 = [](auto const& p){
+			return make_col_vector< double >(3_R, {p.x(), p.y(), 1});
+		};
+
+		auto vec4 = [](auto const& p){
+			return expand(p);
+		};
+
+		boost::container::vector< std::tuple<
+			raw_col_vector< double, 3 >,
+			raw_col_vector< double, 4 >
+		> > data{
+			std::make_tuple(vec3(ref_points[0]), vec4(ref3d::plain_x_p0)),
+			std::make_tuple(vec3(ref_points[1]), vec4(ref3d::plain_x_p1)),
+			std::make_tuple(vec3(ref_points[2]), vec4(ref3d::plain_x_p2)),
+			std::make_tuple(vec3(ref_points[3]), vec4(ref3d::plain_x_p3)),
+			std::make_tuple(vec3(ref_points[4]), vec4(ref3d::plain_y_p0)),
+			std::make_tuple(vec3(ref_points[5]), vec4(ref3d::plain_y_p1)),
+			std::make_tuple(vec3(ref_points[6]), vec4(ref3d::plain_y_p2)),
+			std::make_tuple(vec3(ref_points[7]), vec4(ref3d::plain_y_p3))
+		};
+
+		auto start = make_col_vector< double >(11_R, {
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 		});
 
-		auto vec = matrix_kernel(b);
+		auto vec = levenberg_marquardt_algorithm(
+			f, start, 1e-10, 0.2, 0.8, 1., data
+		);
 
 		auto res = make_matrix< double >(4_C, 3_R, {
 			{vec[0], vec[1], vec[2], vec[3]},
 			{vec[4], vec[5], vec[6], vec[7]},
-			{vec[8], vec[9], vec[10], vec[11]}
+			{vec[8], vec[9], vec[10], 1}
 		});
-		std::cout << res << std::endl;
+
+// 		auto X = make_matrix< double >(8_C, 16_R, {
+// 			{ tx0, ty0, tz0, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx0, ty0, tz0, 1 },
+// 			{ tx1, ty1, tz1, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx1, ty1, tz1, 1 },
+// 			{ tx2, ty2, tz2, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx2, ty2, tz2, 1 },
+// 			{ tx3, ty3, tz3, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx3, ty3, tz3, 1 },
+// 			{ tx4, ty4, tz4, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx4, ty4, tz4, 1 },
+// 			{ tx5, ty5, tz5, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx5, ty5, tz5, 1 },
+// 			{ tx6, ty6, tz6, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx6, ty6, tz6, 1 },
+// 			{ tx7, ty7, tz7, 1,   0,   0,   0, 0 },
+// 			{   0,   0,   0, 0, tx7, ty7, tz7, 1 }
+// 		});
+// 
+// 		auto tX = transpose(X);
+// 		auto piX = inverse(tX * X) * tX;
+// 
+// 		auto b = make_col_vector< double >(16_R, {
+// 			ref_points[0].x(),
+// 			ref_points[0].y(),
+// 			ref_points[1].x(),
+// 			ref_points[1].y(),
+// 			ref_points[2].x(),
+// 			ref_points[2].y(),
+// 			ref_points[3].x(),
+// 			ref_points[3].y(),
+// 			ref_points[4].x(),
+// 			ref_points[4].y(),
+// 			ref_points[5].x(),
+// 			ref_points[5].y(),
+// 			ref_points[6].x(),
+// 			ref_points[6].y(),
+// 			ref_points[7].x(),
+// 			ref_points[7].y()
+// 		});
+// 
+// 		auto vec = piX * b;
+// 		auto res = make_matrix< double >(4_C, 3_R, {
+// 			{vec[0], vec[1], vec[2], vec[3]},
+// 			{vec[4], vec[5], vec[6], vec[7]},
+// 			{     0,      0,      0,      1}
+// 		});
+
+		std::cout << "3D-Transform" << res << std::endl;
 
 		return res;
 	}
@@ -369,6 +551,8 @@ namespace linescan{
 	void calib(){
 		using namespace mitrax;
 		using namespace mitrax::literals;
+
+		std::cout << std::defaultfloat;
 
 		auto ref_points = load_points();
 
@@ -394,26 +578,28 @@ namespace linescan{
 
 		for(auto& v: ref_points) std::cout << v << std::endl;
 
-		std::cout << y_calc(ref_points[0]) << std::endl;
-		std::cout << y_calc(ref_points[1]) << std::endl;
-		std::cout << y_calc(ref_points[2]) << std::endl;
-		std::cout << y_calc(ref_points[3]) << std::endl;
-		std::cout << x_calc(ref_points[4]) << std::endl;
-		std::cout << x_calc(ref_points[5]) << std::endl;
-		std::cout << x_calc(ref_points[6]) << std::endl;
-		std::cout << x_calc(ref_points[7]) << std::endl;
+		std::cout << "Check 2D-transforms" << std::endl;
+		std::cout << "160x 20 == " << y_calc(ref_points[0]) << std::endl;
+		std::cout << "160x160 == " << y_calc(ref_points[1]) << std::endl;
+		std::cout << " 20x 20 == " << y_calc(ref_points[2]) << std::endl;
+		std::cout << " 20x160 == " << y_calc(ref_points[3]) << std::endl;
+		std::cout << " 20x 20 == " << x_calc(ref_points[4]) << std::endl;
+		std::cout << " 20x160 == " << x_calc(ref_points[5]) << std::endl;
+		std::cout << "160x 20 == " << x_calc(ref_points[6]) << std::endl;
+		std::cout << "160x160 == " << x_calc(ref_points[7]) << std::endl;
 
 		auto proj = camera_projection(ref_points);
 		auto calc = camera_calculator(proj);
 
-		std::cout << calc(ref3d::plain_x_p0) << std::endl;
-		std::cout << calc(ref3d::plain_x_p1) << std::endl;
-		std::cout << calc(ref3d::plain_x_p2) << std::endl;
-		std::cout << calc(ref3d::plain_x_p3) << std::endl;
-		std::cout << calc(ref3d::plain_y_p0) << std::endl;
-		std::cout << calc(ref3d::plain_y_p1) << std::endl;
-		std::cout << calc(ref3d::plain_y_p2) << std::endl;
-		std::cout << calc(ref3d::plain_y_p3) << std::endl;
+		std::cout << "Check 3D-transform" << std::endl;
+		std::cout << ref_points[0] << " == " << calc(ref3d::plain_x_p0) << std::endl;
+		std::cout << ref_points[1] << " == " << calc(ref3d::plain_x_p1) << std::endl;
+		std::cout << ref_points[2] << " == " << calc(ref3d::plain_x_p2) << std::endl;
+		std::cout << ref_points[3] << " == " << calc(ref3d::plain_x_p3) << std::endl;
+		std::cout << ref_points[4] << " == " << calc(ref3d::plain_y_p0) << std::endl;
+		std::cout << ref_points[5] << " == " << calc(ref3d::plain_y_p1) << std::endl;
+		std::cout << ref_points[6] << " == " << calc(ref3d::plain_y_p2) << std::endl;
+		std::cout << ref_points[7] << " == " << calc(ref3d::plain_y_p3) << std::endl;
 
 		auto laser = laser_function();
 
@@ -470,33 +656,25 @@ namespace linescan{
 		std::cout << p3d_1 << std::endl;
 		std::cout << p3d_2 << std::endl;
 
-		auto laser_plane = geometry3d::plane< double >(p_0, p_1, p_2);
+// 		auto laser_plane = geometry3d::plane< double >(p_0, p_1, p_2);
 
-		auto principal_point = make_col_vector< double >(
-			3_R, {proj(3, 0), proj(3, 1), proj(3, 2)}
-		);
+// 		auto principal_point = make_col_vector< double >(
+// 			3_R, {proj(3, 0), proj(3, 1), proj(3, 2)}
+// 		);
 
-// 		auto cv0 = make_col_vector< double >(3_R, {cp0.x(), cp0.y(), 1});
-// 		auto cv1 = make_col_vector< double >(3_R, {cp1.x(), cp1.y(), 1});
-// 		auto cv2 = make_col_vector< double >(3_R, {cp2.x(), cp2.y(), 1});
+// 		std::cout << "Lines in 3D:" << std::endl;
+// 		std::cout << principal_point << " -> " << p3d_0 << std::endl;
+// 		std::cout << principal_point << " -> " << p3d_1 << std::endl;
+// 		std::cout << principal_point << " -> " << p3d_2 << std::endl;
 // 
-// 		auto line0_0 = gaussian_elimination(proj, cv0, make_col_vector< double >(1_R, {1}));
-// 		auto line1_0 = gaussian_elimination(proj, cv1, make_col_vector< double >(1_R, {1}));
-// 		auto line2_0 = gaussian_elimination(proj, cv2, make_col_vector< double >(1_R, {1}));
+// 		auto line0 = geometry3d::line< double >(principal_point, p3d_0);
+// 		auto line1 = geometry3d::line< double >(principal_point, p3d_1);
+// 		auto line2 = geometry3d::line< double >(principal_point, p3d_2);
 // 
-		std::cout << "Lines in 3D:" << std::endl;
-		std::cout << principal_point << " -> " << p3d_0 << std::endl;
-		std::cout << principal_point << " -> " << p3d_1 << std::endl;
-		std::cout << principal_point << " -> " << p3d_2 << std::endl;
-
-		auto line0 = geometry3d::line< double >(principal_point, p3d_0);
-		auto line1 = geometry3d::line< double >(principal_point, p3d_1);
-		auto line2 = geometry3d::line< double >(principal_point, p3d_2);
-
-		std::cout << "Projected 3D points:" << std::endl;
-		std::cout << intersect(laser_plane, line0) << std::endl;
-		std::cout << intersect(laser_plane, line1) << std::endl;
-		std::cout << intersect(laser_plane, line2) << std::endl;
+// 		std::cout << "Projected 3D points:" << std::endl;
+// 		std::cout << intersect(laser_plane, line0) << std::endl;
+// 		std::cout << intersect(laser_plane, line1) << std::endl;
+// 		std::cout << intersect(laser_plane, line2) << std::endl;
 
 		auto proj4x4 = make_square_matrix_by_function(4_D,
 			[&proj](size_t x, size_t y)->double{
@@ -505,12 +683,54 @@ namespace linescan{
 				}
 				return proj(x, y);
 			});
+
 		auto C4 = matrix_kernel(proj4x4);
 
 		auto C = reduce(C4);
-		std::cout << C << std::endl;
-		std::cout << proj * C4 << std::endl;
-		std::cout << proj * expand(reduce(C4)) << std::endl;
+		std::cout << "C" << std::endl;
+		std::cout << "  C4: " << C4 << std::endl;
+		std::cout << "   C: " << C << std::endl;
+		std::cout << "P*C4: " << proj * C4 << std::endl;
+		std::cout << " P*C: " << proj * expand(C) << std::endl;
+
+
+		auto cam_matrix = make_square_matrix_by_function(3_D,
+			[&proj](size_t x, size_t y)->double{
+				return proj(x, y);
+			});
+
+		auto q = make_square_matrix< double >(3_D);
+		auto r = make_square_matrix< double >(3_D);
+
+		std::tie(q, r) = mitrax::householder_transformation(cam_matrix);
+
+		std::cout << "RQ" << std::endl;
+		std::cout << "cam: " << cam_matrix << std::endl;
+		std::cout << "q*r: " << q * r << std::endl;
+		std::cout << "  q: " << q << std::endl;
+		std::cout << "  r: " << r << std::endl;
+
+		auto C3x4 = make_matrix_by_function(4_C, 3_R,
+			[&C](size_t x, size_t y)->double{
+				if(x == 3) return -C[y];
+				return x == y ? 1 : 0;
+			});
+
+		std::cout << "Projektion" << std::endl;
+		std::cout << "     C3x4: " << C3x4 << std::endl;
+		std::cout << "      q*r: " << (q * r) << std::endl;
+		std::cout << "q*r*[I|C]: " << (q * r * C3x4) << std::endl;
+		std::cout << "        P: " << proj << std::endl;
+
+		q *= r(2, 2);
+		r /= r(2, 2);
+
+		std::cout << "Scale q and r" << std::endl;
+		std::cout << "        q: " << q << std::endl;
+		std::cout << "        r: " << r << std::endl;
+		std::cout << "      I|C: " << C3x4 << std::endl;
+		std::cout << "      q*r: " << (q * r) << std::endl;
+		std::cout << "q*r*[I|C]: " << (q * r * C3x4) << std::endl;
 	}
 
 
