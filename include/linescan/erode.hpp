@@ -15,7 +15,8 @@
 namespace linescan{
 
 
-	inline auto erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
+	inline auto
+	erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
 		return offset_view_wise([](auto const& m){
 			bool result = false;
 

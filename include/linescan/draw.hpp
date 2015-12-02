@@ -14,6 +14,8 @@
 
 #include <mitrax/matrix.hpp>
 
+#include <cmath>
+
 
 namespace linescan{
 
@@ -44,6 +46,40 @@ namespace linescan{
 		}
 
 		draw(image, line);
+	}
+
+	template < typename T >
+	inline void draw_cycle(
+		mitrax::raw_bitmap< std::uint8_t >& image,
+		mitrax::raw_col_vector< T, 2 > const& p,
+		T const& radius
+  	){
+		vector< point< T > > points;
+
+		auto c = 2 * 3.14159 * radius;
+		auto count = static_cast< size_t >(c) + 1;
+		for(std::size_t i = 0; i < count; ++i){
+			auto pos = 2 * 3.14159 / count * i;
+			auto dx = std::sin(pos);
+			auto dy = std::cos(pos);
+			points.emplace_back(
+				p[0] - dx * radius,
+				p[1] - dy * radius
+			);
+		}
+
+		draw(image, points);
+	}
+
+	template < typename T >
+	inline void draw_cycle(
+		mitrax::raw_bitmap< std::uint8_t >& image,
+		point< T > const& p,
+		T const& radius
+  	){
+		using namespace mitrax;
+		using namespace mitrax::literals;
+		draw_cycle(image, make_col_vector< T >(2_R, {p.x(), p.y()}), radius);
 	}
 
 
