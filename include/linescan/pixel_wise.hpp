@@ -17,39 +17,11 @@
 namespace linescan{
 
 
-	namespace detail{ namespace pixel_wise{
-
-
-		template < typename T >
-		auto size(mitrax::raw_bitmap< T > const& image){
-			return image.dims();
-		}
-
-		template < typename T, typename U, typename ... R >
-		auto size(
-			mitrax::raw_bitmap< T > const& image1,
-			mitrax::raw_bitmap< U > const& image2,
-			mitrax::raw_bitmap< R > const& ... images
-		){
-			if(image1.dims() != image2.dims()){
-				throw std::logic_error(
-					"pixel_wise have been called with images with different "
-					"sizes"
-				);
-			}
-
-			return size(image2, images ...);
-		}
-
-
-	} }
-
-
 	template < typename F, typename ... T >
 	inline auto pixel_wise(F const& f, mitrax::raw_bitmap< T > const& ... images){
 		namespace hana = boost::hana;
 
-		auto size = detail::pixel_wise::size(images ...);
+		auto size = mitrax::get_dims(images ...);
 
 		return hana::if_(
 			hana::traits::is_void(
@@ -87,7 +59,7 @@ namespace linescan{
 	){
 		namespace hana = boost::hana;
 
-		auto sizes = detail::pixel_wise::size(images ...);
+		auto sizes = mitrax::get_dims(images ...);
 
 		auto const vsx = view_size_x;
 		auto const vsy = view_size_y;
