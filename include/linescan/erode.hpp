@@ -9,7 +9,7 @@
 #ifndef _linescan__erode__hpp_INCLUDED_
 #define _linescan__erode__hpp_INCLUDED_
 
-#include "pixel_wise.hpp"
+#include <mitrax/transform.hpp>
 
 
 namespace linescan{
@@ -17,7 +17,7 @@ namespace linescan{
 
 	inline auto
 	erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
-		return transform_per_view([](auto const& m){
+		return mitrax::transform_per_view([](auto const& m){
 			bool result = false;
 
 			for(std::size_t y = 0; y < m.rows(); ++y){

@@ -8,8 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/edge.hpp>
 
-#include <linescan/pixel_wise.hpp>
-
+#include <mitrax/transform.hpp>
 #include <mitrax/convolution.hpp>
 
 
@@ -44,7 +43,7 @@ namespace linescan{
 		auto gx = gradient_x(image);
 		auto gy = gradient_y(image);
 
-		return transform([](std::int32_t x, std::int32_t y){
+		return mitrax::transform([](std::int32_t x, std::int32_t y){
 			return x * x + y * y;
 		}, gx, gy);
 	}

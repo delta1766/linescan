@@ -9,7 +9,7 @@
 #ifndef _linescan__binarize__hpp_INCLUDED_
 #define _linescan__binarize__hpp_INCLUDED_
 
-#include "pixel_wise.hpp"
+#include <mitrax/transform.hpp>
 
 
 namespace linescan{
@@ -17,7 +17,7 @@ namespace linescan{
 
 	template < typename T >
 	inline auto binarize(mitrax::raw_bitmap< T > const& image, T const& threshold){
-		return transform([threshold](auto v){
+		return mitrax::transform([threshold](auto v){
 			return v >= threshold;
 		}, image);
 	}

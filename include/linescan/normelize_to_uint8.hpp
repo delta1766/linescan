@@ -9,7 +9,8 @@
 #ifndef _linescan__normelize_to_uint8__hpp_INCLUDED_
 #define _linescan__normelize_to_uint8__hpp_INCLUDED_
 
-#include "pixel_wise.hpp"
+#include <mitrax/for_each.hpp>
+#include <mitrax/transform.hpp>
 
 
 namespace linescan{
@@ -20,7 +21,7 @@ namespace linescan{
 	normelize_to_uint8(mitrax::raw_bitmap< T > const& image){
 		auto min = image(0, 0);
 		auto max = image(0, 0);
-		for_each([&min, &max](auto v){
+		mitrax::for_each([&min, &max](auto v){
 			if(min > v){
 				min = v;
 			}else if(max < v){
@@ -28,7 +29,7 @@ namespace linescan{
 			}
 		}, image);
 
-		return transform([&min, &max](auto v){
+		return mitrax::transform([&min, &max](auto v){
 			auto r = (static_cast< long double >(v) - min) / max * 255;
 
 			return static_cast< std::uint8_t >(r < 0 ? 0 : r > 255 ? 255 : r);

@@ -9,14 +9,14 @@
 #ifndef _linescan__invert__hpp_INCLUDED_
 #define _linescan__invert__hpp_INCLUDED_
 
-#include "pixel_wise.hpp"
+#include <mitrax/transform.hpp>
 
 
 namespace linescan{
 
 
 	inline auto invert(mitrax::raw_bitmap< bool > const& image){
-		return transform([](auto v){
+		return mitrax::transform([](auto v){
 			return !v;
 		}, image);
 	}
