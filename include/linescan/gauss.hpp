@@ -43,7 +43,7 @@ namespace linescan{
 			vr[i] = vc[i];
 		}
 
-		return pixel_wise([](auto v){
+		return make_matrix_pixel_wise([](auto v){
 			return static_cast< std::uint8_t >(v);
 		}, convolution(image, vc, vr));
 	}

@@ -20,7 +20,7 @@ namespace linescan{
 	normelize_to_uint8(mitrax::raw_bitmap< T > const& image){
 		auto min = image(0, 0);
 		auto max = image(0, 0);
-		pixel_wise([&min, &max](auto v){
+		for_all_pixel([&min, &max](auto v){
 			if(min > v){
 				min = v;
 			}else if(max < v){
@@ -28,7 +28,7 @@ namespace linescan{
 			}
 		}, image);
 
-		return pixel_wise([&min, &max](auto v){
+		return make_matrix_pixel_wise([&min, &max](auto v){
 			auto r = (static_cast< long double >(v) - min) / max * 255;
 
 			return static_cast< std::uint8_t >(r < 0 ? 0 : r > 255 ? 255 : r);

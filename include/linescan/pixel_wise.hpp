@@ -17,36 +17,59 @@
 namespace linescan{
 
 
-	template < typename F, typename ... T >
-	inline auto pixel_wise(F const& f, mitrax::raw_bitmap< T > const& ... images){
-		namespace hana = boost::hana;
+	template < typename F, typename ... M, size_t ... C, size_t ... R >
+	inline void for_all_pixel(
+		F const& f,
+		mitrax::matrix< M, C, R > const& ... images
+	){
+		auto size = mitrax::get_dims(images ...);
+		for(std::size_t y = 0; y < size.rows(); ++y){
+			for(std::size_t x = 0; x < size.cols(); ++x){
+				f(images(x, y) ...);
+			}
+		}
+	}
 
+
+	namespace detail{
+
+
+		template < typename F, typename ... M >
+		struct make_matrix_pixel_wise_t{
+			constexpr make_matrix_pixel_wise_t(
+				F const& f, M const& ... images
+			): f(f), images(images ...) {}
+
+			F const& f;
+			std::tuple< M const& ... > images;
+
+			constexpr auto operator()(size_t x, size_t y)const{
+				return (*this)(x, y, std::index_sequence_for< M ... >());
+			}
+
+			template < size_t ... I >
+			constexpr auto operator()(
+				size_t x, size_t y, std::index_sequence< I ... >
+			)const{
+				return f(std::get< I >(images)(x, y) ...);
+			}
+		};
+
+
+	}
+
+
+	template < typename F, typename ... M, size_t ... C, size_t ... R >
+	constexpr auto make_matrix_pixel_wise(
+		F const& f,
+		mitrax::matrix< M, C, R > const& ... images
+	){
 		auto size = mitrax::get_dims(images ...);
 
-		return hana::if_(
-			hana::traits::is_void(
-				hana::type_c< decltype(f(std::declval< T >() ...)) >
-			),
-			[&size, &images ...](auto& f){
-				for(std::size_t y = 0; y < size.rows(); ++y){
-					for(std::size_t x = 0; x < size.cols(); ++x){
-						f(images(x, y) ...);
-					}
-				}
-			},
-			[&size, &images ...](auto& f){
-				auto result = mitrax::make_matrix<
-					decltype(f(std::declval< T >() ...)) >(size);
-
-				for(std::size_t y = 0; y < size.rows(); ++y){
-					for(std::size_t x = 0; x < size.cols(); ++x){
-						result(x, y) = f(images(x, y) ...);
-					}
-				}
-
-				return result;
-			}
-		)(f);
+		return mitrax::make_matrix_by_function(size,
+			detail::make_matrix_pixel_wise_t<
+				F, mitrax::matrix< M, C, R > ...
+			>(f, images ...));
 	}
 
 

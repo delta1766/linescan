@@ -17,7 +17,7 @@ namespace linescan{
 
 	template < typename T >
 	inline auto binarize(mitrax::raw_bitmap< T > const& image, T const& threshold){
-		return pixel_wise([threshold](auto v){
+		return make_matrix_pixel_wise([threshold](auto v){
 			return v >= threshold;
 		}, image);
 	}
