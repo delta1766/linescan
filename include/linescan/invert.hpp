@@ -16,7 +16,7 @@ namespace linescan{
 
 
 	inline auto invert(mitrax::raw_bitmap< bool > const& image){
-		return make_matrix_pixel_wise([](auto v){
+		return transform([](auto v){
 			return !v;
 		}, image);
 	}

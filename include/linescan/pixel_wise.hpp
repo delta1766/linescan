@@ -78,7 +78,7 @@ namespace linescan{
 
 
 	template < typename F, typename ... M, size_t ... C, size_t ... R >
-	constexpr void for_all_pixel(
+	constexpr void for_each(
 		F const& f,
 		mitrax::matrix< M, C, R > const& ... images
 	){
@@ -94,7 +94,7 @@ namespace linescan{
 	template <
 		typename F, bool Ccto, size_t Co, bool Rcto, size_t Ro, 
 		typename ... M, size_t ... C, size_t ... R
-	> constexpr void for_all_view(
+	> constexpr void for_each_view(
 		F const& f,
 		mitrax::col_init_t< Ccto, Co > view_cols,
 		mitrax::row_init_t< Rcto, Ro > view_rows,
@@ -111,7 +111,7 @@ namespace linescan{
 
 
 	template < typename F, typename ... M, size_t ... C, size_t ... R >
-	constexpr auto make_matrix_pixel_wise(
+	constexpr auto transform(
 		F const& f,
 		mitrax::matrix< M, C, R > const& ... images
 	){
@@ -123,7 +123,7 @@ namespace linescan{
 	template <
 		typename F, bool Ccto, size_t Co, bool Rcto, size_t Ro, 
 		typename ... M, size_t ... C, size_t ... R
-	> constexpr auto make_matrix_view_wise(
+	> constexpr auto transform_per_view(
 		F const& f,
 		mitrax::col_init_t< Ccto, Co > view_cols,
 		mitrax::row_init_t< Rcto, Ro > view_rows,

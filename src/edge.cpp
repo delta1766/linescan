@@ -44,7 +44,7 @@ namespace linescan{
 		auto gx = gradient_x(image);
 		auto gy = gradient_y(image);
 
-		return make_matrix_pixel_wise([](std::int32_t x, std::int32_t y){
+		return transform([](std::int32_t x, std::int32_t y){
 			return x * x + y * y;
 		}, gx, gy);
 	}

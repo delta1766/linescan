@@ -17,7 +17,7 @@ namespace linescan{
 
 	inline auto
 	erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
-		return make_matrix_view_wise([](auto const& m){
+		return transform_per_view([](auto const& m){
 			bool result = false;
 
 			for(std::size_t y = 0; y < m.rows(); ++y){
