@@ -18,7 +18,7 @@ namespace linescan{
 
 
 	template < typename F, typename ... M, size_t ... C, size_t ... R >
-	inline void for_all_pixel(
+	constexpr void for_all_pixel(
 		F const& f,
 		mitrax::matrix< M, C, R > const& ... images
 	){
