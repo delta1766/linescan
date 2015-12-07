@@ -10,6 +10,7 @@
 #define _linescan__erode__hpp_INCLUDED_
 
 #include <mitrax/transform.hpp>
+#include <mitrax/pass_in.hpp>
 
 
 namespace linescan{
@@ -17,18 +18,21 @@ namespace linescan{
 
 	inline auto
 	erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
-		return mitrax::transform_per_view([](auto const& m){
-			bool result = false;
+		return mitrax::pass_in(image.dims(),
+			mitrax::transform_per_view([](auto const& m){
+				bool result = false;
 
-			for(std::size_t y = 0; y < m.rows(); ++y){
-				for(std::size_t x = 0; x < m.cols(); ++x){
-					if(!m(x, y)) continue;
-					result = true;
+				for(std::size_t y = 0; y < m.rows(); ++y){
+					for(std::size_t x = 0; x < m.cols(); ++x){
+						if(!m(x, y)) continue;
+						result = true;
+					}
 				}
-			}
 
-			return result;
-		}, mitrax::cols(size), mitrax::rows(size), image);
+				return result;
+			}, mitrax::cols(size), mitrax::rows(size), image),
+			true
+		);
 	}
 
 
