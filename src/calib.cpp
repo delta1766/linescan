@@ -283,7 +283,10 @@ namespace linescan{
 
 		auto line = calc_top_distance_line(binary);
 
-		save(line, binary.rows(), "03_line.png");
+		save(
+			draw_top_distance_line(line, line.size(), binary.rows()),
+			"03_line.png"
+		);
 
 		auto lines = calc_calibration_lines(line, 15);
 		auto const& line1 = lines.first;
