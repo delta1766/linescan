@@ -47,7 +47,7 @@ int main()try{
 	std::string command;
 	std::size_t command_count = 0;
 
-	auto save = [&command_count](auto& data, std::string const& name){
+	auto save = [&command_count](auto const& data, std::string const& name){
 		std::ostringstream os;
 		os << std::setfill('0') << std::setw(2) << command_count << "_";
 		linescan::save(data, os.str() + name);
@@ -64,16 +64,17 @@ int main()try{
 			auto image = cam.image();
 			save(image, "0_image.png");
 
-			auto binary = binarize(image, std::uint8_t(255));
+			auto binary = linescan::binarize(image, std::uint8_t(255));
 			save(binary, "1_binary.png");
 
-			binary = erode(binary, 3);
+			binary = linescan::erode(binary, 3);
 			save(binary, "2_erode.png");
 
-			auto line = calc_top_distance_line(binary);
+			auto line = linescan::calc_top_distance_line(binary);
 			save(
-				draw_top_distance_line(line, line.size(), binary.rows()),
-				"3_line.png"
+				linescan::draw_top_distance_line(
+					line, line.size(), binary.rows()
+				), "3_line.png"
 			);
 		}else if(command == "calib_"){
 			mcl3.calibrate();
