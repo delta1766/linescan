@@ -33,6 +33,12 @@ namespace linescan{
 		std::size_t rows
 	);
 
+	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
+		vector< double > const& line,
+		std::size_t cols,
+		std::size_t rows
+	);
+
 	template < typename F >
 	inline void draw(mitrax::raw_bitmap< std::uint8_t >& image, F const& fn){
 		vector< point< std::decay_t< decltype(fn(std::size_t())) > > >

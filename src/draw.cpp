@@ -66,5 +66,20 @@ namespace linescan{
 		return image;
 	}
 
+	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
+		vector< double > const& line,
+		std::size_t cols,
+		std::size_t rows
+	){
+		auto image = mitrax::make_matrix< bool >(mitrax::dims(cols, rows));
+
+		for(std::size_t i = 0; i < line.size(); ++i){
+			if(line[i] == 0) continue;
+			image(i, static_cast< size_t >(line[i])) = true;
+		}
+
+		return image;
+	}
+
 
 }

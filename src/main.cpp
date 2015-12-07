@@ -72,7 +72,7 @@ int main()try{
 
 			auto line = linescan::calc_top_distance_line(binary);
 			save(
-				linescan::draw_top_distance_line(
+				linescan::draw_top_distance_line_student(
 					line, line.size(), binary.rows()
 				), "3_line.png"
 			);
