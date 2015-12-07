@@ -296,27 +296,6 @@ namespace linescan{
 		std::cout << "cam rows(): " << rows_ << std::endl;
 
 		pixel_size_in_um_ = config.wPixelSize / 100.;
-
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN,
-			&exposure_in_ms_min_,
-			sizeof(exposure_in_ms_min_)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN)");
-
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX,
-			&exposure_in_ms_max_,
-			sizeof(exposure_in_ms_max_)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX)");
-
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC,
-			&exposure_in_ms_inc_,
-			sizeof(exposure_in_ms_inc_)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
 	}
 
 
@@ -349,6 +328,7 @@ namespace linescan{
 		return pixel_size_in_um_;
 	}
 
+
 	std::uint32_t camera::cols()const{
 		return cols_;
 	}
@@ -357,16 +337,150 @@ namespace linescan{
 		return rows_;
 	}
 
+
+	std::uint32_t camera::pixelclock_min()const{
+		std::uint32_t pixelclock[3]{};
+		throw_on_error(is_PixelClock(
+			handle_,
+			IS_PIXELCLOCK_CMD_GET_RANGE,
+			(void*)&pixelclock,
+			sizeof(pixelclock)
+		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
+		return pixelclock[0];
+	}
+
+	std::uint32_t camera::pixelclock_max()const{
+		std::uint32_t pixelclock[3]{};
+		throw_on_error(is_PixelClock(
+			handle_,
+			IS_PIXELCLOCK_CMD_GET_RANGE,
+			(void*)&pixelclock,
+			sizeof(pixelclock)
+		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
+		return pixelclock[1];
+	}
+
+	std::uint32_t camera::pixelclock_inc()const{
+		std::uint32_t pixelclock[3]{};
+		throw_on_error(is_PixelClock(
+			handle_,
+			IS_PIXELCLOCK_CMD_GET_RANGE,
+			(void*)&pixelclock,
+			sizeof(pixelclock)
+		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
+		return pixelclock[2];
+	}
+
+	std::uint32_t camera::pixelclock()const{
+		std::uint32_t pixelclock = 0;
+		throw_on_error(is_PixelClock(
+			handle_,
+			IS_PIXELCLOCK_CMD_GET,
+			(void*)&pixelclock,
+			sizeof(pixelclock)
+		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET)");
+		return pixelclock;
+	}
+
+	void camera::set_pixelclock(std::uint32_t pixelclock){
+		throw_on_error(is_PixelClock(
+			handle_,
+			IS_PIXELCLOCK_CMD_SET,
+			(void*)&pixelclock,
+			sizeof(pixelclock)
+		), "is_PixelClock(IS_PIXELCLOCK_CMD_SET)");
+	}
+
+
+	double camera::framerate_min()const{
+		double min;
+		double max;
+		double inc;
+		throw_on_error(is_GetFrameTimeRange(
+			handle_,
+			&min,
+			&max,
+			&inc
+		), "is_GetFrameTimeRange()");
+		return min;
+	}
+
+	double camera::framerate_max()const{
+		double min;
+		double max;
+		double inc;
+		throw_on_error(is_GetFrameTimeRange(
+			handle_,
+			&min,
+			&max,
+			&inc
+		), "is_GetFrameTimeRange()");
+		return max;
+	}
+
+	double camera::framerate_inc()const{
+		double min;
+		double max;
+		double inc;
+		throw_on_error(is_GetFrameTimeRange(
+			handle_,
+			&min,
+			&max,
+			&inc
+		), "is_GetFrameTimeRange()");
+		return inc;
+	}
+
+	double camera::framerate()const{
+		double framerate;
+		throw_on_error(is_SetFrameRate(
+			handle_,
+			IS_GET_FRAMERATE,
+			&framerate
+		), "is_SetFrameRate(IS_GET_FRAMERATE)");
+		return framerate;
+	}
+
+	void camera::set_framerate(double framerate){
+		throw_on_error(is_SetFrameRate(
+			handle_,
+			framerate,
+			&framerate
+		), "is_SetFrameRate(IS_GET_FRAMERATE)");
+	}
+
+
 	double camera::exposure_in_ms_min()const{
-		return exposure_in_ms_min_;
+		double min;
+		throw_on_error(is_Exposure(
+			handle_,
+			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN,
+			&min,
+			sizeof(min)
+		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN)");
+		return min;
 	}
 
 	double camera::exposure_in_ms_max()const{
-		return exposure_in_ms_max_;
+		double max;
+		throw_on_error(is_Exposure(
+			handle_,
+			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX,
+			&max,
+			sizeof(max)
+		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX)");
+		return max;
 	}
 
 	double camera::exposure_in_ms_inc()const{
-		return exposure_in_ms_inc_;
+		double inc;
+		throw_on_error(is_Exposure(
+			handle_,
+			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC,
+			&inc,
+			sizeof(inc)
+		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
+		return inc;
 	}
 
 	double camera::exposure_in_ms()const{
@@ -382,7 +496,6 @@ namespace linescan{
 		return exposure_in_ms;
 	}
 
-
 	void camera::set_exposure(double time_in_ms){
 		throw_on_error(is_Exposure(
 			handle_,
@@ -390,6 +503,76 @@ namespace linescan{
 			&time_in_ms,
 			sizeof(time_in_ms)
 		), "is_Exposure(IS_EXPOSURE_CMD_SET_EXPOSURE)");
+	}
+
+
+	std::size_t camera::gain_in_percent()const{
+		return is_SetHardwareGain(
+			handle_,
+			IS_GET_MASTER_GAIN,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER
+		);
+	}
+
+	void camera::set_gain(std::size_t percent){
+		if(percent > 100) throw std::logic_error("max gain is 100");
+		throw_on_error(is_SetHardwareGain(
+			handle_,
+			percent,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER
+		), "is_SetHardwareGain(nMaster)");
+	}
+
+	void camera::set_gain_auto(){
+		throw_on_error(is_SetHardwareGain(
+			handle_,
+			IS_SET_ENABLE_AUTO_GAIN,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER,
+			IS_IGNORE_PARAMETER
+		), "is_SetHardwareGain(nMaster)");
+	}
+
+
+	bool camera::gain_boost()const{
+		return
+			is_SetGainBoost(handle_, IS_GET_GAINBOOST) == IS_SET_GAINBOOST_ON;
+	}
+
+	void camera::set_gain_boost(bool on){
+		throw_on_error(is_SetGainBoost(
+			handle_, on ? IS_SET_GAINBOOST_ON : IS_SET_GAINBOOST_OFF
+		), "is_SetGainBoost(IS_SET_GAINBOOST_ON/OFF)");
+	}
+
+
+	std::tuple< std::uint32_t, double, double, size_t, bool >
+	camera::get_light_params()const{
+		return std::make_tuple(
+			pixelclock(),
+			framerate(),
+			exposure_in_ms(),
+			gain_in_percent(),
+			gain_boost()
+		);
+	}
+
+	void camera::set_light_params(
+		std::uint32_t pixelclock,
+		double framerate,
+		double exposure_in_ms,
+		std::size_t gain_in_percent,
+		bool gain_boost
+	){
+		set_pixelclock(pixelclock);
+		set_framerate(framerate);
+		set_exposure(exposure_in_ms);
+		set_gain(gain_in_percent);
+		set_gain_boost(gain_boost);
 	}
 
 
