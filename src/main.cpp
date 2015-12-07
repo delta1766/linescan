@@ -39,14 +39,43 @@ int main()try{
 	using namespace std::literals;
 	using namespace mitrax::literals;
 
-// 	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
-// 	linescan::camera cam(0);
+#ifdef HARDWARE
+	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
+	linescan::camera cam(0);
+#endif
 
 	std::string command;
+	std::size_t command_count = 0;
+
+	auto save = [&command_count](auto& data, std::string const& name){
+		std::ostringstream os;
+		os << std::setfill('0') << std::setw(2) << command_count << "_";
+		linescan::save(data, os.str() + name);
+	};
+#ifndef HARDWARE
+	(void)save;
+#endif
+
 	while(getline(std::cin, command)){
 		if(command.empty()) break;
 
-		/*if(command == "calib_"){
+#ifdef HARDWARE
+		if(command == "get"){
+			auto image = cam.image();
+			save(image, "0_image.png");
+
+			auto binary = binarize(image, std::uint8_t(255));
+			save(binary, "1_binary.png");
+
+			binary = erode(binary, 3);
+			save(binary, "2_erode.png");
+
+			auto line = calc_top_distance_line(binary);
+			save(
+				draw_top_distance_line(line, line.size(), binary.rows()),
+				"3_line.png"
+			);
+		}else if(command == "calib_"){
 			mcl3.calibrate();
 		}else if(command == "stop"){
 			mcl3.stop();
@@ -64,7 +93,7 @@ int main()try{
 
 				auto calib = cam.image();
 
-				linescan::save(calib, "image.png");
+				save(calib, "image.png");
 		}else if(command == "measure"){
 			for(std::size_t i = 0; i < 10; ++i){
 				std::this_thread::sleep_for(100ms);
@@ -101,15 +130,15 @@ int main()try{
 			mcl3.move_relative(0, 10000, 0);
 		}else if(command == "end"){
 			mcl3.move_to_end();
-		}else */if(command == "calib"){
+		}else
+#endif
+		if(command == "calib"){
 			linescan::calib();
 		}else{
 			std::cout << "Unknown input" << std::endl;
-			auto v = mitrax::make_col_vector< double >(3_R, {1, 2, 3});
-			v /= vector_norm_2(v);
-			std::cout << v << std::endl;
-			std::cout << transpose(v) * v << std::endl;
 		}
+
+		++command_count;
 	}
 }catch(std::exception const& e){
 	std::cerr
