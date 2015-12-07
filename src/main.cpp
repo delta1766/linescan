@@ -35,12 +35,27 @@
 #include <cmath>
 
 
+#ifdef HARDWARE
+#ifndef MCL
+#define MCL
+#endif
+#ifndef CAM
+#define CAM
+#endif
+#endif
+
+#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
+#define HARDWARE
+#endif
+
 int main()try{
 	using namespace std::literals;
 	using namespace mitrax::literals;
 
-#ifdef HARDWARE
+#ifdef MCL
 	linescan::control_F9S_MCL3 mcl3("/dev/ttyUSB0");
+#endif
+#ifdef CAM
 	linescan::camera cam(0);
 #endif
 
@@ -52,14 +67,12 @@ int main()try{
 		os << std::setfill('0') << std::setw(2) << command_count << "_";
 		linescan::save(data, os.str() + name);
 	};
-#ifndef HARDWARE
 	(void)save;
-#endif
 
 	while(getline(std::cin, command)){
 		if(command.empty()) break;
 
-#ifdef HARDWARE
+#ifdef CAM
 		if(command == "get"){
 			auto image = cam.image();
 			save(image, "0_image.png");
@@ -76,7 +89,10 @@ int main()try{
 					line, line.size(), binary.rows()
 				), "3_line.png"
 			);
-		}else if(command == "calib_"){
+		}else
+#endif
+#ifdef MCL
+		if(command == "calib_"){
 			mcl3.calibrate();
 		}else if(command == "stop"){
 			mcl3.stop();
@@ -84,7 +100,10 @@ int main()try{
 			mcl3.activate_joystick();
 		}else if(command == "move"){
 			mcl3.move_to(100000, 100000, 100000);
-		}else if(command == "image"){
+		}else
+#endif
+#ifdef CAM
+		if(command == "image"){
 				std::cout << cam.exposure_in_ms_min() << std::endl;
 				std::cout << cam.exposure_in_ms_max() << std::endl;
 				std::cout << cam.exposure_in_ms() << std::endl;
@@ -95,7 +114,10 @@ int main()try{
 				auto calib = cam.image();
 
 				save(calib, "image.png");
-		}else if(command == "measure"){
+		}else
+#endif
+#ifdef HARDWARE
+		if(command == "measure"){
 			for(std::size_t i = 0; i < 10; ++i){
 				std::this_thread::sleep_for(100ms);
 
@@ -109,7 +131,7 @@ int main()try{
 					os
 						<< "calib" << std::setfill('0')
 						<< std::setw(4) << i << ".png";
-					linescan::save(calib, os.str());
+					save(calib, os.str());
 				}
 
 				std::cout << "Get laser " << i << std::endl;
@@ -122,7 +144,7 @@ int main()try{
 					os
 						<< "laser" << std::setfill('0')
 						<< std::setw(4) << i << ".png";
-					linescan::save(laser, os.str());
+					save(laser, os.str());
 				}
 
 				mcl3.move_relative(0, -1000, 0);
