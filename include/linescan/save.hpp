@@ -30,14 +30,6 @@ namespace linescan{
 		save(normelize_to_uint8(image), name);
 	}
 
-	inline void save(
-		vector< double > const& line,
-		std::size_t rows,
-		std::string const& name
-	){
-		save(draw_top_distance_line(line, line.size(), rows), name);
-	}
-
 
 }
 
