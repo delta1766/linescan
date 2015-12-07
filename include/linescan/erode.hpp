@@ -17,7 +17,11 @@ namespace linescan{
 
 
 	inline auto
-	erode(mitrax::raw_bitmap< bool > const& image, std::size_t size){
+	erode(
+		mitrax::raw_bitmap< bool > const& image,
+		std::size_t size,
+		bool border_value = false
+	){
 		return mitrax::pass_in(image.dims(),
 			mitrax::transform_per_view([](auto const& m){
 				bool result = false;
@@ -31,7 +35,7 @@ namespace linescan{
 
 				return result;
 			}, mitrax::cols(size), mitrax::rows(size), image),
-			true
+			border_value
 		);
 	}
 
