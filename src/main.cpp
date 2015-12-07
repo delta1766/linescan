@@ -16,12 +16,14 @@
 #include <linescan/binarize.hpp>
 #include <linescan/erode.hpp>
 #include <linescan/gauss.hpp>
+#include <linescan/median.hpp>
 #include <linescan/edge.hpp>
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
 #include <linescan/invert.hpp>
 #include <linescan/calib.hpp>
 
+#include <mitrax/region.hpp>
 #include <mitrax/norm.hpp>
 #include <mitrax/operator.hpp>
 #include <mitrax/output.hpp>
@@ -32,6 +34,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <numeric>
 #include <cmath>
 
 
@@ -103,11 +106,13 @@ int main()try{
 	while(getline(std::cin, command)){
 		if(command.empty()) break;
 
-#ifdef CAM
 		if(command == "get"){
+#ifdef CAM
 			set_default_light();
-
 			auto image = cam.image();
+#else
+			auto image = linescan::load("simulation/laser.png");
+#endif
 			save(image, "0_image.png");
 
 			auto binary = linescan::binarize(image, std::uint8_t(255));
@@ -123,18 +128,48 @@ int main()try{
 				), "3_line.png"
 			);
 		}else if(command == "cycle"){
+#ifdef CAM
 			set_max_light();
-
 			auto image = cam.image();
+#else
+			auto image = linescan::load("simulation/cycle.png");
+#endif
+
+// 			auto size = image.dims();
 			save(image, "0_image.png");
 
-			auto binary = linescan::binarize(image, std::uint8_t(50));
-			save(binary, "1_binary.png");
+// 			image = linescan::median(image, mitrax::dims(5, 5));
+// 			save(image, "1_median.png");
+// 
+// 			image = linescan::gauss< 5 >(image, 0.7);
+// 			save(image, "2_gauss.png");
 
-			binary = linescan::erode(binary, 3, true);
-			save(binary, "2_erode.png");
+			auto region = mitrax::region(
+				[](auto const& m){
+					auto sum = std::accumulate(m.begin(), m.end(), 0.);
+					return static_cast< std::uint8_t >(
+						sum / (static_cast< std::size_t >(m.cols()) * m.rows())
+					);
+				},
+				mitrax::dims(96, 96),
+				mitrax::dims(48, 48),
+				image
+			);
+			save(region, "3_region.png");
+
+// 			auto edge = mitrax::pass_in(
+// 				size,
+// 				linescan::edge_amplitude(image),
+// 				0
+// 			);
+// 			save(edge, "3_edge.png");
+
+// 			auto binary = linescan::binarize(image, std::uint8_t(50));
+// 			save(binary, "2_binary.png");
+// 
+// 			binary = linescan::erode(binary, 3, true);
+// 			save(binary, "3_erode.png");
 		}else
-#endif
 #ifdef MCL
 		if(command == "calib_"){
 			mcl3.calibrate();
