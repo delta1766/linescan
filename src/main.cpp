@@ -57,6 +57,37 @@ int main()try{
 #endif
 #ifdef CAM
 	linescan::camera cam(0);
+
+	std::uint32_t pixelclock;
+	double framerate;
+	double exposure_in_ms;
+	std::size_t gain_in_percent;
+	bool gain_boost;
+
+	std::tie(
+		pixelclock, framerate, exposure_in_ms, gain_in_percent, gain_boost
+	) = cam.get_light_params();
+
+	auto set_default_light = [
+		&cam, pixelclock, framerate, exposure_in_ms, gain_in_percent, gain_boost
+	](){
+		cam.set_light_params(
+			pixelclock, framerate, exposure_in_ms, gain_in_percent, gain_boost
+		);
+		cam.image();
+	};
+
+	auto set_max_light = [&cam](){
+		auto framerate = cam.framerate_max();
+		cam.set_framerate(framerate);
+		auto pixelclock = cam.pixelclock_min();
+		cam.set_pixelclock(pixelclock);
+		auto exposure = cam.exposure_in_ms_max();
+		cam.set_exposure(exposure);
+		cam.set_gain(100);
+		cam.set_gain_boost(true);
+		cam.image();
+	};
 #endif
 
 	std::string command;
@@ -74,6 +105,8 @@ int main()try{
 
 #ifdef CAM
 		if(command == "get"){
+			set_default_light();
+
 			auto image = cam.image();
 			save(image, "0_image.png");
 
@@ -89,6 +122,17 @@ int main()try{
 					line, line.size(), binary.rows()
 				), "3_line.png"
 			);
+		}else if(command == "cycle"){
+			set_max_light();
+
+			auto image = cam.image();
+			save(image, "0_image.png");
+
+			auto binary = linescan::binarize(image, std::uint8_t(50));
+			save(binary, "1_binary.png");
+
+			binary = linescan::erode(binary, 3, true);
+			save(binary, "2_erode.png");
 		}else
 #endif
 #ifdef MCL
