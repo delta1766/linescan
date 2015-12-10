@@ -15,6 +15,26 @@ lib libpng12 : :
 	# watch out for empty spaces, they are mandatory
 	<file>/usr/lib/x86_64-linux-gnu/libpng12.so ;
 
+lib libopencv : : 
+	# watch out for empty spaces, they are mandatory
+	<file>/usr/local/lib/libopencv_calib3d.so
+	<file>/usr/local/lib/libopencv_core.so
+	<file>/usr/local/lib/libopencv_features2d.so
+	<file>/usr/local/lib/libopencv_flann.so
+	<file>/usr/local/lib/libopencv_highgui.so
+	<file>/usr/local/lib/libopencv_imgcodecs.so
+	<file>/usr/local/lib/libopencv_imgproc.so
+	<file>/usr/local/lib/libopencv_ml.so
+	<file>/usr/local/lib/libopencv_objdetect.so
+	<file>/usr/local/lib/libopencv_photo.so
+	<file>/usr/local/lib/libopencv_shape.so
+	<file>/usr/local/lib/libopencv_stitching.so
+	<file>/usr/local/lib/libopencv_superres.so
+	<file>/usr/local/lib/libopencv_video.so
+	<file>/usr/local/lib/libopencv_videoio.so
+	<file>/usr/local/lib/libopencv_videostab.so ;
+
+
 project linescan
 	:
 	source-location src
@@ -45,6 +65,7 @@ project linescan
 	<toolset>clang:<linkflags>-stdlib=libc++
 
 	<include>/usr/include/libpng12
+	<include>/usr/local/include
 	<include>$(LIBRARIES)/mitrax/include
 	:
 	usage-requirements <include>include
