@@ -23,10 +23,11 @@
 #include <linescan/invert.hpp>
 #include <linescan/calib.hpp>
 
-#include <mitrax/region.hpp>
+#include <mitrax/regions.hpp>
 #include <mitrax/norm.hpp>
 #include <mitrax/operator.hpp>
 #include <mitrax/output.hpp>
+#include <mitrax/point_io.hpp>
 
 #include <boost/type_index.hpp>
 
@@ -144,7 +145,7 @@ int main()try{
 // 			image = linescan::gauss< 5 >(image, 0.7);
 // 			save(image, "2_gauss.png");
 
-			auto region = mitrax::region(
+			auto region = mitrax::calc_regions(
 				[](auto const& m){
 					auto sum = std::accumulate(m.begin(), m.end(), 0.);
 					return static_cast< std::uint8_t >(
@@ -155,7 +156,16 @@ int main()try{
 				mitrax::dims(48, 48),
 				image
 			);
-			save(region, "3_region.png");
+
+			auto result = mitrax::apply_regions(
+				[](boost::container::vector< std::uint8_t > const& regions){
+					return static_cast< std::uint8_t >(regions.size() * 30);
+				},
+				mitrax::dims(96, 96),
+				region,
+				image
+			);
+			save(result, "4_result.png");
 
 // 			auto edge = mitrax::pass_in(
 // 				size,
