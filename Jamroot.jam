@@ -76,5 +76,6 @@ exe linescan
 	[ glob *.cpp ]
 	libueye_api
 	libpng12
+	libopencv
 	/boost//system
 	;
