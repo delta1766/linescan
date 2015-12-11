@@ -13,7 +13,6 @@
 #include "mask_non_print.hpp"
 #include "vector.hpp"
 
-#include <iostream>
 #include <condition_variable>
 #include <mutex>
 
@@ -62,7 +61,6 @@ namespace linescan{
 				send(commands);
 				auto result = receive(timeout);
 				if(result.second) return result.first;
-				std::cout << "timeout, retry" << std::endl;
 			}
 
 			throw std::runtime_error("no answer from " + name());

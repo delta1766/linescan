@@ -16,9 +16,6 @@ namespace linescan{
 
 	control_F9S_base::control_F9S_base(std::string const& device):
 		port_([this](std::string&& data){
-			std::cout << "receive: '" << mask_non_print(data) << "'"
-				<< std::endl;
-
 			{
 				std::lock_guard< std::mutex > lock(mutex_);
 				receive_ = std::move(data);
@@ -58,9 +55,6 @@ namespace linescan{
 			data += "U" + std::string(1, command.address) +
 				command.data + "\r";
 		}
-
-		std::cout << "request: '" << mask_non_print(data) << "'"
-			<< std::endl;
 
 		port_.send(data);
 	}

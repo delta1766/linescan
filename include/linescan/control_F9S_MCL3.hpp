@@ -13,9 +13,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <iostream>
 #include <regex>
-#include <mutex>
 
 
 namespace linescan{
