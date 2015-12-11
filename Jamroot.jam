@@ -8,15 +8,14 @@ use-project /boost
 	;
 
 lib libueye_api : : 
-	# watch out for empty spaces, they are mandatory
-	<file>/usr/lib/libueye_api.so ;
+	<file>/usr/lib/libueye_api.so
+	;
 
 lib libpng12 : : 
-	# watch out for empty spaces, they are mandatory
-	<file>/usr/lib/x86_64-linux-gnu/libpng12.so ;
+	<file>/usr/lib/x86_64-linux-gnu/libpng12.so
+	;
 
 lib libopencv : : 
-	# watch out for empty spaces, they are mandatory
 	<file>/usr/local/lib/libopencv_calib3d.so
 	<file>/usr/local/lib/libopencv_core.so
 	<file>/usr/local/lib/libopencv_features2d.so
@@ -32,8 +31,15 @@ lib libopencv : :
 	<file>/usr/local/lib/libopencv_superres.so
 	<file>/usr/local/lib/libopencv_video.so
 	<file>/usr/local/lib/libopencv_videoio.so
-	<file>/usr/local/lib/libopencv_videostab.so ;
+	<file>/usr/local/lib/libopencv_videostab.so
+	;
 
+lib libqt : : 
+	<file>/usr/local/Qt-5.5.1/lib/libQt5Core.so
+	<file>/usr/local/Qt-5.5.1/lib/libQt5Gui.so
+	<file>/usr/local/Qt-5.5.1/lib/libQt5Test.so
+	<file>/usr/local/Qt-5.5.1/lib/libQt5Widgets.so
+	;
 
 project linescan
 	:
@@ -66,6 +72,7 @@ project linescan
 
 	<include>/usr/include/libpng12
 	<include>/usr/local/include
+	<include>/usr/local/Qt-5.5.1/include
 	<include>$(LIBRARIES)/mitrax/include
 	:
 	usage-requirements <include>include
@@ -77,5 +84,6 @@ exe linescan
 	libueye_api
 	libpng12
 	libopencv
+	libqt
 	/boost//system
 	;

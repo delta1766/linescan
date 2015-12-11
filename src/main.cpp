@@ -52,7 +52,7 @@
 #define HARDWARE
 #endif
 
-int main()try{
+int main(int argc, char** argv)try{
 	using namespace std::literals;
 	using namespace mitrax::literals;
 
@@ -67,6 +67,7 @@ int main()try{
 	double exposure_in_ms;
 	std::size_t gain_in_percent;
 	bool gain_boost;
+
 
 	std::tie(
 		pixelclock, framerate, exposure_in_ms, gain_in_percent, gain_boost
