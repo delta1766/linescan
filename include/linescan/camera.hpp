@@ -70,6 +70,8 @@ namespace linescan{
 			bool gain_boost
 		);
 
+		void set_max_light();
+
 
 	private:
 #ifdef CAM
