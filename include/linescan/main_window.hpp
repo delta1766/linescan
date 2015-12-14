@@ -1,0 +1,85 @@
+//-----------------------------------------------------------------------------
+// Copyright (c) 2015 Benjamin Buch
+//
+// https://github.com/bebuch/linescan
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+//-----------------------------------------------------------------------------
+#ifndef _linescan__main_window__hpp_INCLUDED_
+#define _linescan__main_window__hpp_INCLUDED_
+
+#include "point.hpp"
+#include "camera.hpp"
+#include "control_F9S_MCL3.hpp"
+
+#include <QtWidgets/QtWidgets>
+
+
+#ifdef HARDWARE
+#ifndef MCL
+#define MCL
+#endif
+#ifndef CAM
+#define CAM
+#endif
+#endif
+
+#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
+#define HARDWARE
+#endif
+
+
+namespace linescan{
+
+
+	class main_window: public QMainWindow{
+	public:
+		main_window();
+
+		~main_window();
+
+
+		void set_image(QPixmap const& pixmap);
+
+		void intrinsic_calibrate();
+
+		void capture_intrinsic_image();
+
+		void ready_intrinsic_calibrate();
+
+		void live();
+
+
+	private:
+		control_F9S_MCL3 mcl3_;
+		camera cam_;
+
+		std::vector< std::vector< point< float > > > points_;
+
+		QGraphicsPixmapItem item_;
+		QGraphicsView view_;
+		QGraphicsScene scene_;
+
+		QDockWidget dock_;
+		QWidget dock_widget_;
+		QHBoxLayout dock_layout_;
+
+		QWidget main_dock_widget_;
+		QHBoxLayout main_dock_layout_;
+		QPushButton calib_intrinsic_;
+		QPushButton calib_extrinsic_;
+
+		QWidget intrinsic_dock_widget_;
+		QHBoxLayout intrinsic_dock_layout_;
+		QPushButton intrinsic_get_;
+		QPushButton intrinsic_ready_;
+
+		QTimer timer_;
+	};
+
+
+}
+
+
+#endif

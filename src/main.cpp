@@ -22,6 +22,7 @@
 #include <linescan/save.hpp>
 #include <linescan/invert.hpp>
 #include <linescan/calib.hpp>
+#include <linescan/main_window.hpp>
 
 #include <mitrax/regions.hpp>
 #include <mitrax/norm.hpp>
@@ -39,20 +40,14 @@
 #include <cmath>
 
 
-#ifdef HARDWARE
-#ifndef MCL
-#define MCL
-#endif
-#ifndef CAM
-#define CAM
-#endif
-#endif
-
-#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
-#define HARDWARE
-#endif
-
 int main(int argc, char** argv)try{
+	QApplication app(argc, argv);
+
+	linescan::main_window window;
+	window.showMaximized();
+
+	return app.exec();
+
 	using namespace std::literals;
 	using namespace mitrax::literals;
 

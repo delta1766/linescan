@@ -8,12 +8,29 @@
 //-----------------------------------------------------------------------------
 #include <linescan/camera.hpp>
 
+#include <linescan/load.hpp>
+
 #include <ueye.h>
 #include <sys/mman.h>
 #include <errno.h>
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <thread>
+
+#ifdef HARDWARE
+#ifndef MCL
+#define MCL
+#endif
+#ifndef CAM
+#define CAM
+#endif
+#endif
+
+#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
+#define HARDWARE
+#endif
 
 
 namespace linescan{
@@ -262,10 +279,15 @@ namespace linescan{
 	}
 
 	camera::camera(std::uint32_t cam_id):
+#ifdef CAM
 		handle_(cam_id)
+#else
+		i_(0)
+#endif
 	{
 		using namespace std::literals;
 
+#ifdef CAM
 		int init;
 
 		// try 3 times
@@ -296,6 +318,14 @@ namespace linescan{
 		std::cout << "cam rows(): " << rows_ << std::endl;
 
 		pixel_size_in_um_ = config.wPixelSize / 100.;
+#else
+		(void)cam_id;
+
+		cols_ = 1024;
+		rows_ = 768;
+
+		pixel_size_in_um_ = 4.65;
+#endif
 	}
 
 
@@ -313,6 +343,7 @@ namespace linescan{
 
 
 	void camera::close(){
+#ifdef CAM
 		auto exit = is_ExitCamera(handle_);
 		switch(exit){
 			case IS_SUCCESS: break;
@@ -321,6 +352,7 @@ namespace linescan{
 					"is_ExitCamera failed: " + std::to_string(exit)
 				);
 		}
+#endif
 	}
 
 
@@ -339,6 +371,7 @@ namespace linescan{
 
 
 	std::uint32_t camera::pixelclock_min()const{
+#ifdef CAM
 		std::uint32_t pixelclock[3]{};
 		throw_on_error(is_PixelClock(
 			handle_,
@@ -347,9 +380,13 @@ namespace linescan{
 			sizeof(pixelclock)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[0];
+#else
+		return 8;
+#endif
 	}
 
 	std::uint32_t camera::pixelclock_max()const{
+#ifdef CAM
 		std::uint32_t pixelclock[3]{};
 		throw_on_error(is_PixelClock(
 			handle_,
@@ -358,9 +395,13 @@ namespace linescan{
 			sizeof(pixelclock)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[1];
+#else
+		return 8;
+#endif
 	}
 
 	std::uint32_t camera::pixelclock_inc()const{
+#ifdef CAM
 		std::uint32_t pixelclock[3]{};
 		throw_on_error(is_PixelClock(
 			handle_,
@@ -369,9 +410,13 @@ namespace linescan{
 			sizeof(pixelclock)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[2];
+#else
+		return 8;
+#endif
 	}
 
 	std::uint32_t camera::pixelclock()const{
+#ifdef CAM
 		std::uint32_t pixelclock = 0;
 		throw_on_error(is_PixelClock(
 			handle_,
@@ -380,19 +425,27 @@ namespace linescan{
 			sizeof(pixelclock)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET)");
 		return pixelclock;
+#else
+		return 8;
+#endif
 	}
 
 	void camera::set_pixelclock(std::uint32_t pixelclock){
+#ifdef CAM
 		throw_on_error(is_PixelClock(
 			handle_,
 			IS_PIXELCLOCK_CMD_SET,
 			(void*)&pixelclock,
 			sizeof(pixelclock)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_SET)");
+#else
+		(void)pixelclock;
+#endif
 	}
 
 
 	double camera::framerate_min()const{
+#ifdef CAM
 		double min;
 		double max;
 		double inc;
@@ -403,9 +456,13 @@ namespace linescan{
 			&inc
 		), "is_GetFrameTimeRange()");
 		return min;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::framerate_max()const{
+#ifdef CAM
 		double min;
 		double max;
 		double inc;
@@ -416,9 +473,13 @@ namespace linescan{
 			&inc
 		), "is_GetFrameTimeRange()");
 		return max;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::framerate_inc()const{
+#ifdef CAM
 		double min;
 		double max;
 		double inc;
@@ -429,9 +490,13 @@ namespace linescan{
 			&inc
 		), "is_GetFrameTimeRange()");
 		return inc;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::framerate()const{
+#ifdef CAM
 		double framerate;
 		throw_on_error(is_SetFrameRate(
 			handle_,
@@ -439,18 +504,26 @@ namespace linescan{
 			&framerate
 		), "is_SetFrameRate(IS_GET_FRAMERATE)");
 		return framerate;
+#else
+		return 8;
+#endif
 	}
 
 	void camera::set_framerate(double framerate){
+#ifdef CAM
 		throw_on_error(is_SetFrameRate(
 			handle_,
 			framerate,
 			&framerate
 		), "is_SetFrameRate(IS_GET_FRAMERATE)");
+#else
+		(void)framerate;
+#endif
 	}
 
 
 	double camera::exposure_in_ms_min()const{
+#ifdef CAM
 		double min;
 		throw_on_error(is_Exposure(
 			handle_,
@@ -459,9 +532,13 @@ namespace linescan{
 			sizeof(min)
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN)");
 		return min;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::exposure_in_ms_max()const{
+#ifdef CAM
 		double max;
 		throw_on_error(is_Exposure(
 			handle_,
@@ -470,9 +547,13 @@ namespace linescan{
 			sizeof(max)
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX)");
 		return max;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::exposure_in_ms_inc()const{
+#ifdef CAM
 		double inc;
 		throw_on_error(is_Exposure(
 			handle_,
@@ -481,9 +562,13 @@ namespace linescan{
 			sizeof(inc)
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
 		return inc;
+#else
+		return 8;
+#endif
 	}
 
 	double camera::exposure_in_ms()const{
+#ifdef CAM
 		double exposure_in_ms;
 
 		throw_on_error(is_Exposure(
@@ -494,19 +579,27 @@ namespace linescan{
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE)");
 
 		return exposure_in_ms;
+#else
+		return 8;
+#endif
 	}
 
 	void camera::set_exposure(double time_in_ms){
+#ifdef CAM
 		throw_on_error(is_Exposure(
 			handle_,
 			IS_EXPOSURE_CMD_SET_EXPOSURE,
 			&time_in_ms,
 			sizeof(time_in_ms)
 		), "is_Exposure(IS_EXPOSURE_CMD_SET_EXPOSURE)");
+#else
+		(void)time_in_ms;
+#endif
 	}
 
 
 	std::size_t camera::gain_in_percent()const{
+#ifdef CAM
 		return is_SetHardwareGain(
 			handle_,
 			IS_GET_MASTER_GAIN,
@@ -514,9 +607,13 @@ namespace linescan{
 			IS_IGNORE_PARAMETER,
 			IS_IGNORE_PARAMETER
 		);
+#else
+		return 8;
+#endif
 	}
 
 	void camera::set_gain(std::size_t percent){
+#ifdef CAM
 		if(percent > 100) throw std::logic_error("max gain is 100");
 		throw_on_error(is_SetHardwareGain(
 			handle_,
@@ -525,9 +622,13 @@ namespace linescan{
 			IS_IGNORE_PARAMETER,
 			IS_IGNORE_PARAMETER
 		), "is_SetHardwareGain(nMaster)");
+#else
+		(void)percent;
+#endif
 	}
 
 	void camera::set_gain_auto(){
+#ifdef CAM
 		throw_on_error(is_SetHardwareGain(
 			handle_,
 			IS_SET_ENABLE_AUTO_GAIN,
@@ -535,18 +636,27 @@ namespace linescan{
 			IS_IGNORE_PARAMETER,
 			IS_IGNORE_PARAMETER
 		), "is_SetHardwareGain(nMaster)");
+#endif
 	}
 
 
 	bool camera::gain_boost()const{
+#ifdef CAM
 		return
 			is_SetGainBoost(handle_, IS_GET_GAINBOOST) == IS_SET_GAINBOOST_ON;
+#else
+		return false;
+#endif
 	}
 
 	void camera::set_gain_boost(bool on){
+#ifdef CAM
 		throw_on_error(is_SetGainBoost(
 			handle_, on ? IS_SET_GAINBOOST_ON : IS_SET_GAINBOOST_OFF
 		), "is_SetGainBoost(IS_SET_GAINBOOST_ON/OFF)");
+#else
+		(void)on;
+#endif
 	}
 
 
@@ -579,6 +689,7 @@ namespace linescan{
 	mitrax::raw_bitmap< std::uint8_t > camera::image(){
 		using namespace std::literals;
 
+#ifdef CAM
 		int mem_id = 0;
 		char* buffer = nullptr;
 
@@ -605,6 +716,16 @@ namespace linescan{
 		);
 
 		return result;
+#else
+		std::ostringstream os;
+		os << "data/image" << std::setfill('0') << std::setw(2) << i_
+			<< ".png";
+
+		++i_;
+		if(i_ == 11) i_ = 0;
+
+		return load(os.str());
+#endif
 	}
 
 

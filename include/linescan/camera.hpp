@@ -72,7 +72,11 @@ namespace linescan{
 
 
 	private:
+#ifdef CAM
 		std::uint32_t handle_;
+#else
+		size_t i_;
+#endif
 
 		std::uint32_t cols_;
 		std::uint32_t rows_;

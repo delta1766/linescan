@@ -16,6 +16,19 @@
 #include <condition_variable>
 #include <mutex>
 
+#ifdef HARDWARE
+#ifndef MCL
+#define MCL
+#endif
+#ifndef CAM
+#define CAM
+#endif
+#endif
+
+#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
+#define HARDWARE
+#endif
+
 
 namespace linescan{
 
@@ -89,7 +102,9 @@ namespace linescan{
 
 		std::string receive_;
 
+#ifdef MCL
 		serial_port port_;
+#endif
 	};
 
 

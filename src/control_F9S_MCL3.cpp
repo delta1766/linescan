@@ -16,6 +16,7 @@ namespace linescan{
 		control_F9S_base(device),
 		joystick_(false)
 	{
+#ifdef MCL3
 		write_resolution(10);
 
 		auto resolution = read_resolution();
@@ -69,6 +70,7 @@ namespace linescan{
 				std::to_string(leadscrew_pitch_z) + "', should be '10000')"
 			);
 		}
+#endif
 	}
 
 

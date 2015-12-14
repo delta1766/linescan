@@ -14,7 +14,9 @@
 namespace linescan{
 
 
-	control_F9S_base::control_F9S_base(std::string const& device):
+	control_F9S_base::control_F9S_base(std::string const& device)
+#ifdef MCL
+		:
 		port_([this](std::string&& data){
 			{
 				std::lock_guard< std::mutex > lock(mutex_);
@@ -23,7 +25,9 @@ namespace linescan{
 
 			cv_.notify_one();
 		}, "\r")
+#endif
 	{
+#ifdef MCL
 		port_.open(
 			device, 9600, 8,
 			flow_control::none, parity::none, stop_bits::two
@@ -34,6 +38,9 @@ namespace linescan{
 
 		// Read out status and potentially trash data
 		receive();
+#else
+		(void)device;
+#endif
 	}
 
 
@@ -50,6 +57,7 @@ namespace linescan{
 	}
 
 	void control_F9S_base::send(vector< command > const& commands){
+#ifdef MCL
 		std::string data;
 		for(auto& command: commands){
 			data += "U" + std::string(1, command.address) +
@@ -57,10 +65,17 @@ namespace linescan{
 		}
 
 		port_.send(data);
+#else
+		(void)commands;
+#endif
 	}
 
 	void control_F9S_base::send(char const* data){
+#ifdef MCL
 		port_.send(data);
+#else
+		(void)data;
+#endif
 	}
 
 	void control_F9S_base::delay()const{
