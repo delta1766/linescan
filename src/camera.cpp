@@ -686,6 +686,19 @@ namespace linescan{
 	}
 
 
+	void camera::set_max_light(){
+		auto framerate = framerate_max();
+		set_framerate(framerate);
+		auto pixelclock = pixelclock_min();
+		set_pixelclock(pixelclock);
+		auto exposure = exposure_in_ms_max();
+		set_exposure(exposure);
+		set_gain(100);
+		set_gain_boost(true);
+		image();
+	}
+
+
 	mitrax::raw_bitmap< std::uint8_t > camera::image(){
 		using namespace std::literals;
 
