@@ -13,12 +13,18 @@
 #include "point.hpp"
 
 #include <vector>
+#include <array>
 
 
 namespace linescan{
 
 
 	std::vector< point< float > > find_chessboard_corners(camera& cam);
+
+	std::array< double, 3 > calc_intrinsic_parameters(
+		camera& cam,
+		std::vector< std::vector< point< float > > > const& ref_points
+	);
 
 
 }

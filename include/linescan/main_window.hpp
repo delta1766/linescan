@@ -48,6 +48,10 @@ namespace linescan{
 
 		void ready_intrinsic_calibrate();
 
+		void extrinsic_calibrate();
+
+		void capture_extrinsic_calibrate();
+
 		void live();
 
 
@@ -56,6 +60,8 @@ namespace linescan{
 		camera cam_;
 
 		std::vector< std::vector< point< float > > > points_;
+
+		std::array< double, 3 > intrinsic_parameters_;
 
 		QGraphicsPixmapItem item_;
 		QGraphicsView view_;
@@ -74,6 +80,10 @@ namespace linescan{
 		QHBoxLayout intrinsic_dock_layout_;
 		QPushButton intrinsic_get_;
 		QPushButton intrinsic_ready_;
+
+		QWidget extrinsic_dock_widget_;
+		QHBoxLayout extrinsic_dock_layout_;
+		QPushButton extrinsic_get_;
 
 		QTimer timer_;
 	};

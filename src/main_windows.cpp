@@ -33,6 +33,8 @@ namespace linescan{
 		scene_.addItem(&item_);
 		setCentralWidget(&view_);
 
+		calib_extrinsic_.setEnabled(false);
+
 		main_dock_layout_.addWidget(&calib_intrinsic_);
 		main_dock_layout_.addWidget(&calib_extrinsic_);
 		main_dock_widget_.setLayout(&main_dock_layout_);
@@ -40,6 +42,9 @@ namespace linescan{
 		intrinsic_dock_layout_.addWidget(&intrinsic_get_);
 		intrinsic_dock_layout_.addWidget(&intrinsic_ready_);
 		intrinsic_dock_widget_.setLayout(&intrinsic_dock_layout_);
+
+		extrinsic_dock_layout_.addWidget(&extrinsic_get_);
+		extrinsic_dock_widget_.setLayout(&extrinsic_dock_layout_);
 
 		main_dock_widget_.show();
 		intrinsic_dock_widget_.hide();
@@ -80,6 +85,31 @@ namespace linescan{
 	}
 
 
+	template < typename F >
+	void exception_catcher(F&& f)try{
+		f();
+	}catch(std::exception const& error){
+		QMessageBox box(
+			QMessageBox::Warning,
+			QObject::tr("Error"),
+			error.what(),
+			QMessageBox::Ok
+		);
+
+		box.exec();
+	}catch(...){
+		QMessageBox box(
+			QMessageBox::Critical,
+			QObject::tr("Fatal Error"),
+			"Unknown exception",
+			QMessageBox::Ok
+		);
+
+		box.exec();
+	}
+
+
+
 	main_window::~main_window(){
 		scene_.removeItem(&item_);
 	}
@@ -92,21 +122,23 @@ namespace linescan{
 
 	void main_window::intrinsic_calibrate(){
 		main_dock_widget_.hide();
+		extrinsic_dock_widget_.hide();
 		intrinsic_dock_widget_.show();
 
-		auto set_max_light = [this](){
-			auto framerate = cam_.framerate_max();
-			cam_.set_framerate(framerate);
-			auto pixelclock = cam_.pixelclock_min();
-			cam_.set_pixelclock(pixelclock);
-			auto exposure = cam_.exposure_in_ms_max();
-			cam_.set_exposure(exposure);
-			cam_.set_gain(100);
-			cam_.set_gain_boost(true);
-			cam_.image();
-		};
+		cam_.set_max_light();
 
-		set_max_light();
+		points_.clear();
+
+		timer_.start();
+	}
+
+
+	void main_window::extrinsic_calibrate(){
+		main_dock_widget_.hide();
+		extrinsic_dock_widget_.hide();
+		intrinsic_dock_widget_.show();
+
+		cam_.set_max_light();
 
 		points_.clear();
 
@@ -119,29 +151,29 @@ namespace linescan{
 
 		timer_.stop();
 
-		try{
+		exception_catcher([this]{
 			auto points = find_chessboard_corners(cam_);
 
 			std::cout << points << std::endl;
 
 			if(!points.empty()) points_.push_back(std::move(points));
-		}catch(std::exception const& error){
-			QMessageBox box(
-				QMessageBox::Warning,
-				tr("Error"),
-				error.what(),
-				QMessageBox::Ok
-			);
-
-			box.exec();
-		}
+		});
 
 		timer_.start();
 	}
 
 
 	void main_window::ready_intrinsic_calibrate(){
-		
+		timer_.stop();
+
+		exception_catcher([this]{
+			intrinsic_parameters_ = calc_intrinsic_parameters(cam_, points_);
+			calib_extrinsic_.setEnabled(true);
+		});
+
+		main_dock_widget_.show();
+		extrinsic_dock_widget_.hide();
+		intrinsic_dock_widget_.hide();
 	}
 
 
