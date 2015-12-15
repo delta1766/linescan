@@ -56,7 +56,7 @@ namespace linescan{
 		std::vector< std::vector< point< float > > > points_;
 		std::vector< point< double > > points_3d_;
 
-		std::array< double, 3 > intrinsic_parameters_;
+		std::array< double, 3 > camera_matrix_parameter_;
 
 		QGraphicsPixmapItem item_;
 		QGraphicsView view_;

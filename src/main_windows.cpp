@@ -183,16 +183,16 @@ namespace linescan{
 
 				if(!points.empty()) points_.push_back(std::move(points));
 
-				intrinsic_parameters_ = calc_intrinsic_parameters(
+				camera_matrix_parameter_ = calc_intrinsic_parameters(
 					cam_, points_
 				);
 
 				intrinsic_label_.setText(
 					QString("f: %1mm, cx: %2px, cy: %3px")
-					.arg(intrinsic_parameters_[0] *
+					.arg(camera_matrix_parameter_[0] *
 						cam_.pixel_size_in_um() / 1000, 0, 'f', 3)
-					.arg(intrinsic_parameters_[1], 0, 'f', 1)
-					.arg(intrinsic_parameters_[2], 0, 'f', 1)
+					.arg(camera_matrix_parameter_[1], 0, 'f', 1)
+					.arg(camera_matrix_parameter_[2], 0, 'f', 1)
 				);
 			});
 
