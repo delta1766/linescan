@@ -69,6 +69,7 @@ namespace linescan{
 
 		QWidget intrinsic_dock_widget_;
 		QHBoxLayout intrinsic_dock_layout_;
+		QLabel intrinsic_label_;
 		QPushButton intrinsic_get_;
 		QPushButton intrinsic_ready_;
 
@@ -78,8 +79,8 @@ namespace linescan{
 
 		QWidget laser_dock_widget_;
 		QHBoxLayout laser_dock_layout_;
-		QPushButton laser_ok_;
 		QLabel laser_label_;
+		QPushButton laser_ok_;
 
 		QTimer timer_;
 		QTimer laser_timer_;

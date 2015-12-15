@@ -54,15 +54,17 @@ namespace linescan{
 	main_window::main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
-		dock_(tr("Control"), this),
-		laser_align_("Laser &algin", this),
-		calib_intrinsic_("Calibrate &Intrinsic Parameters", this),
-		calib_extrinsic_("Calibrate &Extrinsic Parameters", this),
-		intrinsic_get_("&Get", this),
-		intrinsic_ready_("&Ready", this),
-		laser_ok_("&OK", this),
-		laser_label_("Align", this)
+		dock_(tr("Control panel"), this),
+		laser_align_(tr("Laser &align"), this),
+		calib_intrinsic_(tr("Calibrate &Intrinsic Parameters"), this),
+		calib_extrinsic_(tr("Calibrate &Extrinsic Parameters"), this),
+		intrinsic_get_(tr("&Get image data"), this),
+		intrinsic_ready_(tr("&Ready (return to main window)"), this),
+		laser_label_(tr("Align"), this),
+		laser_ok_(tr("&OK"), this)
 	{
+		setWindowTitle(tr("TU Ilmenau - linescan"));
+
 		view_.setScene(&scene_);
 		item_.setPixmap(QPixmap("data/start.jpg"));
 		scene_.addItem(&item_);
@@ -75,6 +77,7 @@ namespace linescan{
 		main_dock_layout_.addWidget(&calib_extrinsic_);
 		main_dock_widget_.setLayout(&main_dock_layout_);
 
+		intrinsic_dock_layout_.addWidget(&intrinsic_label_);
 		intrinsic_dock_layout_.addWidget(&intrinsic_get_);
 		intrinsic_dock_layout_.addWidget(&intrinsic_ready_);
 		intrinsic_dock_widget_.setLayout(&intrinsic_dock_layout_);
@@ -127,6 +130,8 @@ namespace linescan{
 		});
 
 		connect(&calib_intrinsic_, &QPushButton::clicked, [this]{
+			intrinsic_label_.setText(tr("no camera matrix"));
+
 			main_dock_widget_.hide();
 			laser_dock_widget_.hide();
 			extrinsic_dock_widget_.hide();
@@ -150,6 +155,18 @@ namespace linescan{
 				std::cout << points << std::endl;
 
 				if(!points.empty()) points_.push_back(std::move(points));
+
+				intrinsic_parameters_ = calc_intrinsic_parameters(
+					cam_, points_
+				);
+
+				intrinsic_label_.setText(
+					QString("f: %1mm, cx: %2px, cy: %3px")
+					.arg(intrinsic_parameters_[0] *
+						cam_.pixel_size_in_um() / 1000)
+					.arg(intrinsic_parameters_[1])
+					.arg(intrinsic_parameters_[2])
+				);
 			});
 
 			timer_.start();
@@ -158,10 +175,7 @@ namespace linescan{
 		connect(&intrinsic_ready_, &QPushButton::clicked, [this]{
 			timer_.stop();
 
-			exception_catcher([this]{
-				intrinsic_parameters_ = calc_intrinsic_parameters(cam_, points_);
-				calib_extrinsic_.setEnabled(true);
-			});
+			calib_extrinsic_.setEnabled(true);
 
 			main_dock_widget_.show();
 			laser_dock_widget_.hide();
