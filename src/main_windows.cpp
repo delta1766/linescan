@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/main_window.hpp>
 
+#include <linescan/extrinsic_parameters.hpp>
 #include <linescan/intrinsic_parameters.hpp>
 #include <linescan/load.hpp>
 #include <linescan/draw.hpp>
@@ -22,6 +23,7 @@
 #include <boost/type_index.hpp>
 
 #include <iostream>
+#include <iomanip>
 
 
 namespace linescan{
@@ -71,9 +73,13 @@ namespace linescan{
 		calib_extrinsic_(tr("Calibrate &Extrinsic Parameters"), this),
 		intrinsic_get_(tr("&Get image data"), this),
 		intrinsic_ready_(tr("&Ready (return to main window)"), this),
+		extrinsic_get_(tr("&Get image data"), this),
+		extrinsic_ready_(tr("&Ready (return to main window)"), this),
 		laser_label_(tr("Align"), this),
 		laser_ok_(tr("&OK"), this)
 	{
+		std::cout << std::fixed << std::setprecision(3);
+
 		setWindowTitle(tr("TU Ilmenau - linescan"));
 
 		view_.setScene(&scene_);
@@ -93,7 +99,9 @@ namespace linescan{
 		intrinsic_dock_layout_.addWidget(&intrinsic_ready_);
 		intrinsic_dock_widget_.setLayout(&intrinsic_dock_layout_);
 
+		extrinsic_dock_layout_.addWidget(&extrinsic_label_);
 		extrinsic_dock_layout_.addWidget(&extrinsic_get_);
+		extrinsic_dock_layout_.addWidget(&extrinsic_ready_);
 		extrinsic_dock_widget_.setLayout(&extrinsic_dock_layout_);
 
 		laser_dock_layout_.addWidget(&laser_label_);
@@ -102,12 +110,14 @@ namespace linescan{
 
 		main_dock_widget_.show();
 		intrinsic_dock_widget_.hide();
+		extrinsic_dock_widget_.hide();
 		laser_dock_widget_.hide();
 
 		dock_layout_.setContentsMargins(0, 0, 0, 0);
 		dock_layout_.addWidget(&laser_dock_widget_);
 		dock_layout_.addWidget(&main_dock_widget_);
 		dock_layout_.addWidget(&intrinsic_dock_widget_);
+		dock_layout_.addWidget(&extrinsic_dock_widget_);
 		dock_widget_.setLayout(&dock_layout_);
 		dock_.setWidget(&dock_widget_);
 
@@ -150,8 +160,6 @@ namespace linescan{
 
 			cam_.set_max_light();
 
-			points_.clear();
-
 			timer_.start();
 		});
 
@@ -174,9 +182,9 @@ namespace linescan{
 				intrinsic_label_.setText(
 					QString("f: %1mm, cx: %2px, cy: %3px")
 					.arg(intrinsic_parameters_[0] *
-						cam_.pixel_size_in_um() / 1000)
-					.arg(intrinsic_parameters_[1])
-					.arg(intrinsic_parameters_[2])
+						cam_.pixel_size_in_um() / 1000, 0, 'f', 3)
+					.arg(intrinsic_parameters_[1], 0, 'f', 1)
+					.arg(intrinsic_parameters_[2], 0, 'f', 1)
 				);
 			});
 
@@ -186,7 +194,32 @@ namespace linescan{
 		connect(&intrinsic_ready_, &QPushButton::clicked, [this]{
 			timer_.stop();
 
-			calib_extrinsic_.setEnabled(true);
+			if(!points_.empty()){
+				points_.clear();
+				calib_extrinsic_.setEnabled(true);
+			}
+
+			main_dock_widget_.show();
+			laser_dock_widget_.hide();
+			extrinsic_dock_widget_.hide();
+			intrinsic_dock_widget_.hide();
+		});
+
+		connect(&calib_extrinsic_, &QPushButton::clicked, [this]{
+			extrinsic_label_.setText(tr("no rotation matrix"));
+
+			main_dock_widget_.hide();
+			laser_dock_widget_.hide();
+			extrinsic_dock_widget_.show();
+			intrinsic_dock_widget_.hide();
+
+			cam_.set_max_light();
+
+			timer_.start();
+		});
+
+		connect(&extrinsic_ready_, &QPushButton::clicked, [this]{
+			timer_.stop();
 
 			main_dock_widget_.show();
 			laser_dock_widget_.hide();
@@ -196,7 +229,6 @@ namespace linescan{
 
 		connect(&timer_, &QTimer::timeout, [this]{
 			auto pixmap = to_pixmap(cam_.image());
-			
 
 			if(!points_.empty()){
 				QPainter painter(&pixmap);

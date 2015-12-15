@@ -75,7 +75,9 @@ namespace linescan{
 
 		QWidget extrinsic_dock_widget_;
 		QHBoxLayout extrinsic_dock_layout_;
+		QLabel extrinsic_label_;
 		QPushButton extrinsic_get_;
+		QPushButton extrinsic_ready_;
 
 		QWidget laser_dock_widget_;
 		QHBoxLayout laser_dock_layout_;
