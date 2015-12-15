@@ -144,14 +144,14 @@ namespace linescan{
 		});
 
 		connect(&laser_ok_, &QPushButton::clicked, [this]{
-			show_main_image();
+			laser_timer_.stop();
 
 			main_dock_widget_.show();
 			laser_dock_widget_.hide();
 			extrinsic_dock_widget_.hide();
 			intrinsic_dock_widget_.hide();
 
-			laser_timer_.stop();
+			show_main_image();
 		});
 
 		connect(&calib_intrinsic_, &QPushButton::clicked, [this]{
@@ -172,9 +172,9 @@ namespace linescan{
 		connect(&intrinsic_get_, &QPushButton::clicked, [this]{
 			using mitrax::operator<<;
 
-			show_process_image();
-
 			timer_.stop();
+
+			show_process_image();
 
 			exception_catcher([this]{
 				auto points = find_chessboard_corners(cam_);
@@ -200,8 +200,6 @@ namespace linescan{
 		});
 
 		connect(&intrinsic_ready_, &QPushButton::clicked, [this]{
-			show_main_image();
-
 			timer_.stop();
 
 			if(!points_.empty()){
@@ -213,6 +211,8 @@ namespace linescan{
 			laser_dock_widget_.hide();
 			extrinsic_dock_widget_.hide();
 			intrinsic_dock_widget_.hide();
+
+			show_main_image();
 		});
 
 		connect(&calib_extrinsic_, &QPushButton::clicked, [this]{
@@ -230,10 +230,29 @@ namespace linescan{
 			timer_.start();
 		});
 
-		connect(&extrinsic_ready_, &QPushButton::clicked, [this]{
-			show_main_image();
+		connect(&extrinsic_get_, &QPushButton::clicked, [this]{
+			using mitrax::operator<<;
 
 			timer_.stop();
+
+			show_process_image();
+
+			exception_catcher([this]{
+				auto points = find_ref_points(cam_);
+				points_3d_.clear();
+				points_3d_.insert(
+					points_3d_.begin(), points.begin(), points.end()
+				);
+			});
+
+			timer_.start();
+		});
+
+
+		connect(&extrinsic_ready_, &QPushButton::clicked, [this]{
+			timer_.stop();
+
+			show_process_image();
 
 			points_3d_.clear();
 
@@ -241,6 +260,8 @@ namespace linescan{
 			laser_dock_widget_.hide();
 			extrinsic_dock_widget_.hide();
 			intrinsic_dock_widget_.hide();
+
+			show_main_image();
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{

@@ -54,7 +54,7 @@ namespace linescan{
 		camera cam_;
 
 		std::vector< std::vector< point< float > > > points_;
-		std::vector< point< float > > points_3d_;
+		std::vector< point< double > > points_3d_;
 
 		std::array< double, 3 > intrinsic_parameters_;
 

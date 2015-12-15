@@ -13,6 +13,7 @@
 #include <linescan/erode.hpp>
 #include <linescan/invert.hpp>
 #include <linescan/collect_points.hpp>
+#include <linescan/load.hpp>
 
 #include <mitrax/point_io.hpp>
 
@@ -90,6 +91,7 @@ namespace linescan{
 #ifdef CAM
 		auto image = cam.image();
 #else
+		(void)cam;
 		auto image = load("simulation/real2_ref.png");
 #endif
 
