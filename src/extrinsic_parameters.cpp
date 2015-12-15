@@ -16,6 +16,7 @@
 #include <linescan/load.hpp>
 
 #include <mitrax/point_io.hpp>
+#include <mitrax/matrix.hpp>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -153,12 +154,60 @@ namespace linescan{
 	}
 
 
-// 	std::array< mitrax::raw_col_vector< double, 3 >, 2 >
-// 	calc_extrinsic_parameters(
-// 		std::array< double, 3 > const& intrinsic_parameters
-// 	){
-// 		
-// 	}
+	std::array< mitrax::raw_col_vector< double, 3 >, 2 >
+	calc_extrinsic_parameters(
+		std::array< double, 3 > const& camera_matrix_parameter,
+		std::array< point< double >, 8 > const& points
+	){
+		using namespace ref3d;
+
+		std::vector< cv::Point2f > image_points;
+		for(auto const& p: points) image_points.emplace_back(p.x(), p.y());
+
+		std::vector< cv::Point3f > object_points{
+			cv::Point3f(plain_x_p0[0], plain_x_p0[1], plain_x_p0[2]),
+			cv::Point3f(plain_x_p1[0], plain_x_p1[1], plain_x_p1[2]),
+			cv::Point3f(plain_x_p2[0], plain_x_p2[1], plain_x_p2[2]),
+			cv::Point3f(plain_x_p3[0], plain_x_p3[1], plain_x_p3[2]),
+			cv::Point3f(plain_y_p0[0], plain_y_p0[1], plain_y_p0[2]),
+			cv::Point3f(plain_y_p1[0], plain_y_p1[1], plain_y_p1[2]),
+			cv::Point3f(plain_y_p2[0], plain_y_p2[1], plain_y_p2[2]),
+			cv::Point3f(plain_y_p3[0], plain_y_p3[1], plain_y_p3[2])
+		};
+
+		cv::Mat camera_matrix = cv::Mat::eye(3, 3, CV_64F);
+		camera_matrix.at< double >(0, 0) = camera_matrix_parameter[0];
+		camera_matrix.at< double >(1, 1) = camera_matrix_parameter[0];
+		camera_matrix.at< double >(2, 0) = camera_matrix_parameter[1];
+		camera_matrix.at< double >(2, 1) = camera_matrix_parameter[2];
+
+		// TODO: Use the real ones
+		cv::Mat distortion_coefficients = cv::Mat::zeros(8, 1, CV_64F);
+
+		cv::Mat rotation_vector;
+		cv::Mat translation_vector;
+		cv::solvePnP(
+			object_points,
+			image_points,
+			camera_matrix,
+			distortion_coefficients,
+			rotation_vector,
+			translation_vector
+		);
+
+		return {{
+			mitrax::make_col_vector< double >(3_R, {
+				rotation_vector.at< double >(0, 0),
+				rotation_vector.at< double >(1, 0),
+				rotation_vector.at< double >(2, 0)
+			}),
+			mitrax::make_col_vector< double >(3_R, {
+				translation_vector.at< double >(0, 0),
+				translation_vector.at< double >(1, 0),
+				translation_vector.at< double >(2, 0)
+			})
+		}};
+	}
 
 
 }
