@@ -40,6 +40,8 @@ namespace linescan{
 		~main_window();
 
 
+		void laser_live();
+
 		void show_bitmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
 
 

@@ -173,83 +173,87 @@ namespace linescan{
 			show_bitmap(cam_.image());
 		});
 
-		connect(&laser_timer_, &QTimer::timeout, [this]{
-			try{
-#ifdef CAM
-				auto bitmap = cam_.image();
-#else
-				auto bitmap = load("simulation/real2_laser.png");
-#endif
-
-				auto binary = binarize(bitmap, std::uint8_t(255));
-				binary = erode(binary, 3);
-
-				auto top_distance_line = calc_top_distance_line(binary);
-
-				std::vector< point< double > > points;
-				for(std::size_t i = 0; i < top_distance_line.size(); ++i){
-					if(top_distance_line[i] == 0) continue;
-					points.emplace_back(i, top_distance_line[i]);
-				}
-
-				if(points.size() < 2){
-					show_bitmap(bitmap);
-					laser_label_.setText("no line");
-					return;
-				}
-
-				auto line = fit_linear_function< double >(
-					points.begin(), points.end()
-				);
-
-				QImage image(
-					bitmap.impl().data().data(),
-					bitmap.cols(), bitmap.rows(),
-					QImage::Format_Grayscale8
-				);
-
-				auto pixmap = QPixmap::fromImage(image);
-
-				auto angle = std::sin((line(100) - line(0)) / 100);
-				auto angle_text =
-					QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
-
-				laser_label_.setText(angle_text);
-
-				{
-					QPainter painter(&pixmap);
-
-					painter.setPen(qRgb(0, 255, 0));
-					QFont font = painter.font();
-					font.setPixelSize(128);
-					painter.setFont(font);
-					painter.drawText(
-						0, 0, pixmap.width(), pixmap.height() / 2,
-						Qt::AlignCenter, angle_text
-					);
-
-					painter.setPen(qRgb(255, 0, 0));
-					painter.drawLine(
-						0, line(0),
-						pixmap.width() - 1, line(pixmap.width() - 1)
-					);
-				}
-
-				item_.setPixmap(pixmap);
-			}catch(std::exception const& e){
-				std::cerr
-					<< "Exit with exception: ["
-					<< boost::typeindex::type_id_runtime(e).pretty_name()
-					<< "] " << e.what() << std::endl;
-			}catch(...){
-				std::cerr << "Exit with unknown exception" << std::endl;
-			}
-		});
+		connect(
+			&laser_timer_, &QTimer::timeout,
+			this, &main_window::laser_live
+		);
 	}
 
 	main_window::~main_window(){
 		scene_.removeItem(&item_);
 	}
+
+	void main_window::laser_live()try{
+#ifdef CAM
+		auto bitmap = cam_.image();
+#else
+		auto bitmap = load("simulation/real2_laser.png");
+#endif
+
+		auto binary = binarize(bitmap, std::uint8_t(255));
+		binary = erode(binary, 3);
+
+		auto top_distance_line = calc_top_distance_line(binary);
+
+		std::vector< point< double > > points;
+		for(std::size_t i = 0; i < top_distance_line.size(); ++i){
+			if(top_distance_line[i] == 0) continue;
+			points.emplace_back(i, top_distance_line[i]);
+		}
+
+		if(points.size() < 2){
+			show_bitmap(bitmap);
+			laser_label_.setText("no line");
+			return;
+		}
+
+		auto line = fit_linear_function< double >(
+			points.begin(), points.end()
+		);
+
+		QImage image(
+			bitmap.impl().data().data(),
+			bitmap.cols(), bitmap.rows(),
+			QImage::Format_Grayscale8
+		);
+
+		auto pixmap = QPixmap::fromImage(image);
+
+		auto angle = std::sin((line(100) - line(0)) / 100);
+		auto angle_text =
+			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
+
+		laser_label_.setText(angle_text);
+
+		{
+			QPainter painter(&pixmap);
+
+			painter.setPen(qRgb(0, 255, 0));
+			QFont font = painter.font();
+			font.setPixelSize(128);
+			painter.setFont(font);
+			painter.drawText(
+				0, 0, pixmap.width(), pixmap.height() / 2,
+				Qt::AlignCenter, angle_text
+			);
+
+			painter.setPen(qRgb(255, 0, 0));
+			painter.drawLine(
+				0, line(0),
+				pixmap.width() - 1, line(pixmap.width() - 1)
+			);
+		}
+
+		item_.setPixmap(pixmap);
+	}catch(std::exception const& e){
+		std::cerr
+			<< "Exit with exception: ["
+			<< boost::typeindex::type_id_runtime(e).pretty_name()
+			<< "] " << e.what() << std::endl;
+	}catch(...){
+		std::cerr << "Exit with unknown exception" << std::endl;
+	}
+
 
 	void main_window::show_bitmap(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap
