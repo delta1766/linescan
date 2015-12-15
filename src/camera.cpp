@@ -326,6 +326,14 @@ namespace linescan{
 
 		pixel_size_in_um_ = 4.65;
 #endif
+
+		std::tie(
+			default_pixelclock_,
+			default_framerate_,
+			default_exposure_in_ms_,
+			default_gain_in_percent_,
+			default_gain_boost_
+		) = get_light_params();
 	}
 
 
@@ -695,6 +703,18 @@ namespace linescan{
 		set_exposure(exposure);
 		set_gain(100);
 		set_gain_boost(true);
+		image();
+	}
+
+
+	void camera::set_default_light(){
+		set_light_params(
+			default_pixelclock_,
+			default_framerate_,
+			default_exposure_in_ms_,
+			default_gain_in_percent_,
+			default_gain_boost_
+		);
 		image();
 	}
 

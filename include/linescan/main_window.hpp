@@ -40,19 +40,7 @@ namespace linescan{
 		~main_window();
 
 
-		void set_image(QPixmap const& pixmap);
-
-		void intrinsic_calibrate();
-
-		void capture_intrinsic_image();
-
-		void ready_intrinsic_calibrate();
-
-		void extrinsic_calibrate();
-
-		void capture_extrinsic_calibrate();
-
-		void live();
+		void show_bitmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
 
 
 	private:
@@ -73,6 +61,7 @@ namespace linescan{
 
 		QWidget main_dock_widget_;
 		QHBoxLayout main_dock_layout_;
+		QPushButton laser_align_;
 		QPushButton calib_intrinsic_;
 		QPushButton calib_extrinsic_;
 
@@ -85,7 +74,12 @@ namespace linescan{
 		QHBoxLayout extrinsic_dock_layout_;
 		QPushButton extrinsic_get_;
 
+		QWidget laser_dock_widget_;
+		QHBoxLayout laser_dock_layout_;
+		QPushButton laser_ok_;
+
 		QTimer timer_;
+		QTimer laser_timer_;
 	};
 
 

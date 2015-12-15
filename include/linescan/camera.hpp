@@ -71,6 +71,7 @@ namespace linescan{
 		);
 
 		void set_max_light();
+		void set_default_light();
 
 
 	private:
@@ -84,6 +85,12 @@ namespace linescan{
 		std::uint32_t rows_;
 
 		double pixel_size_in_um_;
+
+		std::uint32_t default_pixelclock_;
+		double default_framerate_;
+		double default_exposure_in_ms_;
+		std::size_t default_gain_in_percent_;
+		bool default_gain_boost_;
 	};
 
 
