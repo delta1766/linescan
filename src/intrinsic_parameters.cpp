@@ -110,7 +110,7 @@ namespace linescan{
 
 		auto flags = CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5;
 		flags |= CV_CALIB_FIX_ASPECT_RATIO;
-		flags |= CV_CALIB_FIX_PRINCIPAL_POINT;
+// 		flags |= CV_CALIB_FIX_PRINCIPAL_POINT;
 
 		// Find intrinsic and extrinsic camera parameters
 		std::vector< cv::Mat > rotation_vectors;
