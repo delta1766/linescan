@@ -154,9 +154,10 @@ namespace linescan{
 	}
 
 
-	std::array< mitrax::raw_col_vector< double, 3 >, 2 >
+	std::tuple< std::array< double, 3 >, std::array< double, 3 > >
 	calc_extrinsic_parameters(
 		std::array< double, 3 > const& camera_matrix_parameter,
+		std::array< double, 8 > const& distortion_coefficients,
 		std::array< point< double >, 8 > const& points
 	){
 		using namespace ref3d;
@@ -181,8 +182,15 @@ namespace linescan{
 		camera_matrix.at< double >(2, 0) = camera_matrix_parameter[1];
 		camera_matrix.at< double >(2, 1) = camera_matrix_parameter[2];
 
-		// TODO: Use the real ones
-		cv::Mat distortion_coefficients = cv::Mat::zeros(8, 1, CV_64F);
+		cv::Mat distortion_coeff = cv::Mat::zeros(8, 1, CV_64F);
+		camera_matrix.at< double >(0, 0) = distortion_coefficients[0];
+		camera_matrix.at< double >(1, 0) = distortion_coefficients[1];
+		camera_matrix.at< double >(2, 0) = distortion_coefficients[2];
+		camera_matrix.at< double >(3, 0) = distortion_coefficients[3];
+		camera_matrix.at< double >(4, 0) = distortion_coefficients[4];
+		camera_matrix.at< double >(5, 0) = distortion_coefficients[5];
+		camera_matrix.at< double >(6, 0) = distortion_coefficients[6];
+		camera_matrix.at< double >(7, 0) = distortion_coefficients[7];
 
 		cv::Mat rotation_vector;
 		cv::Mat translation_vector;
@@ -190,23 +198,23 @@ namespace linescan{
 			object_points,
 			image_points,
 			camera_matrix,
-			distortion_coefficients,
+			distortion_coeff,
 			rotation_vector,
 			translation_vector
 		);
 
-		return {{
-			mitrax::make_col_vector< double >(3_R, {
+		return std::make_tuple(
+			std::array< double, 3 >{{
 				rotation_vector.at< double >(0, 0),
 				rotation_vector.at< double >(1, 0),
 				rotation_vector.at< double >(2, 0)
-			}),
-			mitrax::make_col_vector< double >(3_R, {
+			}},
+			std::array< double, 3 >{{
 				translation_vector.at< double >(0, 0),
 				translation_vector.at< double >(1, 0),
 				translation_vector.at< double >(2, 0)
-			})
-		}};
+			}}
+		);
 	}
 
 

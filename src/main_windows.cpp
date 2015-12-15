@@ -242,6 +242,23 @@ namespace linescan{
 				points_3d_.insert(
 					points_3d_.begin(), points.begin(), points.end()
 				);
+
+				std::tie(rotation_vector_, translation_vector_) =
+					calc_extrinsic_parameters(
+						camera_matrix_parameter_,
+						distortion_coefficients_,
+						points
+					);
+
+				extrinsic_label_.setText(
+					QString("rotation(%1, %2, %3), translation(%4, %5, %6)")
+					.arg(rotation_vector_[0], 0, 'f', 2)
+					.arg(rotation_vector_[1], 0, 'f', 2)
+					.arg(rotation_vector_[2], 0, 'f', 2)
+					.arg(translation_vector_[0], 0, 'f', 2)
+					.arg(translation_vector_[1], 0, 'f', 2)
+					.arg(translation_vector_[2], 0, 'f', 2)
+				);
 			});
 
 			timer_.start();

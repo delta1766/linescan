@@ -21,6 +21,14 @@ namespace linescan{
 	std::array< point< double >, 8 > find_ref_points(camera& cam);
 
 
+	std::tuple< std::array< double, 3 >, std::array< double, 3 > >
+	calc_extrinsic_parameters(
+		std::array< double, 3 > const& camera_matrix_parameter,
+		std::array< double, 8 > const& distortion_coefficients,
+		std::array< point< double >, 8 > const& points
+	);
+
+
 }
 
 
