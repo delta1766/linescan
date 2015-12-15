@@ -83,7 +83,7 @@ namespace linescan{
 		setWindowTitle(tr("TU Ilmenau - linescan"));
 
 		view_.setScene(&scene_);
-		item_.setPixmap(QPixmap("data/start.jpg"));
+		show_main_image();
 		scene_.addItem(&item_);
 		setCentralWidget(&view_);
 
@@ -131,6 +131,8 @@ namespace linescan{
 		laser_timer_.setInterval(250);
 
 		connect(&laser_align_, &QPushButton::clicked, [this]{
+			show_process_image();
+
 			main_dock_widget_.hide();
 			laser_dock_widget_.show();
 			extrinsic_dock_widget_.hide();
@@ -142,6 +144,8 @@ namespace linescan{
 		});
 
 		connect(&laser_ok_, &QPushButton::clicked, [this]{
+			show_main_image();
+
 			main_dock_widget_.show();
 			laser_dock_widget_.hide();
 			extrinsic_dock_widget_.hide();
@@ -151,6 +155,8 @@ namespace linescan{
 		});
 
 		connect(&calib_intrinsic_, &QPushButton::clicked, [this]{
+			show_process_image();
+
 			intrinsic_label_.setText(tr("no camera matrix"));
 
 			main_dock_widget_.hide();
@@ -165,6 +171,8 @@ namespace linescan{
 
 		connect(&intrinsic_get_, &QPushButton::clicked, [this]{
 			using mitrax::operator<<;
+
+			show_process_image();
 
 			timer_.stop();
 
@@ -192,6 +200,8 @@ namespace linescan{
 		});
 
 		connect(&intrinsic_ready_, &QPushButton::clicked, [this]{
+			show_main_image();
+
 			timer_.stop();
 
 			if(!points_.empty()){
@@ -206,6 +216,8 @@ namespace linescan{
 		});
 
 		connect(&calib_extrinsic_, &QPushButton::clicked, [this]{
+			show_process_image();
+
 			extrinsic_label_.setText(tr("no rotation matrix"));
 
 			main_dock_widget_.hide();
@@ -219,7 +231,11 @@ namespace linescan{
 		});
 
 		connect(&extrinsic_ready_, &QPushButton::clicked, [this]{
+			show_main_image();
+
 			timer_.stop();
+
+			points_3d_.clear();
 
 			main_dock_widget_.show();
 			laser_dock_widget_.hide();
@@ -230,12 +246,18 @@ namespace linescan{
 		connect(&timer_, &QTimer::timeout, [this]{
 			auto pixmap = to_pixmap(cam_.image());
 
-			if(!points_.empty()){
+			auto draw_points = [&pixmap](auto& points){
 				QPainter painter(&pixmap);
 				painter.setPen(qRgb(255, 0, 0));
-				for(auto const& p: points_.back()){
+				for(auto const& p: points){
 					painter.drawEllipse(QPoint(p.x(), p.y()), 10, 10);
 				}
+			};
+
+			if(!points_.empty()){
+				draw_points(points_.back());
+			}else{
+				draw_points(points_3d_);
 			}
 
 			item_.setPixmap(pixmap);
@@ -314,6 +336,16 @@ namespace linescan{
 			<< "] " << e.what() << std::endl;
 	}catch(...){
 		std::cerr << "Exit with unknown exception" << std::endl;
+	}
+
+	void main_window::show_main_image(){
+		item_.setPixmap(QPixmap("data/start.jpg"));
+		qApp->processEvents();
+	}
+
+	void main_window::show_process_image(){
+		item_.setPixmap(QPixmap("data/process.png"));
+		qApp->processEvents();
 	}
 
 

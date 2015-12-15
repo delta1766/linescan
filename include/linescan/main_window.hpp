@@ -44,12 +44,17 @@ namespace linescan{
 
 		void show_bitmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
 
+		void show_main_image();
+
+		void show_process_image();
+
 
 	private:
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 
 		std::vector< std::vector< point< float > > > points_;
+		std::vector< point< float > > points_3d_;
 
 		std::array< double, 3 > intrinsic_parameters_;
 
