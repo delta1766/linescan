@@ -60,7 +60,7 @@ namespace linescan{
 		mitrax::raw_col_vector< T, 2 > const& p,
 		T const& radius
   	){
-		vector< point< T > > points;
+		vector< point< double > > points;
 
 		auto c = 2 * 3.14159 * radius;
 		auto count = static_cast< size_t >(c) + 1;
