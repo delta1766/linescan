@@ -51,6 +51,17 @@ namespace linescan{
 	}
 
 
+	auto to_pixmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
+		QImage image(
+			bitmap.impl().data().data(),
+			bitmap.cols(), bitmap.rows(),
+			QImage::Format_Grayscale8
+		);
+
+		return QPixmap::fromImage(image);
+	}
+
+
 	main_window::main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
@@ -184,7 +195,18 @@ namespace linescan{
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{
-			show_bitmap(cam_.image());
+			auto pixmap = to_pixmap(cam_.image());
+			
+
+			if(!points_.empty()){
+				QPainter painter(&pixmap);
+				painter.setPen(qRgb(255, 0, 0));
+				for(auto const& p: points_.back()){
+					painter.drawEllipse(QPoint(p.x(), p.y()), 10, 10);
+				}
+			}
+
+			item_.setPixmap(pixmap);
 		});
 
 		connect(
@@ -215,8 +237,10 @@ namespace linescan{
 			points.emplace_back(i, top_distance_line[i]);
 		}
 
+		auto pixmap = to_pixmap(bitmap);
+
 		if(points.size() < 2){
-			show_bitmap(bitmap);
+			item_.setPixmap(pixmap);
 			laser_label_.setText("no line");
 			return;
 		}
@@ -224,14 +248,6 @@ namespace linescan{
 		auto line = fit_linear_function< double >(
 			points.begin(), points.end()
 		);
-
-		QImage image(
-			bitmap.impl().data().data(),
-			bitmap.cols(), bitmap.rows(),
-			QImage::Format_Grayscale8
-		);
-
-		auto pixmap = QPixmap::fromImage(image);
 
 		auto angle = std::sin((line(100) - line(0)) / 100);
 		auto angle_text =
@@ -266,19 +282,6 @@ namespace linescan{
 			<< "] " << e.what() << std::endl;
 	}catch(...){
 		std::cerr << "Exit with unknown exception" << std::endl;
-	}
-
-
-	void main_window::show_bitmap(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
-	){
-		QImage image(
-			bitmap.impl().data().data(),
-			bitmap.cols(), bitmap.rows(),
-			QImage::Format_Grayscale8
-		);
-
-		item_.setPixmap(QPixmap::fromImage(image));
 	}
 
 
