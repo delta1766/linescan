@@ -78,7 +78,8 @@ namespace linescan{
 	}
 
 
-	std::array< double, 3 > calc_intrinsic_parameters(
+	std::tuple< std::array< double, 3 >, std::array< double, 8 > >
+	calc_intrinsic_parameters(
 		camera& cam,
 		std::vector< std::vector< point< float > > > const& ref_points
 	){
@@ -133,11 +134,23 @@ namespace linescan{
 			throw std::runtime_error("cv::calibrateCamera() failed");
 		}
 
-		return std::array< double, 3 >{{
-			camera_matrix.at< double >(0, 0),
-			camera_matrix.at< double >(0, 2),
-			camera_matrix.at< double >(1, 2)
-		}};
+		return std::make_tuple(
+			std::array< double, 3 >{{
+				camera_matrix.at< double >(0, 0),
+				camera_matrix.at< double >(0, 2),
+				camera_matrix.at< double >(1, 2)
+			}},
+			std::array< double, 8 >{{
+				distortion_coefficients.at< double >(0, 0),
+				distortion_coefficients.at< double >(1, 0),
+				distortion_coefficients.at< double >(2, 0),
+				distortion_coefficients.at< double >(3, 0),
+				distortion_coefficients.at< double >(4, 0),
+				distortion_coefficients.at< double >(5, 0),
+				distortion_coefficients.at< double >(6, 0),
+				distortion_coefficients.at< double >(7, 0)
+			}}
+		);
 	}
 
 

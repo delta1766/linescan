@@ -21,7 +21,8 @@ namespace linescan{
 
 	std::vector< point< float > > find_chessboard_corners(camera& cam);
 
-	std::array< double, 3 > calc_intrinsic_parameters(
+	std::tuple< std::array< double, 3 >, std::array< double, 8 > >
+	calc_intrinsic_parameters(
 		camera& cam,
 		std::vector< std::vector< point< float > > > const& ref_points
 	);

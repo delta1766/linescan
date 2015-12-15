@@ -57,6 +57,7 @@ namespace linescan{
 		std::vector< point< double > > points_3d_;
 
 		std::array< double, 3 > camera_matrix_parameter_;
+		std::array< double, 8 > distortion_coefficients_;
 
 		QGraphicsPixmapItem item_;
 		QGraphicsView view_;

@@ -183,9 +183,8 @@ namespace linescan{
 
 				if(!points.empty()) points_.push_back(std::move(points));
 
-				camera_matrix_parameter_ = calc_intrinsic_parameters(
-					cam_, points_
-				);
+				std::tie(camera_matrix_parameter_, distortion_coefficients_) =
+					calc_intrinsic_parameters(cam_, points_);
 
 				intrinsic_label_.setText(
 					QString("f: %1mm, cx: %2px, cy: %3px")
