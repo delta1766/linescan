@@ -77,6 +77,7 @@ namespace linescan{
 		QWidget laser_dock_widget_;
 		QHBoxLayout laser_dock_layout_;
 		QPushButton laser_ok_;
+		QLabel laser_label_;
 
 		QTimer timer_;
 		QTimer laser_timer_;

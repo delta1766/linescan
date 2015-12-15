@@ -60,7 +60,8 @@ namespace linescan{
 		calib_extrinsic_("Calibrate &Extrinsic Parameters", this),
 		intrinsic_get_("&Get", this),
 		intrinsic_ready_("&Ready", this),
-		laser_ok_("&OK", this)
+		laser_ok_("&OK", this),
+		laser_label_("Align", this)
 	{
 		view_.setScene(&scene_);
 		item_.setPixmap(QPixmap("data/start.jpg"));
@@ -81,6 +82,7 @@ namespace linescan{
 		extrinsic_dock_layout_.addWidget(&extrinsic_get_);
 		extrinsic_dock_widget_.setLayout(&extrinsic_dock_layout_);
 
+		laser_dock_layout_.addWidget(&laser_label_);
 		laser_dock_layout_.addWidget(&laser_ok_);
 		laser_dock_widget_.setLayout(&laser_dock_layout_);
 
@@ -192,6 +194,7 @@ namespace linescan{
 
 				if(points.size() < 2){
 					show_bitmap(bitmap);
+					laser_label_.setText("no line");
 					return;
 				}
 
@@ -207,11 +210,28 @@ namespace linescan{
 
 				auto pixmap = QPixmap::fromImage(image);
 
+				auto angle = std::sin((line(100) - line(0)) / 100);
+				auto angle_text =
+					QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
+
+				laser_label_.setText(angle_text);
+
 				{
 					QPainter painter(&pixmap);
+
+					painter.setPen(qRgb(0, 255, 0));
+					QFont font = painter.font();
+					font.setPixelSize(128);
+					painter.setFont(font);
+					painter.drawText(
+						0, 0, pixmap.width(), pixmap.height() / 2,
+						Qt::AlignCenter, angle_text
+					);
+
 					painter.setPen(qRgb(255, 0, 0));
 					painter.drawLine(
-						0, line(0), pixmap.width() - 1, line(pixmap.width() - 1)
+						0, line(0),
+						pixmap.width() - 1, line(pixmap.width() - 1)
 					);
 				}
 
@@ -219,8 +239,8 @@ namespace linescan{
 			}catch(std::exception const& e){
 				std::cerr
 					<< "Exit with exception: ["
-					<< boost::typeindex::type_id_runtime(e).pretty_name() << "] "
-					<< e.what() << std::endl;
+					<< boost::typeindex::type_id_runtime(e).pretty_name()
+					<< "] " << e.what() << std::endl;
 			}catch(...){
 				std::cerr << "Exit with unknown exception" << std::endl;
 			}
