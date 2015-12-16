@@ -69,12 +69,14 @@ namespace linescan{
 		cam_(0),
 		dock_(tr("Control panel"), this),
 		align_laser_(tr("Laser &align"), this),
-		calib_intrinsic_(tr("Calibrate &Intrinsic Parameters"), this),
-		calib_extrinsic_(tr("Calibrate &Extrinsic Parameters"), this),
+		calib_intrinsic_(tr("Calibrate &intrinsic parameters"), this),
+		calib_extrinsic_(tr("Calibrate &extrinsic parameters"), this),
+		calib_laser_(tr("Calibrate &laser plane"), this),
 		intrinsic_get_(tr("&Get image data"), this),
 		intrinsic_ready_(tr("&Ready (return to main window)"), this),
 		extrinsic_get_(tr("&Get image data"), this),
 		extrinsic_ready_(tr("&Ready (return to main window)"), this),
+		calib_laser_ok_(tr("&Ready (return to main window)"), this),
 		laser_label_(tr("Align"), this),
 		laser_ok_(tr("&OK"), this)
 	{
@@ -83,15 +85,16 @@ namespace linescan{
 		setWindowTitle(tr("TU Ilmenau - linescan"));
 
 		view_.setScene(&scene_);
-		show_main_image();
 		scene_.addItem(&item_);
 		setCentralWidget(&view_);
 
 		calib_extrinsic_.setEnabled(false);
+		calib_laser_.setEnabled(false);
 
 		main_dock_layout_.addWidget(&align_laser_);
 		main_dock_layout_.addWidget(&calib_intrinsic_);
 		main_dock_layout_.addWidget(&calib_extrinsic_);
+		main_dock_layout_.addWidget(&calib_laser_);
 		main_dock_widget_.setLayout(&main_dock_layout_);
 
 		intrinsic_dock_layout_.addWidget(&intrinsic_label_);
@@ -108,16 +111,18 @@ namespace linescan{
 		laser_dock_layout_.addWidget(&laser_ok_);
 		laser_dock_widget_.setLayout(&laser_dock_layout_);
 
-		main_dock_widget_.show();
-		intrinsic_dock_widget_.hide();
-		extrinsic_dock_widget_.hide();
-		laser_dock_widget_.hide();
+		calib_laser_dock_layout_.addWidget(&calib_laser_label_);
+		calib_laser_dock_layout_.addWidget(&calib_laser_ok_);
+		calib_laser_dock_widget_.setLayout(&calib_laser_dock_layout_);
+
+		show_dock(dock::main);
 
 		dock_layout_.setContentsMargins(0, 0, 0, 0);
 		dock_layout_.addWidget(&laser_dock_widget_);
 		dock_layout_.addWidget(&main_dock_widget_);
 		dock_layout_.addWidget(&intrinsic_dock_widget_);
 		dock_layout_.addWidget(&extrinsic_dock_widget_);
+		dock_layout_.addWidget(&calib_laser_dock_widget_);
 		dock_widget_.setLayout(&dock_layout_);
 		dock_.setWidget(&dock_widget_);
 
@@ -133,10 +138,7 @@ namespace linescan{
 		connect(&align_laser_, &QPushButton::clicked, [this]{
 			show_process_image();
 
-			main_dock_widget_.hide();
-			laser_dock_widget_.show();
-			extrinsic_dock_widget_.hide();
-			intrinsic_dock_widget_.hide();
+			show_dock(dock::align_laser);
 
 			cam_.set_default_light();
 
@@ -146,12 +148,7 @@ namespace linescan{
 		connect(&laser_ok_, &QPushButton::clicked, [this]{
 			laser_timer_.stop();
 
-			main_dock_widget_.show();
-			laser_dock_widget_.hide();
-			extrinsic_dock_widget_.hide();
-			intrinsic_dock_widget_.hide();
-
-			show_main_image();
+			show_dock(dock::main);
 		});
 
 		connect(&calib_intrinsic_, &QPushButton::clicked, [this]{
@@ -159,10 +156,7 @@ namespace linescan{
 
 			intrinsic_label_.setText(tr("no camera matrix"));
 
-			main_dock_widget_.hide();
-			laser_dock_widget_.hide();
-			extrinsic_dock_widget_.hide();
-			intrinsic_dock_widget_.show();
+			show_dock(dock::calib_intrinsic);
 
 			cam_.set_max_light();
 
@@ -206,12 +200,7 @@ namespace linescan{
 				calib_extrinsic_.setEnabled(true);
 			}
 
-			main_dock_widget_.show();
-			laser_dock_widget_.hide();
-			extrinsic_dock_widget_.hide();
-			intrinsic_dock_widget_.hide();
-
-			show_main_image();
+			show_dock(dock::main);
 		});
 
 		connect(&calib_extrinsic_, &QPushButton::clicked, [this]{
@@ -219,10 +208,7 @@ namespace linescan{
 
 			extrinsic_label_.setText(tr("no rotation matrix"));
 
-			main_dock_widget_.hide();
-			laser_dock_widget_.hide();
-			extrinsic_dock_widget_.show();
-			intrinsic_dock_widget_.hide();
+			show_dock(dock::calib_extrinsic);
 
 			cam_.set_max_light();
 
@@ -230,8 +216,6 @@ namespace linescan{
 		});
 
 		connect(&extrinsic_get_, &QPushButton::clicked, [this]{
-			using mitrax::operator<<;
-
 			timer_.stop();
 
 			show_process_image();
@@ -269,14 +253,32 @@ namespace linescan{
 
 			show_process_image();
 
-			points_3d_.clear();
+			if(!points_3d_.empty()){
+				points_3d_.clear();
+				calib_laser_.setEnabled(true);
+			}
 
-			main_dock_widget_.show();
-			laser_dock_widget_.hide();
-			extrinsic_dock_widget_.hide();
-			intrinsic_dock_widget_.hide();
+			show_dock(dock::main);
+		});
 
-			show_main_image();
+		connect(&calib_laser_, &QPushButton::clicked, [this]{
+			show_process_image();
+
+			calib_laser_label_.setText(tr("no plane"));
+
+			show_dock(dock::calib_laser);
+
+			cam_.set_default_light();
+
+			laser_timer_.start();
+		});
+
+		connect(&calib_laser_ok_, &QPushButton::clicked, [this]{
+			laser_timer_.stop();
+
+			show_process_image();
+
+			show_dock(dock::main);
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{
@@ -382,6 +384,25 @@ namespace linescan{
 	void main_window::show_process_image(){
 		item_.setPixmap(QPixmap("data/process.png"));
 		qApp->processEvents();
+	}
+
+	void main_window::show_dock(dock const& d){
+		main_dock_widget_.hide();
+		laser_dock_widget_.hide();
+		extrinsic_dock_widget_.hide();
+		intrinsic_dock_widget_.hide();
+		calib_laser_dock_widget_.hide();
+
+		switch(d){
+			case dock::main:
+				main_dock_widget_.show();
+				show_main_image();
+			break;
+			case dock::align_laser: laser_dock_widget_.show(); break;
+			case dock::calib_intrinsic: intrinsic_dock_widget_.show(); break;
+			case dock::calib_extrinsic: extrinsic_dock_widget_.show(); break;
+			case dock::calib_laser: calib_laser_dock_widget_.show(); break;
+		}
 	}
 
 

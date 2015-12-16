@@ -50,6 +50,16 @@ namespace linescan{
 
 
 	private:
+		enum class dock{
+			main,
+			align_laser,
+			calib_extrinsic,
+			calib_intrinsic,
+			calib_laser
+		};
+
+		void show_dock(dock const& d);
+
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 
@@ -75,6 +85,7 @@ namespace linescan{
 		QPushButton align_laser_;
 		QPushButton calib_intrinsic_;
 		QPushButton calib_extrinsic_;
+		QPushButton calib_laser_;
 
 		QWidget intrinsic_dock_widget_;
 		QHBoxLayout intrinsic_dock_layout_;
@@ -87,6 +98,11 @@ namespace linescan{
 		QLabel extrinsic_label_;
 		QPushButton extrinsic_get_;
 		QPushButton extrinsic_ready_;
+
+		QWidget calib_laser_dock_widget_;
+		QHBoxLayout calib_laser_dock_layout_;
+		QLabel calib_laser_label_;
+		QPushButton calib_laser_ok_;
 
 		QWidget laser_dock_widget_;
 		QHBoxLayout laser_dock_layout_;
