@@ -68,7 +68,7 @@ namespace linescan{
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
 		dock_(tr("Control panel"), this),
-		laser_align_(tr("Laser &align"), this),
+		align_laser_(tr("Laser &align"), this),
 		calib_intrinsic_(tr("Calibrate &Intrinsic Parameters"), this),
 		calib_extrinsic_(tr("Calibrate &Extrinsic Parameters"), this),
 		intrinsic_get_(tr("&Get image data"), this),
@@ -89,7 +89,7 @@ namespace linescan{
 
 		calib_extrinsic_.setEnabled(false);
 
-		main_dock_layout_.addWidget(&laser_align_);
+		main_dock_layout_.addWidget(&align_laser_);
 		main_dock_layout_.addWidget(&calib_intrinsic_);
 		main_dock_layout_.addWidget(&calib_extrinsic_);
 		main_dock_widget_.setLayout(&main_dock_layout_);
@@ -130,7 +130,7 @@ namespace linescan{
 		timer_.setInterval(1000);
 		laser_timer_.setInterval(250);
 
-		connect(&laser_align_, &QPushButton::clicked, [this]{
+		connect(&align_laser_, &QPushButton::clicked, [this]{
 			show_process_image();
 
 			main_dock_widget_.hide();
@@ -263,7 +263,6 @@ namespace linescan{
 
 			timer_.start();
 		});
-
 
 		connect(&extrinsic_ready_, &QPushButton::clicked, [this]{
 			timer_.stop();

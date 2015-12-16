@@ -72,7 +72,7 @@ namespace linescan{
 
 		QWidget main_dock_widget_;
 		QHBoxLayout main_dock_layout_;
-		QPushButton laser_align_;
+		QPushButton align_laser_;
 		QPushButton calib_intrinsic_;
 		QPushButton calib_extrinsic_;
 

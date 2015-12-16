@@ -165,16 +165,31 @@ namespace linescan{
 		std::vector< cv::Point2f > image_points;
 		for(auto const& p: points) image_points.emplace_back(p.x(), p.y());
 
-		std::vector< cv::Point3f > object_points{
-			cv::Point3f(plain_x_p0[0], plain_x_p0[1], plain_x_p0[2]),
-			cv::Point3f(plain_x_p1[0], plain_x_p1[1], plain_x_p1[2]),
-			cv::Point3f(plain_x_p2[0], plain_x_p2[1], plain_x_p2[2]),
-			cv::Point3f(plain_x_p3[0], plain_x_p3[1], plain_x_p3[2]),
-			cv::Point3f(plain_y_p0[0], plain_y_p0[1], plain_y_p0[2]),
-			cv::Point3f(plain_y_p1[0], plain_y_p1[1], plain_y_p1[2]),
-			cv::Point3f(plain_y_p2[0], plain_y_p2[1], plain_y_p2[2]),
-			cv::Point3f(plain_y_p3[0], plain_y_p3[1], plain_y_p3[2])
-		};
+		std::vector< cv::Point3f > object_points;
+		object_points.emplace_back(
+			plain_x_p0[0], plain_x_p0[1], plain_x_p0[2]
+		);
+		object_points.emplace_back(
+			plain_x_p1[0], plain_x_p1[1], plain_x_p1[2]
+		);
+		object_points.emplace_back(
+			plain_x_p2[0], plain_x_p2[1], plain_x_p2[2]
+		);
+		object_points.emplace_back(
+			plain_x_p3[0], plain_x_p3[1], plain_x_p3[2]
+		);
+		object_points.emplace_back(
+			plain_y_p0[0], plain_y_p0[1], plain_y_p0[2]
+		);
+		object_points.emplace_back(
+			plain_y_p1[0], plain_y_p1[1], plain_y_p1[2]
+		);
+		object_points.emplace_back(
+			plain_y_p2[0], plain_y_p2[1], plain_y_p2[2]
+		);
+		object_points.emplace_back(
+			plain_y_p3[0], plain_y_p3[1], plain_y_p3[2]
+		);
 
 		cv::Mat camera_matrix = cv::Mat::eye(3, 3, CV_64F);
 		camera_matrix.at< double >(0, 0) = camera_matrix_parameter[0];
@@ -183,17 +198,17 @@ namespace linescan{
 		camera_matrix.at< double >(2, 1) = camera_matrix_parameter[2];
 
 		cv::Mat distortion_coeff = cv::Mat::zeros(8, 1, CV_64F);
-		camera_matrix.at< double >(0, 0) = distortion_coefficients[0];
-		camera_matrix.at< double >(1, 0) = distortion_coefficients[1];
-		camera_matrix.at< double >(2, 0) = distortion_coefficients[2];
-		camera_matrix.at< double >(3, 0) = distortion_coefficients[3];
-		camera_matrix.at< double >(4, 0) = distortion_coefficients[4];
-		camera_matrix.at< double >(5, 0) = distortion_coefficients[5];
-		camera_matrix.at< double >(6, 0) = distortion_coefficients[6];
-		camera_matrix.at< double >(7, 0) = distortion_coefficients[7];
+		distortion_coeff.at< double >(0, 0) = distortion_coefficients[0];
+		distortion_coeff.at< double >(1, 0) = distortion_coefficients[1];
+		distortion_coeff.at< double >(2, 0) = distortion_coefficients[2];
+		distortion_coeff.at< double >(3, 0) = distortion_coefficients[3];
+		distortion_coeff.at< double >(4, 0) = distortion_coefficients[4];
+		distortion_coeff.at< double >(5, 0) = distortion_coefficients[5];
+		distortion_coeff.at< double >(6, 0) = distortion_coefficients[6];
+		distortion_coeff.at< double >(7, 0) = distortion_coefficients[7];
 
-		cv::Mat rotation_vector;
-		cv::Mat translation_vector;
+		cv::Mat rotation_vector = cv::Mat::zeros(3, 1, CV_64F);
+		cv::Mat translation_vector = cv::Mat::zeros(3, 1, CV_64F);
 		cv::solvePnP(
 			object_points,
 			image_points,
