@@ -690,18 +690,16 @@ namespace linescan{
 		set_pixelclock(pixelclock);
 		set_framerate(framerate);
 		set_exposure(exposure_in_ms);
-		image();
 		set_gain(gain_in_percent);
 		set_gain_boost(gain_boost);
 	}
 
 
 	void camera::set_max_light(){
-		auto framerate = framerate_max();
-		set_framerate(framerate);
 		auto pixelclock = pixelclock_min();
 		set_pixelclock(pixelclock);
-		image();
+		auto framerate = framerate_min();
+		set_framerate(framerate);
 		auto exposure = exposure_in_ms_max();
 		set_exposure(exposure);
 		set_gain(100);

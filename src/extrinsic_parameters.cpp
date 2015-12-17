@@ -14,6 +14,7 @@
 #include <linescan/invert.hpp>
 #include <linescan/collect_points.hpp>
 #include <linescan/load.hpp>
+#include <linescan/ref3d.hpp>
 
 #include <mitrax/point_io.hpp>
 #include <mitrax/matrix.hpp>
@@ -27,48 +28,6 @@
 
 
 namespace linescan{
-
-
-	namespace ref3d{
-
-
-		using namespace mitrax;
-		using namespace mitrax::literals;
-
-
-		constexpr auto plain_x_p0 =
-			make_col_vector< double >(3_R, {  0, 160,  20});
-		constexpr auto plain_x_p1 =
-			make_col_vector< double >(3_R, {  0, 160, 160});
-		constexpr auto plain_x_p2 =
-			make_col_vector< double >(3_R, {  0,  20,  20});
-		constexpr auto plain_x_p3 =
-			make_col_vector< double >(3_R, {  0,  20, 160});
-		constexpr auto plain_y_p0 =
-			make_col_vector< double >(3_R, { 20,   0,  20});
-		constexpr auto plain_y_p1 =
-			make_col_vector< double >(3_R, { 20,   0, 160});
-		constexpr auto plain_y_p2 =
-			make_col_vector< double >(3_R, {160,   0,  20});
-		constexpr auto plain_y_p3 =
-			make_col_vector< double >(3_R, {160,   0, 160});
-
-		constexpr std::array< raw_col_vector< double, 2 >, 4 > ref_x{{
-			make_col_vector< double >(2_R, {plain_x_p2[1], plain_x_p2[2]}),
-			make_col_vector< double >(2_R, {plain_x_p3[1], plain_x_p3[2]}),
-			make_col_vector< double >(2_R, {plain_x_p0[1], plain_x_p0[2]}),
-			make_col_vector< double >(2_R, {plain_x_p1[1], plain_x_p1[2]})
-		}};
-
-		constexpr std::array< raw_col_vector< double, 2 >, 4 > ref_y{{
-			make_col_vector< double >(2_R, {plain_y_p2[0], plain_y_p2[2]}),
-			make_col_vector< double >(2_R, {plain_y_p3[0], plain_y_p3[2]}),
-			make_col_vector< double >(2_R, {plain_y_p0[0], plain_y_p0[2]}),
-			make_col_vector< double >(2_R, {plain_y_p1[0], plain_y_p1[2]})
-		}};
-
-
-	}
 
 
 	template < typename M, size_t C >
