@@ -6,18 +6,24 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__align_laser__hpp_INCLUDED_
-#define _linescan__align_laser__hpp_INCLUDED_
+#ifndef _linescan__calib_laser__hpp_INCLUDED_
+#define _linescan__calib_laser__hpp_INCLUDED_
 
+#include "point.hpp"
 #include "camera.hpp"
 
 #include <QtGui/QPixmap>
+
+#include <vector>
 
 
 namespace linescan{
 
 
-	std::tuple< QString, QPixmap > align_laser(camera& cam);
+	QPixmap calib_laser_pixmap(
+		camera& cam,
+		std::vector< point< double > > const& points
+	);
 
 
 }

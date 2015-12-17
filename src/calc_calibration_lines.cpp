@@ -38,7 +38,7 @@ namespace linescan{
 			line1.erase(line1.end() - count, line1.end());
 		}else{
 			throw std::logic_error(
-				"To less points in left laser line part"
+				"Less points in the left laser line part."
 			);
 		}
 
@@ -47,7 +47,7 @@ namespace linescan{
 			line2.erase(line2.end() - count, line2.end());
 		}else{
 			throw std::logic_error(
-				"To less points in right laser line part"
+				"Less points in the right laser line part."
 			);
 		}
 

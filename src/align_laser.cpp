@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/align_laser.hpp>
 
-#include <linescan/camera.hpp>
+#include <linescan/to_pixmap.hpp>
 #include <linescan/load.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/linear_function.hpp>
@@ -24,21 +24,11 @@
 namespace linescan{
 
 
-	QPixmap to_pixmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
-		QImage image(
-			bitmap.impl().data().data(),
-			bitmap.cols(), bitmap.rows(),
-			QImage::Format_Grayscale8
-		);
-
-		return QPixmap::fromImage(image);
-	}
-
-
-	std::tuple< QString, QPixmap > align_laser(){
+	std::tuple< QString, QPixmap > align_laser(camera& cam){
 #ifdef CAM
-		auto bitmap = cam_.image();
+		auto bitmap = cam.image();
 #else
+		(void)cam;
 		auto bitmap = load("simulation/real2_laser.png");
 #endif
 

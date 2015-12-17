@@ -8,9 +8,11 @@
 //-----------------------------------------------------------------------------
 #include <linescan/main_window.hpp>
 
+#include <linescan/to_pixmap.hpp>
 #include <linescan/align_laser.hpp>
 #include <linescan/extrinsic_parameters.hpp>
 #include <linescan/intrinsic_parameters.hpp>
+#include <linescan/calib_laser.hpp>
 
 #include <mitrax/io_debug.hpp>
 #include <mitrax/point_io.hpp>
@@ -238,7 +240,6 @@ namespace linescan{
 			show_process_image();
 
 			if(!points_3d_.empty()){
-				points_3d_.clear();
 				calib_laser_.setEnabled(true);
 			}
 
@@ -270,10 +271,22 @@ namespace linescan{
 
 			auto draw_points = [&pixmap](auto& points){
 				QPainter painter(&pixmap);
+
 				painter.setPen(qRgb(255, 0, 0));
+				QFont font = painter.font();
+				font.setPixelSize(14);
+				painter.setFont(font);
+
+				std::size_t i = 1;
 				for(auto const& p: points){
-					painter.drawEllipse(QPoint(p.x(), p.y()), 10, 10);
+					QRect rect(p.x() - 10, p.y() - 10, 20, 20);
+					painter.drawEllipse(rect);
+					painter.drawText(
+						rect, Qt::AlignCenter, QString("%1").arg(i)
+					);
+					++i;
 				}
+
 			};
 
 			if(!points_.empty()){
@@ -296,13 +309,17 @@ namespace linescan{
 	}
 
 	void main_window::laser_live()try{
-		QString text;
-		QPixmap pixmap;
+		if(!laser_dock_widget_.isHidden()){
+			QString text;
+			QPixmap pixmap;
 
-		std::tie(text, pixmap) = align_laser();
+			std::tie(text, pixmap) = align_laser(cam_);
 
-		laser_label_.setText(text);
-		item_.setPixmap(pixmap);
+			laser_label_.setText(text);
+			item_.setPixmap(pixmap);
+		}else if(!calib_laser_dock_widget_.isHidden()){
+			item_.setPixmap(calib_laser_pixmap(cam_, points_3d_));
+		}
 	}catch(std::exception const& e){
 		std::cerr
 			<< "Exit with exception: ["
