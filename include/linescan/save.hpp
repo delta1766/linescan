@@ -21,7 +21,10 @@ namespace linescan{
 		std::string const& name
 	);
 
-	void save(mitrax::raw_bitmap< bool > const& image, std::string const& name);
+	void save(
+		mitrax::raw_bitmap< bool > const& image,
+		std::string const& name
+	);
 
 	inline void save(
 		mitrax::raw_bitmap< std::int32_t > const& image,

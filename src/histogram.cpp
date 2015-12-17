@@ -12,7 +12,9 @@
 namespace linescan{
 
 
-	mitrax::raw_bitmap< std::uint8_t > histogram(mitrax::raw_bitmap< std::uint8_t > const& image){
+	mitrax::raw_bitmap< std::uint8_t > histogram(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	){
 		std::size_t histogram[256] = {0};
 		for(std::size_t y = 0; y < image.rows(); ++y){
 			for(std::size_t x = 0; x < image.cols(); ++x){

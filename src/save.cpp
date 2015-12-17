@@ -16,7 +16,10 @@
 namespace linescan{
 
 
-	void save(mitrax::raw_bitmap< std::uint8_t > const& image, std::string const& name){
+	void save(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
+		std::string const& name
+	){
 		std::cout << "write " << name << std::endl;
 
 		png::image< png::gray_pixel > output(image.cols(), image.rows());
@@ -28,7 +31,10 @@ namespace linescan{
 		output.write(name);
 	}
 
-	void save(mitrax::raw_bitmap< bool > const& image, std::string const& name){
+	void save(
+		mitrax::raw_bitmap< bool > const& image,
+		std::string const& name
+	){
 		std::cout << "write " << name << std::endl;
 
 		png::image< png::packed_gray_pixel< 1 > > output(

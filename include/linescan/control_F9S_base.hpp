@@ -86,7 +86,8 @@ namespace linescan{
 			std::chrono::duration< Rep, Period > const& timeout
 		){
 			std::unique_lock< std::mutex > lock(mutex_);
-			bool ok = cv_.wait_for(lock, timeout) == std::cv_status::no_timeout;
+			bool ok =
+				cv_.wait_for(lock, timeout) == std::cv_status::no_timeout;
 			return {receive_, ok};
 		}
 

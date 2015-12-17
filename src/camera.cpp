@@ -87,7 +87,8 @@ namespace linescan{
 				case IS_FILE_READ_INVALID_BMP_ID:
 					return "The specified file is not a valid bitmap file.";
 				case IS_FILE_READ_INVALID_BMP_SIZE:
-					return "The bitmap size is not correct (bitmap too large).";
+					return "The bitmap size is not correct (bitmap too "
+						"large).";
 				case IS_NO_ACTIVE_IMG_MEM:
 					return "No active image memory available. You must set "
 						"the memory to active using the is_SetImageMem() "

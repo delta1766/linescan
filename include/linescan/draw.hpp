@@ -20,7 +20,10 @@
 namespace linescan{
 
 
-	void draw(mitrax::raw_bitmap< std::uint8_t >& image, point< double > const& point);
+	void draw(
+		mitrax::raw_bitmap< std::uint8_t >& image,
+		point< double > const& point
+	);
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
