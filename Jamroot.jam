@@ -35,10 +35,10 @@ lib libopencv : :
 	;
 
 lib libqt : : 
-	<file>/usr/local/Qt-5.5.1/lib/libQt5Core.so
-	<file>/usr/local/Qt-5.5.1/lib/libQt5Gui.so
-	<file>/usr/local/Qt-5.5.1/lib/libQt5Test.so
-	<file>/usr/local/Qt-5.5.1/lib/libQt5Widgets.so
+	<file>/usr/local/Qt-5.6.0-rc/lib/libQt5Core.so
+	<file>/usr/local/Qt-5.6.0-rc/lib/libQt5Gui.so
+	<file>/usr/local/Qt-5.6.0-rc/lib/libQt5Test.so
+	<file>/usr/local/Qt-5.6.0-rc/lib/libQt5Widgets.so
 	;
 
 project linescan
@@ -72,7 +72,7 @@ project linescan
 
 	<include>/usr/include/libpng12
 	<include>/usr/local/include
-	<include>/usr/local/Qt-5.5.1/include
+	<include>/usr/local/Qt-5.6.0-rc/include
 	<include>$(LIBRARIES)/mitrax/include
 	:
 	usage-requirements <include>include
