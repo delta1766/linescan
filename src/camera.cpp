@@ -390,7 +390,7 @@ namespace linescan{
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[0];
 #else
-		return 8;
+		return 4;
 #endif
 	}
 
@@ -405,7 +405,7 @@ namespace linescan{
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[1];
 #else
-		return 8;
+		return 66;
 #endif
 	}
 
@@ -420,7 +420,7 @@ namespace linescan{
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
 		return pixelclock[2];
 #else
-		return 8;
+		return 2;
 #endif
 	}
 
@@ -466,7 +466,7 @@ namespace linescan{
 		), "is_GetFrameTimeRange()");
 		return min;
 #else
-		return 8;
+		return 4;
 #endif
 	}
 
@@ -483,7 +483,7 @@ namespace linescan{
 		), "is_GetFrameTimeRange()");
 		return max;
 #else
-		return 8;
+		return 44;
 #endif
 	}
 
@@ -500,7 +500,7 @@ namespace linescan{
 		), "is_GetFrameTimeRange()");
 		return inc;
 #else
-		return 8;
+		return 4;
 #endif
 	}
 
@@ -514,7 +514,7 @@ namespace linescan{
 		), "is_SetFrameRate(IS_GET_FRAMERATE)");
 		return framerate;
 #else
-		return 8;
+		return 12;
 #endif
 	}
 
@@ -542,7 +542,7 @@ namespace linescan{
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN)");
 		return min;
 #else
-		return 8;
+		return 23.5;
 #endif
 	}
 
@@ -557,7 +557,7 @@ namespace linescan{
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX)");
 		return max;
 #else
-		return 8;
+		return 125.4;
 #endif
 	}
 
@@ -572,7 +572,7 @@ namespace linescan{
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
 		return inc;
 #else
-		return 8;
+		return 0.1;
 #endif
 	}
 
@@ -589,7 +589,7 @@ namespace linescan{
 
 		return exposure_in_ms;
 #else
-		return 8;
+		return 66.2;
 #endif
 	}
 

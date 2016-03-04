@@ -22,8 +22,8 @@ namespace linescan{
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		T const& variance
 	){
-		auto vc = mitrax::make_col_vector< T >(mitrax::row_t< Size >().init());
-		auto vr = mitrax::make_row_vector< T >(mitrax::col_t< Size >().init());
+		auto vc = mitrax::make_col_vector< T >(mitrax::row_t< Size >());
+		auto vr = mitrax::make_row_vector< T >(mitrax::col_t< Size >());
 
 		T sum = 0;
 		for(std::size_t i = 0; i < Size; ++i){
