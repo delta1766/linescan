@@ -14,10 +14,18 @@ namespace linescan{
 
 	QPixmap to_pixmap(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
 		QImage image(
-			bitmap.impl().data().data(),
 			bitmap.cols(), bitmap.rows(),
 			QImage::Format_Grayscale8
 		);
+
+		std::size_t cols = bitmap.cols();
+		for(std::size_t y = 0; y < bitmap.rows(); ++y){
+			std::copy(
+				bitmap.impl().data().data() + cols * y,
+				bitmap.impl().data().data() + cols * (1 + y),
+				image.bits() + image.bytesPerLine() * y
+			);
+		}
 
 		return QPixmap::fromImage(image);
 	}

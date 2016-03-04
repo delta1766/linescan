@@ -10,7 +10,7 @@
 #define _linescan__main_window__hpp_INCLUDED_
 
 #include "point.hpp"
-#include "camera.hpp"
+#include "camera_dock.hpp"
 #include "control_F9S_MCL3.hpp"
 
 #include <QtWidgets/QtWidgets>
@@ -78,36 +78,38 @@ namespace linescan{
 
 		QDockWidget dock_;
 		QWidget dock_widget_;
-		QHBoxLayout dock_layout_;
+		QVBoxLayout dock_layout_;
 
 		QWidget main_dock_widget_;
-		QHBoxLayout main_dock_layout_;
+		QVBoxLayout main_dock_layout_;
 		QPushButton align_laser_;
 		QPushButton calib_intrinsic_;
 		QPushButton calib_extrinsic_;
 		QPushButton calib_laser_;
 
 		QWidget intrinsic_dock_widget_;
-		QHBoxLayout intrinsic_dock_layout_;
+		QVBoxLayout intrinsic_dock_layout_;
 		QLabel intrinsic_label_;
 		QPushButton intrinsic_get_;
 		QPushButton intrinsic_ready_;
 
 		QWidget extrinsic_dock_widget_;
-		QHBoxLayout extrinsic_dock_layout_;
+		QVBoxLayout extrinsic_dock_layout_;
 		QLabel extrinsic_label_;
 		QPushButton extrinsic_get_;
 		QPushButton extrinsic_ready_;
 
 		QWidget calib_laser_dock_widget_;
-		QHBoxLayout calib_laser_dock_layout_;
+		QVBoxLayout calib_laser_dock_layout_;
 		QLabel calib_laser_label_;
 		QPushButton calib_laser_ok_;
 
 		QWidget laser_dock_widget_;
-		QHBoxLayout laser_dock_layout_;
+		QVBoxLayout laser_dock_layout_;
 		QLabel laser_label_;
 		QPushButton laser_ok_;
+
+		camera_dock cam_dock_;
 
 		QTimer timer_;
 		QTimer laser_timer_;

@@ -64,7 +64,8 @@ namespace linescan{
 		extrinsic_ready_(tr("&Ready (return to main window)"), this),
 		calib_laser_ok_(tr("&Ready (return to main window)"), this),
 		laser_label_(tr("Align"), this),
-		laser_ok_(tr("&OK"), this)
+		laser_ok_(tr("&OK"), this),
+		cam_dock_(cam_)
 	{
 		std::cout << std::fixed << std::setprecision(3);
 
@@ -113,10 +114,12 @@ namespace linescan{
 		dock_.setWidget(&dock_widget_);
 
 		dock_.setAllowedAreas(
-			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
+			Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea
 		);
 		dock_.setFeatures(QDockWidget::DockWidgetMovable);
-		addDockWidget(Qt::TopDockWidgetArea, &dock_);
+		addDockWidget(Qt::LeftDockWidgetArea, &dock_);
+
+		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_);
 
 		timer_.setInterval(1000);
 		laser_timer_.setInterval(250);
