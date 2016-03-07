@@ -30,5 +30,11 @@ namespace linescan{
 		return image;
 	}
 
+	QImage to_image(mitrax::raw_bitmap< bool > const& bitmap){
+		return to_image(mitrax::transform(
+			[](auto v){ return std::uint8_t(v ? 255 : 0); }, bitmap
+		));
+	}
+
 
 }

@@ -18,10 +18,6 @@ namespace linescan{
 
 
 	vector< double > calc_top_distance_line(
-		mitrax::raw_bitmap< std::uint8_t > const& image
-	);
-
-	vector< double > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& image
 	);
 

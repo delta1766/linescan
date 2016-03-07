@@ -16,16 +16,6 @@ namespace linescan{
 
 
 	vector< double > calc_top_distance_line(
-		mitrax::raw_bitmap< std::uint8_t > const& image
-	){
-		auto binary = binarize(image, std::uint8_t(255));
-
-		binary = erode(binary, 3);
-
-		return calc_top_distance_line(binary);
-	}
-
-	vector< double > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& binary
 	){
 		vector< double > result(binary.cols());

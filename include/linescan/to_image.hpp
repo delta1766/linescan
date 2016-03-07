@@ -9,7 +9,7 @@
 #ifndef _linescan__to_image__hpp_INCLUDED_
 #define _linescan__to_image__hpp_INCLUDED_
 
-#include <mitrax/matrix.hpp>
+#include <mitrax/transform.hpp>
 
 #include <QtGui/QImage>
 
@@ -18,6 +18,8 @@ namespace linescan{
 
 
 	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
+
+	QImage to_image(mitrax::raw_bitmap< bool > const& bitmap);
 
 
 }

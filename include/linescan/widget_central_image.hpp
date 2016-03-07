@@ -19,6 +19,10 @@ namespace linescan{
 	public:
 		void set_images(QImage const& image, QImage const& overlay);
 
+		QImage image()const{ return image_; }
+
+		QImage overlay()const{ return overlay_; }
+
 
 	protected:
 		virtual void paintEvent(QPaintEvent* event)override;

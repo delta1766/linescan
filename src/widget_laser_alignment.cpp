@@ -41,6 +41,7 @@ namespace linescan{
 			overlay.fill(0);
 
 			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
 
 			auto text = [&]{
 				if(points.size() < 2) return QString("no line");
@@ -49,7 +50,7 @@ namespace linescan{
 					points.begin(), points.end()
 				);
 
-				painter.setPen(qRgb(255, 0, 0));
+				painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
 				painter.drawLine(
 					0, line(0),
 					overlay.width() - 1, line(overlay.width() - 1)
