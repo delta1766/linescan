@@ -12,6 +12,16 @@
 namespace linescan{
 
 
+	namespace{
+
+		std::pair< QImage, QImage > standard_processor(
+			mitrax::raw_bitmap< std::uint8_t > const& bitmap
+		){
+			return { to_image(bitmap), QImage() };
+		}
+
+	}
+
 	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
 		QImage image(
 			bitmap.cols(), bitmap.rows(),
@@ -31,15 +41,24 @@ namespace linescan{
 	}
 
 	live_image::live_image(camera& cam):
-		cam_(cam)
+		cam_(cam),
+		processor_(&standard_processor)
 	{
 		connect(&timer_, &QTimer::timeout, [this]{
-			image_ = to_image(cam_.image());
+			std::tie(image_, overlay_) = processor_(cam_.image());
 
 			repaint();
 
 			if(isVisible()) timer_.start(100);
 		});
+	}
+
+	void live_image::set_processor(processor_type const& function){
+		processor_ = function;
+	}
+
+	void live_image::reset_processor(){
+		processor_ = &standard_processor;
 	}
 
 	void live_image::showEvent(QShowEvent* event){
@@ -55,27 +74,32 @@ namespace linescan{
 	void live_image::paintEvent(QPaintEvent*){
 		QPainter painter(this);
 
-		if(width() < image_.width() || height() < image_.height()){
-			auto factor = std::min(
-				float(width()) / image_.width(),
-				float(height()) / image_.height()
-			);
+		auto draw = [this, &painter](QImage const& image){
+			if(width() < image.width() || height() < image.height()){
+				auto factor = std::min(
+					float(width()) / image.width(),
+					float(height()) / image.height()
+				);
 
-			painter.drawImage(
-				QRectF(
-					(width() - factor * image_.width()) / 2,
-					(height() - factor * image_.height()) / 2,
-					factor * image_.width(),
-					factor * image_.height()
-				), image_
-			);
-		}else{
-			painter.drawImage(
-				(width() - image_.width()) / 2,
-				(height() - image_.height()) / 2,
-				image_
-			);
-		}
+				painter.drawImage(
+					QRectF(
+						(width() - factor * image.width()) / 2,
+						(height() - factor * image.height()) / 2,
+						factor * image.width(),
+						factor * image.height()
+					), image
+				);
+			}else{
+				painter.drawImage(
+					(width() - image.width()) / 2,
+					(height() - image.height()) / 2,
+					image
+				);
+			}
+		};
+
+		draw(image_);
+		draw(overlay_);
 	}
 
 

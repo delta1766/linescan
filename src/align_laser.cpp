@@ -52,8 +52,7 @@ namespace linescan{
 		);
 
 		auto angle = std::sin((line(100) - line(0)) / 100);
-		auto angle_text =
-			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
+		auto angle_text = QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
 
 		QPainter painter(&pixmap);
 

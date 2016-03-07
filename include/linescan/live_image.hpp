@@ -17,9 +17,21 @@
 namespace linescan{
 
 
+	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
+
 	class live_image: public QMainWindow{
 	public:
+		using processor_type = std::function<
+			std::pair< QImage, QImage >(
+				mitrax::raw_bitmap< std::uint8_t > const&
+			)
+		>;
+
 		live_image(camera& cam);
+
+		void set_processor(processor_type const& function);
+
+		void reset_processor();
 
 
 	protected:
@@ -33,7 +45,10 @@ namespace linescan{
 	private:
 		camera& cam_;
 
+		processor_type processor_;
+
 		QImage image_;
+		QImage overlay_;
 
 		QTimer timer_;
 	};
