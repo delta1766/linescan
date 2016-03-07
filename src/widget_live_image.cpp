@@ -28,9 +28,10 @@ namespace linescan{
 		processor_(&standard_processor)
 	{
 		connect(&timer_, &QTimer::timeout, [this]{
-			std::tie(image_, overlay_) = processor_(cam_.image());
+			QImage image, overlay;
+			std::tie(image, overlay) = processor_(cam_.image());
 
-			repaint();
+			set_images(image, overlay);
 
 			if(isVisible()) timer_.start(100);
 		});
@@ -52,37 +53,6 @@ namespace linescan{
 	void widget_live_image::hideEvent(QHideEvent* event){
 		QWidget::hideEvent(event);
 		timer_.stop();
-	}
-
-	void widget_live_image::paintEvent(QPaintEvent*){
-		QPainter painter(this);
-
-		auto draw = [this, &painter](QImage const& image){
-			if(width() < image.width() || height() < image.height()){
-				auto factor = std::min(
-					float(width()) / image.width(),
-					float(height()) / image.height()
-				);
-
-				painter.drawImage(
-					QRectF(
-						(width() - factor * image.width()) / 2,
-						(height() - factor * image.height()) / 2,
-						factor * image.width(),
-						factor * image.height()
-					), image
-				);
-			}else{
-				painter.drawImage(
-					(width() - image.width()) / 2,
-					(height() - image.height()) / 2,
-					image
-				);
-			}
-		};
-
-		draw(image_);
-		draw(overlay_);
 	}
 
 

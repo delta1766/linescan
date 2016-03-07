@@ -9,15 +9,14 @@
 #ifndef _linescan__widget_live_image__hpp_INCLUDED_
 #define _linescan__widget_live_image__hpp_INCLUDED_
 
+#include <linescan/widget_central_image.hpp>
 #include <linescan/camera.hpp>
-
-#include <QtWidgets/QtWidgets>
 
 
 namespace linescan{
 
 
-	class widget_live_image: public QMainWindow{
+	class widget_live_image: public widget_central_image{
 	public:
 		using processor_type = std::function<
 			std::pair< QImage, QImage >(
@@ -37,16 +36,11 @@ namespace linescan{
 
 		virtual void hideEvent(QHideEvent* event)override;
 
-		virtual void paintEvent(QPaintEvent* event)override;
-
 
 	private:
 		camera& cam_;
 
 		processor_type processor_;
-
-		QImage image_;
-		QImage overlay_;
 
 		QTimer timer_;
 	};
