@@ -7,6 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/live_image.hpp>
+#include <linescan/to_image.hpp>
 
 
 namespace linescan{
@@ -20,24 +21,6 @@ namespace linescan{
 			return { to_image(bitmap), QImage() };
 		}
 
-	}
-
-	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
-		QImage image(
-			bitmap.cols(), bitmap.rows(),
-			QImage::Format_Grayscale8
-		);
-
-		std::size_t cols = bitmap.cols();
-		for(std::size_t y = 0; y < bitmap.rows(); ++y){
-			std::copy(
-				bitmap.impl().data().data() + cols * y,
-				bitmap.impl().data().data() + cols * (1 + y),
-				image.bits() + image.bytesPerLine() * y
-			);
-		}
-
-		return image;
 	}
 
 	live_image::live_image(camera& cam):

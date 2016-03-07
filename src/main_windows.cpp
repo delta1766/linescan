@@ -8,7 +8,6 @@
 //-----------------------------------------------------------------------------
 #include <linescan/main_window.hpp>
 
-#include <linescan/to_pixmap.hpp>
 #include <linescan/align_laser.hpp>
 #include <linescan/extrinsic_parameters.hpp>
 #include <linescan/intrinsic_parameters.hpp>

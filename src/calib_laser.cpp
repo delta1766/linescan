@@ -9,7 +9,7 @@
 #include <linescan/calib_laser.hpp>
 
 #include <linescan/ref3d.hpp>
-#include <linescan/to_pixmap.hpp>
+#include <linescan/to_image.hpp>
 #include <linescan/load.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/linear_function.hpp>
@@ -27,7 +27,7 @@
 namespace linescan{
 
 
-	QPixmap calib_laser_pixmap(
+	QImage calib_laser_image(
 		camera& cam,
 		std::vector< point< double > > const& points
 	){
@@ -35,13 +35,13 @@ namespace linescan{
 		using namespace mitrax::literals;
 
 #ifdef CAM
-		auto image = cam.image();
+		auto bitmap = cam.image();
 #else
 		(void)cam;
-		auto image = load("simulation/real2_laser.png");
+		auto bitmap = load("simulation/real2_laser.png");
 #endif
 		try{
-			auto binary = binarize(image, std::uint8_t(255));
+			auto binary = binarize(bitmap, std::uint8_t(255));
 
 			binary = erode(binary, 3, false);
 
@@ -61,17 +61,17 @@ namespace linescan{
 
 			auto x = intersection(line1, line2);
 
-			QPixmap pixmap = to_pixmap(image);
-			QPainter painter(&pixmap);
+			auto image = to_image(bitmap);
+			QPainter painter(&image);
 
 			painter.setPen(qRgb(255, 0, 0));
 			painter.drawLine(0, line1(0), x, line1(x));
 			painter.drawLine(
-				x, line2(x), pixmap.width() - 1, line2(pixmap.width() - 1)
+				x, line2(x), image.width() - 1, line2(image.width() - 1)
 			);
 
 			painter.setPen(qRgb(0, 255, 0));
-			QFont font = painter.font();
+			auto font = painter.font();
 			font.setPixelSize(14);
 			painter.setFont(font);
 
@@ -83,21 +83,21 @@ namespace linescan{
 				++i;
 			}
 
-			return pixmap;
+			return image;
 		}catch(std::exception const& error){
-			QPixmap pixmap = to_pixmap(image);
-			QPainter painter(&pixmap);
+			auto image = to_image(bitmap);
+			QPainter painter(&image);
 
 			painter.setPen(qRgb(0, 255, 0));
-			QFont font = painter.font();
+			auto font = painter.font();
 			font.setPixelSize(14);
 			painter.setFont(font);
 			painter.drawText(
-				0, 0, pixmap.width(), pixmap.height() / 2,
+				0, 0, image.width(), image.height() / 2,
 				Qt::AlignCenter, error.what()
 			);
 
-			return pixmap;
+			return image;
 		}
 	}
 

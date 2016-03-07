@@ -12,7 +12,7 @@
 #include "point.hpp"
 #include "camera.hpp"
 
-#include <QtGui/QPixmap>
+#include <QtGui/QImage>
 
 #include <vector>
 
@@ -20,7 +20,7 @@
 namespace linescan{
 
 
-	QPixmap calib_laser_pixmap(
+	QImage calib_laser_pixmap(
 		camera& cam,
 		std::vector< point< double > > const& points
 	);

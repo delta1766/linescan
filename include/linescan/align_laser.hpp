@@ -11,13 +11,13 @@
 
 #include "camera.hpp"
 
-#include <QtGui/QPixmap>
+#include <QtGui/QImage>
 
 
 namespace linescan{
 
 
-	std::tuple< QString, QPixmap > align_laser(camera& cam);
+	std::tuple< QString, QImage > align_laser(camera& cam);
 
 
 }

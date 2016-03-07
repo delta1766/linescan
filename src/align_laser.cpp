@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/align_laser.hpp>
 
-#include <linescan/to_pixmap.hpp>
+#include <linescan/to_image.hpp>
 #include <linescan/load.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/linear_function.hpp>
@@ -24,7 +24,7 @@
 namespace linescan{
 
 
-	std::tuple< QString, QPixmap > align_laser(camera& cam){
+	std::tuple< QString, QImage > align_laser(camera& cam){
 #ifdef CAM
 		auto bitmap = cam.image();
 #else
@@ -43,9 +43,9 @@ namespace linescan{
 			points.emplace_back(i, top_distance_line[i]);
 		}
 
-		auto pixmap = to_pixmap(bitmap);
+		auto image = to_image(bitmap);
 
-		if(points.size() < 2) return {"no line", pixmap};
+		if(points.size() < 2) return {"no line", image};
 
 		auto line = fit_linear_function< double >(
 			points.begin(), points.end()
@@ -54,24 +54,24 @@ namespace linescan{
 		auto angle = std::sin((line(100) - line(0)) / 100);
 		auto angle_text = QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1);
 
-		QPainter painter(&pixmap);
+		QPainter painter(&image);
 
 		painter.setPen(qRgb(0, 255, 0));
 		QFont font = painter.font();
 		font.setPixelSize(128);
 		painter.setFont(font);
 		painter.drawText(
-			0, 0, pixmap.width(), pixmap.height() / 2,
+			0, 0, image.width(), image.height() / 2,
 			Qt::AlignCenter, angle_text
 		);
 
 		painter.setPen(qRgb(255, 0, 0));
 		painter.drawLine(
 			0, line(0),
-			pixmap.width() - 1, line(pixmap.width() - 1)
+			image.width() - 1, line(image.width() - 1)
 		);
 
-		return {angle_text, pixmap};
+		return {angle_text, image};
 	}
 
 

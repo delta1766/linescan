@@ -17,8 +17,6 @@
 namespace linescan{
 
 
-	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
-
 	class live_image: public QMainWindow{
 	public:
 		using processor_type = std::function<
