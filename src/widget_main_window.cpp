@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/main_window.hpp>
+#include <linescan/widget_main_window.hpp>
 
 #include <linescan/align_laser.hpp>
 #include <linescan/extrinsic_parameters.hpp>
@@ -49,7 +49,7 @@ namespace linescan{
 	}
 
 
-	main_window::main_window():
+	widget_main_window::widget_main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
 // 		dock_(tr("Control panel"), this),
@@ -304,15 +304,15 @@ namespace linescan{
 // 
 // 		connect(
 // 			&laser_timer_, &QTimer::timeout,
-// 			this, &main_window::laser_live
+// 			this, &widget_main_window::laser_live
 // 		);
 	}
 
-	main_window::~main_window(){
+	widget_main_window::~widget_main_window(){
 // 		scene_.removeItem(&item_);
 	}
 
-// 	void main_window::laser_live()try{
+// 	void widget_main_window::laser_live()try{
 // 		if(!laser_dock_widget_.isHidden()){
 // 			QString text;
 // 			QPixmap pixmap;
@@ -333,17 +333,17 @@ namespace linescan{
 // 		std::cerr << "Exit with unknown exception" << std::endl;
 // 	}
 // 
-// 	void main_window::show_main_image(){
+// 	void widget_main_window::show_main_image(){
 // 		item_.setPixmap(QPixmap("data/start.jpg"));
 // 		qApp->processEvents();
 // 	}
 // 
-// 	void main_window::show_process_image(){
+// 	void widget_main_window::show_process_image(){
 // 		item_.setPixmap(QPixmap("data/process.png"));
 // 		qApp->processEvents();
 // 	}
 // 
-// 	void main_window::show_dock(dock const& d){
+// 	void widget_main_window::show_dock(dock const& d){
 // 		main_dock_widget_.hide();
 // 		laser_dock_widget_.hide();
 // 		extrinsic_dock_widget_.hide();

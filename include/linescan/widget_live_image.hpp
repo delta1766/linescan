@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__live_image__hpp_INCLUDED_
-#define _linescan__live_image__hpp_INCLUDED_
+#ifndef _linescan__widget_live_image__hpp_INCLUDED_
+#define _linescan__widget_live_image__hpp_INCLUDED_
 
 #include <linescan/camera.hpp>
 
@@ -17,7 +17,7 @@
 namespace linescan{
 
 
-	class live_image: public QMainWindow{
+	class widget_live_image: public QMainWindow{
 	public:
 		using processor_type = std::function<
 			std::pair< QImage, QImage >(
@@ -25,7 +25,7 @@ namespace linescan{
 			)
 		>;
 
-		live_image(camera& cam);
+		widget_live_image(camera& cam);
 
 		void set_processor(processor_type const& function);
 

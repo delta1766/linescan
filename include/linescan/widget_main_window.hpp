@@ -6,12 +6,12 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__main_window__hpp_INCLUDED_
-#define _linescan__main_window__hpp_INCLUDED_
+#ifndef _linescan__widget_main_window__hpp_INCLUDED_
+#define _linescan__widget_main_window__hpp_INCLUDED_
 
 #include "point.hpp"
-#include "camera_dock.hpp"
-#include "live_image.hpp"
+#include "widget_camera_dock.hpp"
+#include "widget_live_image.hpp"
 #include "control_F9S_MCL3.hpp"
 
 #include <QtWidgets/QtWidgets>
@@ -34,11 +34,11 @@
 namespace linescan{
 
 
-	class main_window: public QMainWindow{
+	class widget_main_window: public QMainWindow{
 	public:
-		main_window();
+		widget_main_window();
 
-		~main_window();
+		~widget_main_window();
 
 
 // 		void laser_live();
@@ -110,8 +110,8 @@ namespace linescan{
 // 		QLabel laser_label_;
 // 		QPushButton laser_ok_;
 
-		camera_dock cam_dock_;
-		live_image live_;
+		widget_camera_dock cam_dock_;
+		widget_live_image live_;
 
 // 		QTimer timer_;
 // 		QTimer laser_timer_;

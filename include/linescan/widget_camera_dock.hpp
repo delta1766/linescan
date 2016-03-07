@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__camera_dock__hpp_INCLUDED_
-#define _linescan__camera_dock__hpp_INCLUDED_
+#ifndef _linescan__widget_camera_dock__hpp_INCLUDED_
+#define _linescan__widget_camera_dock__hpp_INCLUDED_
 
 #include <linescan/camera.hpp>
 
@@ -17,9 +17,9 @@
 namespace linescan{
 
 
-	class camera_dock: public QDockWidget{
+	class widget_camera_dock: public QDockWidget{
 	public:
-		camera_dock(camera& cam);
+		widget_camera_dock(camera& cam);
 
 	private:
 		void set_ranges();

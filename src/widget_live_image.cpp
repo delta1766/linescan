@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/live_image.hpp>
+#include <linescan/widget_live_image.hpp>
 #include <linescan/to_image.hpp>
 
 
@@ -23,7 +23,7 @@ namespace linescan{
 
 	}
 
-	live_image::live_image(camera& cam):
+	widget_live_image::widget_live_image(camera& cam):
 		cam_(cam),
 		processor_(&standard_processor)
 	{
@@ -36,25 +36,25 @@ namespace linescan{
 		});
 	}
 
-	void live_image::set_processor(processor_type const& function){
+	void widget_live_image::set_processor(processor_type const& function){
 		processor_ = function;
 	}
 
-	void live_image::reset_processor(){
+	void widget_live_image::reset_processor(){
 		processor_ = &standard_processor;
 	}
 
-	void live_image::showEvent(QShowEvent* event){
+	void widget_live_image::showEvent(QShowEvent* event){
 		QWidget::showEvent(event);
 		timer_.start(0);
 	}
 
-	void live_image::hideEvent(QHideEvent* event){
+	void widget_live_image::hideEvent(QHideEvent* event){
 		QWidget::hideEvent(event);
 		timer_.stop();
 	}
 
-	void live_image::paintEvent(QPaintEvent*){
+	void widget_live_image::paintEvent(QPaintEvent*){
 		QPainter painter(this);
 
 		auto draw = [this, &painter](QImage const& image){

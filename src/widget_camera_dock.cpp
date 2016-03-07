@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/camera_dock.hpp>
+#include <linescan/widget_camera_dock.hpp>
 
 
 namespace linescan{
@@ -37,7 +37,7 @@ namespace linescan{
 		return scale_from_slide< T >(value, min, step);
 	}
 
-	camera_dock::camera_dock(camera& cam):
+	widget_camera_dock::widget_camera_dock(camera& cam):
 		QDockWidget(tr("Camera settings")),
 		cam_(cam),
 		pixelclock_l_(tr("Pixelclock")),
@@ -146,7 +146,7 @@ namespace linescan{
 		setWidget(&widget_);
 	}
 
-	void camera_dock::set_ranges(){
+	void widget_camera_dock::set_ranges(){
 		auto pixelclock_min = cam_.pixelclock_min();
 		auto pixelclock_max = cam_.pixelclock_max();
 		auto pixelclock_step = cam_.pixelclock_inc();
