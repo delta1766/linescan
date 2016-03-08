@@ -34,18 +34,21 @@ namespace linescan{
 
 		void close();
 
+		std::array< std::uint32_t, 3 > pixelclock_min_max_inc()const;
 		std::uint32_t pixelclock_min()const;
 		std::uint32_t pixelclock_max()const;
 		std::uint32_t pixelclock_inc()const;
 		std::uint32_t pixelclock()const;
 		void set_pixelclock(std::uint32_t pixelclock);
 
+		std::array< double, 3 > framerate_min_max_inc()const;
 		double framerate_min()const;
 		double framerate_max()const;
 		double framerate_inc()const;
 		double framerate()const;
 		void set_framerate(double framerate);
 
+		std::array< double, 3 > exposure_in_ms_min_max_inc()const;
 		double exposure_in_ms_min()const;
 		double exposure_in_ms_max()const;
 		double exposure_in_ms_inc()const;

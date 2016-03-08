@@ -379,63 +379,49 @@ namespace linescan{
 	}
 
 
-	std::uint32_t camera::pixelclock_min()const{
+	std::array< std::uint32_t, 3 > camera::pixelclock_min_max_inc()const{
 #ifdef CAM
-		std::uint32_t pixelclock[3]{};
+		std::array< std::uint32_t, 3 > min_max_inc{{0, 0, 0}};
+
 		throw_on_error(is_PixelClock(
 			handle_,
 			IS_PIXELCLOCK_CMD_GET_RANGE,
-			(void*)&pixelclock,
-			sizeof(pixelclock)
+			static_cast< void* >(min_max_inc.data()),
+			sizeof(std::uint32_t) * 3
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
-		return pixelclock[0];
+
+		return min_max_inc;
 #else
-		return 4;
+		return {{8, 30, 1}};
 #endif
+	}
+
+	std::uint32_t camera::pixelclock_min()const{
+		return pixelclock_min_max_inc()[0];
 	}
 
 	std::uint32_t camera::pixelclock_max()const{
-#ifdef CAM
-		std::uint32_t pixelclock[3]{};
-		throw_on_error(is_PixelClock(
-			handle_,
-			IS_PIXELCLOCK_CMD_GET_RANGE,
-			(void*)&pixelclock,
-			sizeof(pixelclock)
-		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
-		return pixelclock[1];
-#else
-		return 66;
-#endif
+		return pixelclock_min_max_inc()[1];
 	}
 
 	std::uint32_t camera::pixelclock_inc()const{
-#ifdef CAM
-		std::uint32_t pixelclock[3]{};
-		throw_on_error(is_PixelClock(
-			handle_,
-			IS_PIXELCLOCK_CMD_GET_RANGE,
-			(void*)&pixelclock,
-			sizeof(pixelclock)
-		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET_RANGE)");
-		return pixelclock[2];
-#else
-		return 2;
-#endif
+		return pixelclock_min_max_inc()[2];
 	}
 
 	std::uint32_t camera::pixelclock()const{
 #ifdef CAM
-		std::uint32_t pixelclock = 0;
+		std::uint32_t value = 0;
+
 		throw_on_error(is_PixelClock(
 			handle_,
 			IS_PIXELCLOCK_CMD_GET,
-			(void*)&pixelclock,
-			sizeof(pixelclock)
+			(void*)&value,
+			sizeof(value)
 		), "is_PixelClock(IS_PIXELCLOCK_CMD_GET)");
-		return pixelclock;
+
+		return value;
 #else
-		return 8;
+		return 20;
 #endif
 	}
 
@@ -453,68 +439,48 @@ namespace linescan{
 	}
 
 
-	double camera::framerate_min()const{
+	std::array< double, 3 > camera::framerate_min_max_inc()const{
 #ifdef CAM
-		double min;
-		double max;
-		double inc;
+		std::array< double, 3 > min_max_inc{{0, 0, 0}};
+
 		throw_on_error(is_GetFrameTimeRange(
 			handle_,
-			&min,
-			&max,
-			&inc
+			&min_max_inc[0],
+			&min_max_inc[1],
+			&min_max_inc[2]
 		), "is_GetFrameTimeRange()");
-		return min;
+
+		return min_max_inc;
 #else
-		return 4;
+		return {{0.2, 60, 0.1}};
 #endif
+	}
+
+	double camera::framerate_min()const{
+		return framerate_min_max_inc()[0];
 	}
 
 	double camera::framerate_max()const{
-#ifdef CAM
-		double min;
-		double max;
-		double inc;
-		throw_on_error(is_GetFrameTimeRange(
-			handle_,
-			&min,
-			&max,
-			&inc
-		), "is_GetFrameTimeRange()");
-		return max;
-#else
-		return 44;
-#endif
+		return framerate_min_max_inc()[1];
 	}
 
 	double camera::framerate_inc()const{
-#ifdef CAM
-		double min;
-		double max;
-		double inc;
-		throw_on_error(is_GetFrameTimeRange(
-			handle_,
-			&min,
-			&max,
-			&inc
-		), "is_GetFrameTimeRange()");
-		return inc;
-#else
-		return 4;
-#endif
+		return framerate_min_max_inc()[2];
 	}
 
 	double camera::framerate()const{
 #ifdef CAM
-		double framerate;
+		double value;
+
 		throw_on_error(is_SetFrameRate(
 			handle_,
 			IS_GET_FRAMERATE,
-			&framerate
+			&value
 		), "is_SetFrameRate(IS_GET_FRAMERATE)");
-		return framerate;
+
+		return value;
 #else
-		return 12;
+		return 24;
 #endif
 	}
 
@@ -531,65 +497,49 @@ namespace linescan{
 	}
 
 
-	double camera::exposure_in_ms_min()const{
+	std::array< double, 3 > camera::exposure_in_ms_min_max_inc()const{
 #ifdef CAM
-		double min;
+		std::array< double, 3 > min_max_inc{{0, 0, 0}};
+
 		throw_on_error(is_Exposure(
 			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN,
-			&min,
-			sizeof(min)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MIN)");
-		return min;
+			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE,
+			static_cast< void* >(min_max_inc.data()),
+			sizeof(double) * 3
+		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE)");
+
+		return min_max_inc;
 #else
-		return 23.5;
+		return {{2, 600, 2}};
 #endif
+	}
+
+	double camera::exposure_in_ms_min()const{
+		return exposure_in_ms_min_max_inc()[0];
 	}
 
 	double camera::exposure_in_ms_max()const{
-#ifdef CAM
-		double max;
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX,
-			&max,
-			sizeof(max)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_MAX)");
-		return max;
-#else
-		return 125.4;
-#endif
+		return exposure_in_ms_min_max_inc()[1];
 	}
 
 	double camera::exposure_in_ms_inc()const{
-#ifdef CAM
-		double inc;
-		throw_on_error(is_Exposure(
-			handle_,
-			IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC,
-			&inc,
-			sizeof(inc)
-		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE_RANGE_INC)");
-		return inc;
-#else
-		return 0.1;
-#endif
+		return exposure_in_ms_min_max_inc()[2];
 	}
 
 	double camera::exposure_in_ms()const{
 #ifdef CAM
-		double exposure_in_ms;
+		double value;
 
 		throw_on_error(is_Exposure(
 			handle_,
 			IS_EXPOSURE_CMD_GET_EXPOSURE,
-			&exposure_in_ms,
-			sizeof(exposure_in_ms)
+			&value,
+			sizeof(value)
 		), "is_Exposure(IS_EXPOSURE_CMD_GET_EXPOSURE)");
 
-		return exposure_in_ms;
+		return value;
 #else
-		return 66.2;
+		return 40;
 #endif
 	}
 
@@ -617,7 +567,7 @@ namespace linescan{
 			IS_IGNORE_PARAMETER
 		);
 #else
-		return 8;
+		return 0;
 #endif
 	}
 

@@ -21,12 +21,17 @@ namespace linescan{
 	public:
 		widget_camera_dock(camera& cam);
 
+
 	private:
 		void set_ranges();
 
+		void set_pixelclock_ranges();
+		void set_framerate_ranges();
+		void set_exposure_ranges();
+		void set_gain_ranges();
+
 
 		camera& cam_;
-
 
 		QWidget widget_;
 		QGridLayout layout_;

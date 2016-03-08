@@ -13,29 +13,29 @@
 namespace linescan{
 
 
-	std::size_t scale_to_slide(double value, double min, double step){
-		return static_cast< std::size_t >((value - min) / step + 0.5);
+	std::size_t scale_to_slide(double value, double min, double inc){
+		return static_cast< std::size_t >((value - min) / inc + 0.5);
 	}
 
 	template < typename O >
 	std::size_t scale_to_slide(double value, O const& object){
 		auto min = object.minimum();
-		auto step = object.singleStep();
+		auto inc = object.singleStep();
 
-		return scale_to_slide(value, min, step);
+		return scale_to_slide(value, min, inc);
 	}
 
 	template < typename T >
-	T scale_from_slide(double value, double min, double step){
-		return static_cast< T >(value * step + min);
+	T scale_from_slide(double value, double min, double inc){
+		return static_cast< T >(value * inc + min);
 	}
 
 	template < typename T, typename O >
 	T scale_from_slide(double value, O const& object){
 		auto min = object.minimum();
-		auto step = object.singleStep();
+		auto inc = object.singleStep();
 
-		return scale_from_slide< T >(value, min, step);
+		return scale_from_slide< T >(value, min, inc);
 	}
 
 	widget_camera_dock::widget_camera_dock(camera& cam):
@@ -122,7 +122,8 @@ namespace linescan{
 				pixelclock_.setValue(scale_to_slide(value, pixelclock_v_));
 
 				cam_.set_pixelclock(value);
-				set_ranges();
+
+				set_framerate_ranges();
 			});
 		});
 
@@ -139,7 +140,8 @@ namespace linescan{
 				framerate_.setValue(scale_to_slide(value, framerate_v_));
 
 				cam_.set_framerate(value);
-				set_ranges();
+
+				set_exposure_ranges();
 			});
 		});
 
@@ -191,103 +193,99 @@ namespace linescan{
 		setWidget(&widget_);
 	}
 
-	void widget_camera_dock::set_ranges(){
-		auto pixelclock_min = cam_.pixelclock_min();
-		auto pixelclock_max = cam_.pixelclock_max();
-		auto pixelclock_step = cam_.pixelclock_inc();
-		auto pixelclock_value = cam_.pixelclock();
+	void widget_camera_dock::set_pixelclock_ranges(){
+		auto min_max_inc = cam_.pixelclock_min_max_inc();
+		auto min = min_max_inc[0];
+		auto max = min_max_inc[1];
+		auto inc = min_max_inc[2];
+		auto value = cam_.pixelclock();
 
-		auto framerate_min = cam_.framerate_min();
-		auto framerate_max = cam_.framerate_max();
-		auto framerate_step = cam_.framerate_inc();
-		auto framerate_value = cam_.framerate();
+		auto int_max = scale_to_slide(max, min, inc);
+		auto int_value = scale_to_slide(value, min, inc);
 
-		auto exposure_min = cam_.exposure_in_ms_min();
-		auto exposure_max = cam_.exposure_in_ms_max();
-		auto exposure_step = cam_.exposure_in_ms_inc();
-		auto exposure_value = cam_.exposure_in_ms();
+		pixelclock_v_.setRange(min, max);
+		pixelclock_v_.setSingleStep(inc);
+		pixelclock_v_.setValue(value);
 
-		auto gain_min = 0;
-		auto gain_max = 100;
-		auto gain_step = 1;
-		auto gain_value = cam_.gain_in_percent();
-
-
-		auto pixelclock_int_max =
-			scale_to_slide(pixelclock_max, pixelclock_min, pixelclock_step);
-
-		auto pixelclock_int_value =
-			scale_to_slide(pixelclock_value, pixelclock_min, pixelclock_step);
-
-		pixelclock_v_.setRange(pixelclock_min, pixelclock_max);
-		pixelclock_v_.setSingleStep(pixelclock_step);
-		pixelclock_v_.setValue(pixelclock_value);
-
-		pixelclock_.setRange(0, pixelclock_int_max);
+		pixelclock_.setRange(0, int_max);
 		pixelclock_.setSingleStep(1);
-		pixelclock_.setValue(pixelclock_int_value);
+		pixelclock_.setValue(int_value);
 
-		pixelclock_ml_.setText(QString(tr("%1 MHz")).arg(pixelclock_min));
-		pixelclock_xl_.setText(QString(tr("%1 MHz")).arg(pixelclock_max));
-		pixelclock_il_.setText(QString(tr("(%1 MHz)")).arg(pixelclock_step));
+		pixelclock_ml_.setText(QString(tr("%1 MHz")).arg(min));
+		pixelclock_xl_.setText(QString(tr("%1 MHz")).arg(max));
+		pixelclock_il_.setText(QString(tr("(%1 MHz)")).arg(inc));
+	}
 
+	void widget_camera_dock::set_framerate_ranges(){
+		auto min_max_inc = cam_.framerate_min_max_inc();
+		auto min = min_max_inc[0];
+		auto max = min_max_inc[1];
+		auto inc = min_max_inc[2];
+		auto value = cam_.framerate();
 
-		auto framerate_int_max =
-			scale_to_slide(framerate_max, framerate_min, framerate_step);
+		auto int_max = scale_to_slide(max, min, inc);
+		auto int_value = scale_to_slide(value, min, inc);
 
-		auto framerate_int_value =
-			scale_to_slide(framerate_value, framerate_min, framerate_step);
+		framerate_v_.setRange(min, max);
+		framerate_v_.setSingleStep(inc);
+		framerate_v_.setValue(value);
 
-		framerate_v_.setRange(framerate_min, framerate_max);
-		framerate_v_.setSingleStep(framerate_step);
-		framerate_v_.setValue(framerate_value);
-
-		framerate_.setRange(0, framerate_int_max);
+		framerate_.setRange(0, int_max);
 		framerate_.setSingleStep(1);
-		framerate_.setValue(framerate_int_value);
+		framerate_.setValue(int_value);
 
-		framerate_ml_.setText(
-			QString(tr("%1 fps")).arg(framerate_min, 0, 'f', 2));
-		framerate_xl_.setText(
-			QString(tr("%1 fps")).arg(framerate_max, 0, 'f', 2));
-		framerate_il_.setText(
-			QString(tr("(%1 fps)")).arg(framerate_step, 0, 'g', 2));
+		framerate_ml_.setText(QString(tr("%1 fps")).arg(min, 0, 'f', 2));
+		framerate_xl_.setText(QString(tr("%1 fps")).arg(max, 0, 'f', 2));
+		framerate_il_.setText(QString(tr("(%1 fps)")).arg(inc, 0, 'g', 2));
+	}
 
+	void widget_camera_dock::set_exposure_ranges(){
+		auto min_max_inc = cam_.exposure_in_ms_min_max_inc();
+		auto min = min_max_inc[0];
+		auto max = min_max_inc[1];
+		auto inc = min_max_inc[2];
+		auto value = cam_.exposure_in_ms();
 
-		auto exposure_int_max =
-			scale_to_slide(exposure_max, exposure_min, exposure_step);
+		auto int_max = scale_to_slide(max, min, inc);
+		auto int_value = scale_to_slide(value, min, inc);
 
-		auto exposure_int_value =
-			scale_to_slide(exposure_value, exposure_min, exposure_step);
+		exposure_v_.setRange(min, max);
+		exposure_v_.setSingleStep(inc);
+		exposure_v_.setValue(value);
 
-		exposure_v_.setRange(exposure_min, exposure_max);
-		exposure_v_.setSingleStep(exposure_step);
-		exposure_v_.setValue(exposure_value);
-
-		exposure_.setRange(0, exposure_int_max);
+		exposure_.setRange(0, int_max);
 		exposure_.setSingleStep(1);
-		exposure_.setValue(exposure_int_value);
+		exposure_.setValue(int_value);
 
-		exposure_ml_.setText(
-			QString(tr("%1 Hz")).arg(exposure_min, 0, 'f', 2));
-		exposure_xl_.setText(
-			QString(tr("%1 Hz")).arg(exposure_max, 0, 'f', 2));
-		exposure_il_.setText(
-			QString(tr("(%1 Hz)")).arg(exposure_step, 0, 'g', 2));
+		exposure_ml_.setText(QString(tr("%1 ms")).arg(min, 0, 'f', 2));
+		exposure_xl_.setText(QString(tr("%1 ms")).arg(max, 0, 'f', 2));
+		exposure_il_.setText(QString(tr("(%1 ms)")).arg(inc, 0, 'g', 2));
+	}
 
+	void widget_camera_dock::set_gain_ranges(){
+		auto min = 0;
+		auto max = 100;
+		auto inc = 1;
+		auto value = cam_.gain_in_percent();
 
-		gain_v_.setRange(gain_min, gain_max);
-		gain_v_.setSingleStep(gain_step);
-		gain_v_.setValue(gain_value);
+		gain_v_.setRange(min, max);
+		gain_v_.setSingleStep(inc);
+		gain_v_.setValue(value);
 
-		gain_.setRange(gain_min, gain_max);
-		gain_.setSingleStep(gain_step);
-		gain_.setValue(gain_value);
+		gain_.setRange(min, max);
+		gain_.setSingleStep(inc);
+		gain_.setValue(value);
 
-		gain_ml_.setText(QString(tr("%1%")).arg(gain_min));
-		gain_xl_.setText(QString(tr("%1%")).arg(gain_max));
-		gain_il_.setText(QString(tr("(%1%)")).arg(gain_step));
+		gain_ml_.setText(QString(tr("%1%")).arg(min));
+		gain_xl_.setText(QString(tr("%1%")).arg(max));
+		gain_il_.setText(QString(tr("(%1%)")).arg(inc));
+	}
 
+	void widget_camera_dock::set_ranges(){
+		set_pixelclock_ranges();
+		set_framerate_ranges();
+		set_exposure_ranges();
+		set_gain_ranges();
 
 		gain_boost_.setChecked(cam_.gain_boost());
 	}
