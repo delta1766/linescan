@@ -34,18 +34,30 @@ namespace linescan{
 		QLabel pixelclock_l_;
 		QSpinBox pixelclock_v_;
 		QSlider pixelclock_;
+		QLabel pixelclock_ml_;
+		QLabel pixelclock_xl_;
+		QLabel pixelclock_il_;
 
 		QLabel framerate_l_;
 		QDoubleSpinBox framerate_v_;
 		QSlider framerate_;
+		QLabel framerate_ml_;
+		QLabel framerate_xl_;
+		QLabel framerate_il_;
 
 		QLabel exposure_l_;
 		QDoubleSpinBox exposure_v_;
 		QSlider exposure_;
+		QLabel exposure_ml_;
+		QLabel exposure_xl_;
+		QLabel exposure_il_;
 
 		QLabel gain_l_;
 		QSpinBox gain_v_;
 		QSlider gain_;
+		QLabel gain_ml_;
+		QLabel gain_xl_;
+		QLabel gain_il_;
 
 		QLabel gain_boost_l_;
 		QCheckBox gain_boost_;
