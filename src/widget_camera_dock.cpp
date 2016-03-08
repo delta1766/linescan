@@ -7,6 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_camera_dock.hpp>
+#include <linescan/exception_catcher.hpp>
 
 
 namespace linescan{
@@ -89,57 +90,75 @@ namespace linescan{
 			);
 
 		connect(&pixelclock_v_, int_valueChanged, [this](int value){
-			pixelclock_.setValue(scale_to_slide(value, pixelclock_v_));
+			exception_catcher([this, value]{
+				pixelclock_.setValue(scale_to_slide(value, pixelclock_v_));
 
-			cam_.set_pixelclock(value);
-			set_ranges();
+				cam_.set_pixelclock(value);
+				set_ranges();
+			});
 		});
 
 		connect(&pixelclock_, &QSlider::valueChanged, [this](int value){
-			pixelclock_v_.setValue(
-				scale_from_slide< std::uint32_t >(value, pixelclock_v_)
-			);
+			exception_catcher([this, value]{
+				pixelclock_v_.setValue(
+					scale_from_slide< std::uint32_t >(value, pixelclock_v_)
+				);
+			});
 		});
 
 		connect(&framerate_v_, double_valueChanged, [this](double value){
-			framerate_.setValue(scale_to_slide(value, framerate_v_));
+			exception_catcher([this, value]{
+				framerate_.setValue(scale_to_slide(value, framerate_v_));
 
-			cam_.set_framerate(value);
-			set_ranges();
+				cam_.set_framerate(value);
+				set_ranges();
+			});
 		});
 
 		connect(&framerate_, &QSlider::valueChanged, [this](int value){
-			framerate_v_.setValue(
-				scale_from_slide< double >(value, framerate_v_)
-			);
+			exception_catcher([this, value]{
+				framerate_v_.setValue(
+					scale_from_slide< double >(value, framerate_v_)
+				);
+			});
 		});
 
 		connect(&exposure_v_, double_valueChanged, [this](double value){
-			exposure_.setValue(scale_to_slide(value, exposure_v_));
+			exception_catcher([this, value]{
+				exposure_.setValue(scale_to_slide(value, exposure_v_));
 
-			cam_.set_exposure(value);
-			set_ranges();
+				cam_.set_exposure(value);
+				set_ranges();
+			});
 		});
 
 		connect(&exposure_, &QSlider::valueChanged, [this](int value){
-			exposure_v_.setValue(
-				scale_from_slide< double >(value, exposure_v_)
-			);
+			exception_catcher([this, value]{
+				exposure_v_.setValue(
+					scale_from_slide< double >(value, exposure_v_)
+				);
+			});
 		});
 
 		connect(&gain_v_, int_valueChanged, [this](int value){
-			gain_.setValue(value);
+			exception_catcher([this, value]{
+				gain_.setValue(value);
 
-			cam_.set_gain(value);
-			set_ranges();
+				cam_.set_gain(value);
+				set_ranges();
+			});
 		});
 
 		connect(&gain_, &QSlider::valueChanged, [this](int value){
-			gain_v_.setValue(value);
+			exception_catcher([this, value]{
+				gain_v_.setValue(value);
+			});
 		});
 
-		connect(&gain_boost_, &QCheckBox::toggled,[this](bool checked){
-			cam_.set_gain_boost(checked);
+		connect(&gain_boost_, &QCheckBox::toggled, [this](bool checked){
+			exception_catcher([this, checked]{
+				cam_.set_gain_boost(checked);
+			});
 		});
 
 		widget_.setLayout(&layout_);
