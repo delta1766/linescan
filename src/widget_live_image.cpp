@@ -7,6 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_live_image.hpp>
+#include <linescan/exception_catcher.hpp>
 #include <linescan/to_image.hpp>
 
 
@@ -28,12 +29,14 @@ namespace linescan{
 		processor_(&standard_processor)
 	{
 		connect(&timer_, &QTimer::timeout, [this]{
-			QImage image, overlay;
-			std::tie(image, overlay) = processor_(cam_.image());
+			exception_catcher([&]{
+				QImage image, overlay;
+				std::tie(image, overlay) = processor_(cam_.image());
 
-			set_images(image, overlay);
+				set_images(image, overlay);
 
-			if(isVisible()) timer_.start(100);
+				if(isVisible()) timer_.start(100);
+			});
 		});
 	}
 
