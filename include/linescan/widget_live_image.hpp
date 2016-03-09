@@ -30,6 +30,10 @@ namespace linescan{
 
 		void reset_processor();
 
+		void stop_live();
+
+		void start_live();
+
 
 	protected:
 		virtual void showEvent(QShowEvent* event)override;

@@ -16,13 +16,16 @@ namespace linescan{
 
 	namespace{
 
+
 		std::pair< QImage, QImage > standard_processor(
 			mitrax::raw_bitmap< std::uint8_t > const& bitmap
 		){
 			return { to_image(bitmap), QImage() };
 		}
 
+
 	}
+
 
 	widget_live_image::widget_live_image(camera& cam):
 		cam_(cam),
@@ -48,14 +51,22 @@ namespace linescan{
 		processor_ = &standard_processor;
 	}
 
+	void widget_live_image::stop_live(){
+		timer_.stop();
+	}
+
+	void widget_live_image::start_live(){
+		timer_.start(0);
+	}
+
 	void widget_live_image::showEvent(QShowEvent* event){
 		QWidget::showEvent(event);
-		timer_.start(0);
+		start_live();
 	}
 
 	void widget_live_image::hideEvent(QHideEvent* event){
 		QWidget::hideEvent(event);
-		timer_.stop();
+		stop_live();
 	}
 
 

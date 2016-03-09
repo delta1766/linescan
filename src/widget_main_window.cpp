@@ -32,12 +32,14 @@ namespace linescan{
 		live_actions_(cam_, [this](QString const& message){
 			statusBar()->showMessage(message, 5000);
 		}),
-		laser_alignment_(cam_)
+		laser_alignment_(cam_),
+		calib_(cam_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_);
 
-		tabs_.addTab(&live_actions_, "Live");
-		tabs_.addTab(&laser_alignment_, "Laser align");
+		tabs_.addTab(&live_actions_, tr("Live"));
+		tabs_.addTab(&laser_alignment_, tr("Laser align"));
+		tabs_.addTab(&calib_, tr("Calibration"));
 
 		statusBar();
 
