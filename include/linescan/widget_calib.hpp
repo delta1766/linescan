@@ -28,13 +28,13 @@ namespace linescan{
 		widget_live_image image_;
 		QToolBox tabs_;
 
-		QWidget extrinsics_;
 		QWidget intrinsics_;
+		QWidget extrinsics_;
 		QWidget movements_;
 
-		QVBoxLayout extrinsics_layout_;
-		QListWidget extrinsic_images_;
-		QPushButton extrinsic_button_;
+		QVBoxLayout intrinsic_layout_;
+		QListWidget intrinsic_images_;
+		QPushButton intrinsic_button_;
 	};
 
 

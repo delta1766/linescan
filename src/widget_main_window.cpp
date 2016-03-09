@@ -12,14 +12,6 @@
 #include <linescan/intrinsic_parameters.hpp>
 #include <linescan/calib_laser.hpp>
 
-#include <mitrax/io_debug.hpp>
-#include <mitrax/point_io.hpp>
-
-#include <boost/type_index.hpp>
-
-#include <iostream>
-#include <iomanip>
-
 
 namespace linescan{
 
