@@ -27,8 +27,13 @@ namespace linescan{
 	}
 
 
-	widget_live_image::widget_live_image(camera& cam):
+	widget_live_image::widget_live_image(
+		camera& cam,
+		live_toggle_callback const& callback
+	):
 		cam_(cam),
+		is_live_(false),
+		live_toggle_callback_(callback),
 		processor_(&standard_processor)
 	{
 		connect(&timer_, &QTimer::timeout, [this]{
@@ -51,11 +56,17 @@ namespace linescan{
 		processor_ = &standard_processor;
 	}
 
+	bool widget_live_image::is_live()const{
+		return is_live_;
+	}
+
 	void widget_live_image::stop_live(){
+		set_live(false);
 		timer_.stop();
 	}
 
 	void widget_live_image::start_live(){
+		set_live(true);
 		timer_.start(0);
 	}
 
@@ -67,6 +78,11 @@ namespace linescan{
 	void widget_live_image::hideEvent(QHideEvent* event){
 		QWidget::hideEvent(event);
 		stop_live();
+	}
+
+	void widget_live_image::set_live(bool is_live){
+		is_live_ = is_live;
+		if(live_toggle_callback_) live_toggle_callback_(is_live_);
 	}
 
 

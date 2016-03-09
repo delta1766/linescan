@@ -24,11 +24,18 @@ namespace linescan{
 			)
 		>;
 
-		widget_live_image(camera& cam);
+		using live_toggle_callback = std::function< void(bool) >;
+
+		widget_live_image(
+			camera& cam,
+			live_toggle_callback const& c = [](bool){}
+		);
 
 		void set_processor(processor_type const& function);
 
 		void reset_processor();
+
+		bool is_live()const;
 
 		void stop_live();
 
@@ -42,7 +49,12 @@ namespace linescan{
 
 
 	private:
+		void set_live(bool is_live);
+
 		camera& cam_;
+
+		bool is_live_;
+		live_toggle_callback live_toggle_callback_;
 
 		processor_type processor_;
 
