@@ -9,8 +9,7 @@
 #ifndef _linescan__intrinsic_parameters__hpp_INCLUDED_
 #define _linescan__intrinsic_parameters__hpp_INCLUDED_
 
-#include "camera.hpp"
-#include "point.hpp"
+#include <mitrax/matrix.hpp>
 
 #include <vector>
 #include <array>
@@ -19,12 +18,14 @@
 namespace linescan{
 
 
-	std::vector< point< float > > find_chessboard_corners(camera& cam);
+	std::vector< mitrax::point< float > > find_chessboard_corners(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	);
 
 	std::tuple< std::array< double, 3 >, std::array< double, 8 > >
 	calc_intrinsic_parameters(
-		camera& cam,
-		std::vector< std::vector< point< float > > > const& ref_points
+		mitrax::bitmap_dims_t const& dims,
+		std::vector< std::vector< mitrax::point< float > > > const& ref_points
 	);
 
 

@@ -21,8 +21,9 @@ namespace linescan{
 	namespace{
 
 
-		std::pair< QImage, QImage > draw_laser_alignment(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap
+		std::pair< mitrax::raw_bitmap< std::uint8_t >, QImage >
+		draw_laser_alignment(
+			mitrax::raw_bitmap< std::uint8_t >&& bitmap
 		){
 			auto binary = binarize(bitmap, std::uint8_t(255));
 			binary = erode(binary, 3);
@@ -70,7 +71,7 @@ namespace linescan{
 				Qt::AlignCenter, text
 			);
 
-			return { to_image(bitmap), overlay };
+			return { std::move(bitmap), overlay };
 		}
 
 

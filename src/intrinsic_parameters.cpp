@@ -23,17 +23,17 @@ namespace linescan{
 	auto chessboard_inner_points = mitrax::dims(9, 6);
 	auto square_size = 2.5f;
 
-	std::vector< point< float > > find_chessboard_corners(camera& cam){
+	std::vector< mitrax::point< float > > find_chessboard_corners(
+		mitrax::raw_bitmap< std::uint8_t > const& image
+	){
 		using namespace mitrax::literals;
 
-		auto image = cam.image();
-
-		std::uint8_t* data = image.impl().data().data();
+		auto data = image.impl().data().data();
 
 		cv::Mat bitmap(
 			cv::Size(image.cols(), image.rows()),
 			CV_8U,
-			static_cast< void* >(data)
+			static_cast< void* >(const_cast< std::uint8_t* >(data))
 		);
 
 		std::vector< cv::Point2f > points;
@@ -64,13 +64,13 @@ namespace linescan{
 			cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1)
 		);
 
-		std::vector< point< float > > result;
+		std::vector< mitrax::point< float > > result;
 		result.reserve(points.size());
 		std::transform(
 			points.begin(), points.end(),
 			std::back_inserter(result),
 			[](cv::Point2f const& p){
-				return point< float >(p.x, p.y);
+				return mitrax::point< float >(p.x, p.y);
 			}
 		);
 
@@ -80,8 +80,8 @@ namespace linescan{
 
 	std::tuple< std::array< double, 3 >, std::array< double, 8 > >
 	calc_intrinsic_parameters(
-		camera& cam,
-		std::vector< std::vector< point< float > > > const& ref_points
+		mitrax::bitmap_dims_t const& size,
+		std::vector< std::vector< mitrax::point< float > > > const& ref_points
 	){
 		std::vector< std::vector< cv::Point2f > > image_points;
 		for(auto const& ip: ref_points){
@@ -119,7 +119,7 @@ namespace linescan{
 		cv::calibrateCamera(
 			object_points,
 			image_points,
-			cv::Size(cam.cols(), cam.rows()),
+			cv::Size(size.cols(), size.rows()),
 			camera_matrix,
 			distortion_coefficients,
 			rotation_vectors,

@@ -16,6 +16,37 @@
 namespace linescan{
 
 
+	namespace{
+
+
+		QImage draw_corners(
+			QSize const& size,
+			std::vector< mitrax::point< float > > const& points
+		){
+			QImage overlay(size, QImage::Format_ARGB32);
+			overlay.fill(0);
+
+			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+
+			double radius1 = 10;
+			double radius2 = 3;
+
+			for(auto const& p: points){
+				painter.setPen(QPen(QBrush(Qt::red), 3));
+				painter.drawEllipse(QPointF(p.x(), p.y()), radius1, radius1);
+
+				painter.setPen(QPen(QBrush(Qt::yellow), 2));
+				painter.drawEllipse(QPointF(p.x(), p.y()), radius2, radius2);
+			}
+
+			return overlay;
+		}
+
+
+	}
+
+
 	widget_calib::widget_calib(camera& cam):
 		image_(cam, [this](bool is_live){
 			if(is_live){
@@ -48,12 +79,46 @@ namespace linescan{
 			if(image_.is_live()){
 				image_.stop_live();
 
-				auto image = image_.image();
+				auto bitmap = image_.bitmap();
 
-				auto icon = 
-					QIcon(QPixmap::fromImage(image.scaledToHeight(icon_rows)));
-				auto item = new QListWidgetItem(icon, "", &intrinsic_images_);
-				item->setData(0, "");
+				try{
+					auto points = find_chessboard_corners(bitmap);
+
+					auto image = image_.image().convertToFormat(
+						QImage::Format_RGB32
+					);
+					auto overlay = draw_corners(image.size(), points);
+
+					{
+						QPainter painter(&image);
+						auto x = double(image.width() - overlay.width()) / 2;
+						auto y = double(image.height() - overlay.height()) / 2;
+
+						painter.drawImage(x, y, overlay);
+					}
+
+					auto icon = QIcon(
+						QPixmap::fromImage(image.scaledToHeight(icon_rows))
+					);
+
+					auto item =
+						new QListWidgetItem(icon, "", &intrinsic_images_);
+
+					item->setData(0, "");
+
+					image_.set_overlay(overlay);
+				}catch(...){
+					QMessageBox box(
+						QMessageBox::Warning,
+						tr("Error"),
+						tr("Chessboard corners not found."),
+						QMessageBox::Ok
+					);
+
+					box.exec();
+
+					image_.start_live();
+				}
 			}else{
 				image_.start_live();
 			}

@@ -7,6 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_central_image.hpp>
+#include <linescan/to_image.hpp>
 
 
 namespace linescan{
@@ -16,6 +17,11 @@ namespace linescan{
 		QImage const& image, QImage const& overlay
 	){
 		image_ = image;
+		overlay_ = overlay;
+		repaint();
+	}
+
+	void widget_central_image::set_overlay(QImage const& overlay){
 		overlay_ = overlay;
 		repaint();
 	}
@@ -50,6 +56,19 @@ namespace linescan{
 		draw(image_);
 		draw(overlay_);
 	}
+
+	template < typename T >
+	void widget_central_bitmap< T >::set_images(
+		mitrax::raw_bitmap< T >&& image,
+		QImage const& overlay
+	){
+		bitmap_ = std::move(image);
+		widget_central_image::set_images(to_image(bitmap_), overlay);
+		repaint();
+	}
+
+	template class widget_central_bitmap< bool >;
+	template class widget_central_bitmap< std::uint8_t >;
 
 
 }

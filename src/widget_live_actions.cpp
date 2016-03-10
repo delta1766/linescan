@@ -77,7 +77,7 @@ namespace linescan{
 
 				image_.set_processor(
 					[this](
-						mitrax::raw_bitmap< std::uint8_t > const& bitmap
+						mitrax::raw_bitmap< std::uint8_t >&& bitmap
 					){
 						return std::pair< QImage, QImage >{
 							to_image(binarized(bitmap)),
@@ -92,7 +92,7 @@ namespace linescan{
 
 				image_.set_processor(
 					[this](
-						mitrax::raw_bitmap< std::uint8_t > const& bitmap
+						mitrax::raw_bitmap< std::uint8_t >&& bitmap
 					){
 						return std::pair< QImage, QImage >{
 							to_image(eroded(bitmap)),
@@ -107,23 +107,22 @@ namespace linescan{
 
 				image_.set_processor(
 					[this](
-						mitrax::raw_bitmap< std::uint8_t > const& bitmap
+						mitrax::raw_bitmap< std::uint8_t >&& bitmap
 					){
 						auto line = calc_top_distance_line(eroded(bitmap));
 
-						QImage result;
-						if(is_sub_pixel()){
-							result = to_image(draw_top_distance_line(
-								line, bitmap.cols(), bitmap.rows()
-							));
-						}else{
-							result = to_image(draw_top_distance_line_student(
-								line, bitmap.cols(), bitmap.rows()
-							));
-						}
-
 						return std::pair< QImage, QImage >{
-							result,
+							[this, &line, &bitmap]{
+								if(is_sub_pixel()){
+									return to_image(draw_top_distance_line(
+										line, bitmap.cols(), bitmap.rows()
+									));
+								}
+									
+								return to_image(draw_top_distance_line_student(
+									line, bitmap.cols(), bitmap.rows()
+								));
+							}(),
 							QImage()
 						};
 					});
