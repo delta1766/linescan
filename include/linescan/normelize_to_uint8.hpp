@@ -21,6 +21,7 @@ namespace linescan{
 	normelize_to_uint8(mitrax::raw_bitmap< T > const& image){
 		auto min = image(0, 0);
 		auto max = image(0, 0);
+
 		mitrax::for_each([&min, &max](auto v){
 			if(min > v){
 				min = v;
@@ -29,10 +30,11 @@ namespace linescan{
 			}
 		}, image);
 
-		return mitrax::transform([&min, &max](auto v){
-			auto r = (static_cast< long double >(v) - min) / max * 255;
-
-			return static_cast< std::uint8_t >(r < 0 ? 0 : r > 255 ? 255 : r);
+		long double diff = max - min;
+		return mitrax::transform([min, diff](auto v){
+			return static_cast< std::uint8_t >(
+				(static_cast< long double >(v) - min) / diff * 255
+			);
 		}, image);
 	}
 

@@ -12,6 +12,8 @@
 #include "draw.hpp"
 #include "normelize_to_uint8.hpp"
 
+#include <mitrax/convert.hpp>
+
 
 namespace linescan{
 
@@ -31,6 +33,20 @@ namespace linescan{
 		std::string const& name
 	){
 		save(normelize_to_uint8(image), name);
+	}
+
+	inline void save(
+		mitrax::raw_bitmap< float > const& image,
+		std::string const& name
+	){
+		save(normelize_to_uint8(image), name);
+	}
+
+	inline void save(
+		mitrax::raw_bitmap< std::int8_t > const& image,
+		std::string const& name
+	){
+		save(mitrax::convert< std::uint8_t >(image), name);
 	}
 
 
