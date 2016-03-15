@@ -11,6 +11,8 @@
 
 #include <mitrax/matrix.hpp>
 
+#include <array>
+
 
 namespace linescan{
 

@@ -18,42 +18,42 @@
 
 
 int main(int argc, char** argv)try{
-	{
+// 	{
 		auto m = linescan::load("data/live_0000.png");
 		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0001.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0002.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0003.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0004.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0005.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0006.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0007.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	} std::cin.get();
-	{
-		auto m = linescan::load("data/live_0008.png");
-		linescan::circlefind(m, 12, 9, 1, 2.5);
-	}
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0001.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0002.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0003.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0004.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0005.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0006.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0007.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	} std::cin.get();
+// 	{
+// 		auto m = linescan::load("data/live_0008.png");
+// 		linescan::circlefind(m, 12, 9, 1, 2.5);
+// 	}
 
 	return 0;
 

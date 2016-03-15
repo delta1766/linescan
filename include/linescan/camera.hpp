@@ -12,6 +12,7 @@
 #include <mitrax/matrix.hpp>
 
 #include <tuple>
+#include <array>
 
 
 namespace linescan{
