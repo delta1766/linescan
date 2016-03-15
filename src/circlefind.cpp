@@ -13,6 +13,7 @@
 #include <mitrax/convolution.hpp>
 #include <mitrax/segmentation.hpp>
 #include <mitrax/area_search.hpp>
+#include <mitrax/point_io.hpp>
 
 #include <iostream>
 
@@ -89,6 +90,96 @@ namespace linescan{
 	}
 
 
+	class circle{
+	public:
+		constexpr circle(float x, float y, float radius)noexcept:
+			center_(x, y),
+			radius_(radius)
+			{}
+
+		constexpr circle(point< float > const& center, float radius)noexcept:
+			center_(center),
+			radius_(radius)
+			{}
+
+		constexpr point< float >& center()noexcept{ return center_; }
+
+		constexpr point< float > center()const noexcept{ return center_; }
+
+		constexpr float& x()noexcept{ return center_.x(); }
+
+		constexpr float x()const noexcept{ return center_.x(); }
+
+		constexpr float& y()noexcept{ return center_.y(); }
+
+		constexpr float y()const noexcept{ return center_.y(); }
+
+		constexpr float& radius()noexcept{ return radius_; }
+
+		constexpr float radius()const noexcept{ return radius_; }
+
+
+	private:
+		point< float > center_;
+		float radius_;
+	};
+
+
+	circle find_circle(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
+		float min_radius
+	){
+		auto pair = std::minmax_element(image.begin(), image.end());
+		auto min = *pair.first;
+		auto max = *pair.second;
+
+		auto binary = binarize(image, std::uint8_t(min + (max - min) / 2));
+		save(binary, "binary.png");
+
+		auto area = std::size_t(min_radius * min_radius * 3.14159f);
+
+		auto segmentor = mitrax::make_segmentor< false >(binary.dims());
+
+		auto mx = std::size_t(binary.cols()) / 2;
+		auto my = std::size_t(binary.rows()) / 2;
+
+		point< std::size_t > center(0, 0);
+		std::size_t center_count = 0;
+		auto success = mitrax::square_area_search(
+			binary.dims(), mx, my, mx / 2,
+			[&segmentor, &binary, &center, &center_count, area](
+				size_t x, size_t y, size_t distance
+			){
+				center.set(0, 0);
+				center_count = 0;
+
+				auto count = segmentor(x, y,
+					[&binary, &center, &center_count](size_t x, size_t y){
+						center.x() += x;
+						center.y() += y;
+						++center_count;
+						return !binary(x, y);
+					}
+				);
+
+				return count > area;
+			});
+		save(segmentor.used(), "used.png");
+
+		if(!success){
+			throw std::logic_error(
+				"Could not find a circle in the center of the image"
+			);
+		}
+
+		return circle(
+			float(center.x()) / center_count,
+			float(center.y()) / center_count,
+			std::sqrt(center_count / 3.14159f)
+		);
+	}
+
+
 	std::vector< double > circlefind(
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		std::size_t x_count, std::size_t y_count,
@@ -115,49 +206,21 @@ namespace linescan{
 		auto const min_space_radius = space_in_mm * min_pixel_per_mm;
 
 
-		auto ref_middle_image = mitrax::sub_matrix(
-			image,
+		auto p = point< size_t >(
 			std::size_t(std::size_t(image.cols()) / 2 - max_radius * 2),
-			std::size_t(std::size_t(image.rows()) / 2 - max_radius * 2),
-			mitrax::cols(std::size_t(max_radius * 4)),
-			mitrax::rows(std::size_t(max_radius * 4))
+			std::size_t(std::size_t(image.rows()) / 2 - max_radius * 2)
 		);
+
+		auto size = mitrax::dims(
+			std::size_t(max_radius * 4),
+			std::size_t(max_radius * 4)
+		);
+
+		auto ref_middle_image = mitrax::sub_matrix(image, p, size);
 		save(ref_middle_image, "ref_middle.png");
 
+		auto circle = find_circle(ref_middle_image, min_radius);
 
-		auto pair = std::minmax_element(
-			ref_middle_image.begin(), ref_middle_image.end()
-		);
-		auto min = *pair.first;
-		auto max = *pair.second;
-
-		auto binary = binarize(
-			ref_middle_image, std::uint8_t(min + (max - min) / 2)
-		);
-		save(binary, "binary.png");
-
-		auto area = std::size_t(min_radius * min_radius * 3.14159f);
-
-		auto segmentor = mitrax::make_segmentor< false >(binary.dims());
-
-		auto mx = std::size_t(binary.cols()) / 2;
-		auto my = std::size_t(binary.rows()) / 2;
-
-		auto success = mitrax::square_area_search(
-			binary.dims(), mx, my, mx / 2,
-			[&segmentor, &binary, area](
-				size_t x, size_t y, size_t distance
-			){
-				auto count = segmentor(x, y,
-					[&binary, area](size_t x, size_t y){
-						return !binary(x, y);
-					}
-				);
-
-				return count > area;
-			});
-
-		save(segmentor.used(), "used.png");
 
 // 		auto edge_x = edge_scharr_x(ref_middle_image);
 // 		auto edge_y = edge_scharr_y(ref_middle_image);
