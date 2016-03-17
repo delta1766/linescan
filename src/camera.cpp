@@ -452,7 +452,7 @@ namespace linescan{
 
 		min_max_inc[0] = 1 / min_max_inc[0];
 		min_max_inc[1] = 1 / min_max_inc[1];
-// 		min_max_inc[2] = 1 / min_max_inc[2];
+
 		std::swap(min_max_inc[0], min_max_inc[1]);
 
 		return min_max_inc;
