@@ -98,9 +98,21 @@ namespace linescan{
 				try{
 					auto circles = circlefind(bitmap, 12, 9, 1, 2.5);
 
-					auto overlay = draw_overlay(bitmap.dims(), circles);
 					auto image = image_.image().convertToFormat(
 						QImage::Format_RGB32
+					).scaledToHeight(icon_rows);
+
+					auto factor = image.width() / float(bitmap.cols());
+					auto mini_circles = circles;
+					for(auto& c: mini_circles){
+						c.x() *= factor;
+						c.y() *= factor;
+						c.radius() *= factor;
+					}
+
+					auto overlay = draw_overlay(
+						mitrax::dims(image.width(), image.height()),
+						mini_circles 
 					);
 
 					{
@@ -112,7 +124,7 @@ namespace linescan{
 					}
 
 					auto icon = QIcon(
-						QPixmap::fromImage(image.scaledToHeight(icon_rows))
+						QPixmap::fromImage(image)
 					);
 
 					auto item =
@@ -120,7 +132,7 @@ namespace linescan{
 
 					item->setData(0, "");
 
-					image_.set_overlay(overlay);
+					image_.set_overlay(draw_overlay(bitmap.dims(), circles));
 				}catch(...){
 					QMessageBox box(
 						QMessageBox::Warning,
