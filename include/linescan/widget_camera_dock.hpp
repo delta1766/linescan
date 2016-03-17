@@ -66,6 +66,11 @@ namespace linescan{
 
 		QLabel gain_boost_l_;
 		QCheckBox gain_boost_;
+
+		QHBoxLayout button_layout_;
+		QPushButton default_light_;
+		QPushButton min_light_;
+		QPushButton max_light_;
 	};
 
 

@@ -450,6 +450,10 @@ namespace linescan{
 			&min_max_inc[2]
 		), "is_GetFrameTimeRange()");
 
+		min_max_inc[2] =
+			1 / (min_max_inc[1] - min_max_inc[2]) -
+			1 / min_max_inc[1];
+
 		min_max_inc[0] = 1 / min_max_inc[0];
 		min_max_inc[1] = 1 / min_max_inc[1];
 
@@ -660,6 +664,18 @@ namespace linescan{
 		set_exposure(exposure);
 		set_gain(100);
 		set_gain_boost(true);
+	}
+
+
+	void camera::set_min_light(){
+		auto pixelclock = pixelclock_max();
+		set_pixelclock(pixelclock);
+		auto framerate = framerate_max();
+		set_framerate(framerate);
+		auto exposure = exposure_in_ms_min();
+		set_exposure(exposure);
+		set_gain(0);
+		set_gain_boost(false);
 	}
 
 

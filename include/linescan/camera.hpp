@@ -75,6 +75,7 @@ namespace linescan{
 		);
 
 		void set_max_light();
+		void set_min_light();
 		void set_default_light();
 
 

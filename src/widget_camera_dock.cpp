@@ -82,7 +82,10 @@ namespace linescan{
 		framerate_l_(tr("Framerate")),
 		exposure_l_(tr("Exposure")),
 		gain_l_(tr("Gain")),
-		gain_boost_l_(tr("Gain boost"))
+		gain_boost_l_(tr("Gain boost")),
+		default_light_(tr("Default light")),
+		min_light_(tr("Min light")),
+		max_light_(tr("Max light"))
 	{
 		pixelclock_v_.setSuffix(tr(" MHz"));
 		framerate_v_.setSuffix(tr(" fps"));
@@ -140,8 +143,13 @@ namespace linescan{
 
 		layout_.addWidget(&gain_boost_l_, 4, 0);
 		layout_.addWidget(&gain_boost_, 4, 1);
+		layout_.addLayout(&button_layout_, 4, 2, 1, 4);
 
 		layout_.setColumnStretch(3, 1);
+
+		button_layout_.addWidget(&default_light_);
+		button_layout_.addWidget(&min_light_);
+		button_layout_.addWidget(&max_light_);
 
 		set_ranges();
 
@@ -178,12 +186,20 @@ namespace linescan{
 
 		connect(&framerate_v_, double_valueChanged, [this](double value){
 			exception_catcher([&]{
+				cam_.set_framerate(value);
+
+				// framerate inc is not constant -> check for real new value
+				value = cam_.framerate();
+
 				{
 					auto block = block_signals(framerate_);
 					framerate_.setValue(scale_to_slide(value, framerate_v_));
 				}
 
-				cam_.set_framerate(value);
+				{
+					auto block = block_signals(framerate_v_);
+					framerate_v_.setValue(value);
+				}
 
 				set_exposure_ranges();
 			});
@@ -236,6 +252,30 @@ namespace linescan{
 		connect(&gain_boost_, &QCheckBox::toggled, [this](bool checked){
 			exception_catcher([&]{
 				cam_.set_gain_boost(checked);
+			});
+		});
+
+		connect(&default_light_, &QCheckBox::released, [this]{
+			exception_catcher([&]{
+				cam_.set_default_light();
+
+				set_ranges();
+			});
+		});
+
+		connect(&min_light_, &QCheckBox::released, [this]{
+			exception_catcher([&]{
+				cam_.set_min_light();
+
+				set_ranges();
+			});
+		});
+
+		connect(&max_light_, &QCheckBox::released, [this]{
+			exception_catcher([&]{
+				cam_.set_max_light();
+
+				set_ranges();
 			});
 		});
 
