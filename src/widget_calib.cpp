@@ -7,8 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_calib.hpp>
-#include <linescan/intrinsic_parameters.hpp>
-#include <linescan/extrinsic_parameters.hpp>
+#include <linescan/circlefind.hpp>
 
 #include <cmath>
 
@@ -19,28 +18,41 @@ namespace linescan{
 	namespace{
 
 
-		QImage draw_corners(
-			QSize const& size,
-			std::vector< mitrax::point< float > > const& points
+		QImage draw_overlay(
+			mitrax::bitmap_dims_t const& size,
+			mitrax::raw_bitmap< circle > const& circles
 		){
-			QImage overlay(size, QImage::Format_ARGB32);
+			QImage overlay(
+				QSize(size.cols(), size.rows()),
+				QImage::Format_ARGB32
+			);
 			overlay.fill(0);
 
 			QPainter painter(&overlay);
 			painter.setRenderHint(QPainter::Antialiasing, true);
 
-			double radius1 = 10;
-			double radius2 = 3;
-
-			for(auto const& p: points){
-				painter.setPen(QPen(QBrush(Qt::red), 3));
-				painter.drawEllipse(QPointF(p.x(), p.y()), radius1, radius1);
-
-				painter.setPen(QPen(QBrush(Qt::yellow), 2));
-				painter.drawEllipse(QPointF(p.x(), p.y()), radius2, radius2);
+			painter.setPen(QPen(QBrush(Qt::red), 1));
+			for(auto const& c: circles){
+				painter.drawEllipse(
+					QPointF(c.x(), c.y()), c.radius(), c.radius()
+				);
 			}
 
 			return overlay;
+		}
+
+		std::pair< mitrax::raw_bitmap< std::uint8_t >, QImage > draw_circles(
+			mitrax::raw_bitmap< std::uint8_t >&& bitmap
+		){
+			try{
+				auto circles = circlefind(bitmap, 12, 9, 1, 2.5);
+
+				auto overlay = draw_overlay(bitmap.dims(), circles);
+
+				return { std::move(bitmap), overlay };
+			}catch(...){
+				return { std::move(bitmap), QImage() };
+			}
 		}
 
 
@@ -75,6 +87,8 @@ namespace linescan{
 		layout_.addWidget(&tabs_);
 		layout_.addWidget(&image_, 1);
 
+		image_.set_processor(&draw_circles);
+
 		connect(&intrinsic_button_, &QPushButton::released, [this, icon_rows]{
 			if(image_.is_live()){
 				image_.stop_live();
@@ -82,12 +96,12 @@ namespace linescan{
 				auto bitmap = image_.bitmap();
 
 				try{
-					auto points = find_chessboard_corners(bitmap);
+					auto circles = circlefind(bitmap, 12, 9, 1, 2.5);
 
+					auto overlay = draw_overlay(bitmap.dims(), circles);
 					auto image = image_.image().convertToFormat(
 						QImage::Format_RGB32
 					);
-					auto overlay = draw_corners(image.size(), points);
 
 					{
 						QPainter painter(&image);
@@ -111,7 +125,7 @@ namespace linescan{
 					QMessageBox box(
 						QMessageBox::Warning,
 						tr("Error"),
-						tr("Chessboard corners not found."),
+						tr("Circles not found."),
 						QMessageBox::Ok
 					);
 

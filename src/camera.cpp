@@ -450,6 +450,11 @@ namespace linescan{
 			&min_max_inc[2]
 		), "is_GetFrameTimeRange()");
 
+		min_max_inc[0] = 1 / min_max_inc[0];
+		min_max_inc[1] = 1 / min_max_inc[1];
+// 		min_max_inc[2] = 1 / min_max_inc[2];
+		std::swap(min_max_inc[0], min_max_inc[1]);
+
 		return min_max_inc;
 #else
 		return {{0.2, 60, 0.1}};
@@ -486,11 +491,12 @@ namespace linescan{
 
 	void camera::set_framerate(double framerate){
 #ifdef CAM
+		double dummy;
 		throw_on_error(is_SetFrameRate(
 			handle_,
 			framerate,
-			&framerate
-		), "is_SetFrameRate(IS_GET_FRAMERATE)");
+			&dummy
+		), "is_SetFrameRate(IS_SET_FRAMERATE)");
 #else
 		(void)framerate;
 #endif
@@ -654,7 +660,6 @@ namespace linescan{
 		set_exposure(exposure);
 		set_gain(100);
 		set_gain_boost(true);
-		image();
 	}
 
 
@@ -666,7 +671,6 @@ namespace linescan{
 			default_gain_in_percent_,
 			default_gain_boost_
 		);
-		image();
 	}
 
 
@@ -702,11 +706,11 @@ namespace linescan{
 		return result;
 #else
 		std::ostringstream os;
-		os << "data/image" << std::setfill('0') << std::setw(2) << i_
+		os << "data/live_" << std::setfill('0') << std::setw(4) << i_
 			<< ".png";
 
 		++i_;
-		if(i_ == 11) i_ = 0;
+		if(i_ == 9) i_ = 0;
 
 		return load(os.str());
 #endif

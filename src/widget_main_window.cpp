@@ -8,10 +8,6 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_main_window.hpp>
 
-#include <linescan/extrinsic_parameters.hpp>
-#include <linescan/intrinsic_parameters.hpp>
-#include <linescan/calib_laser.hpp>
-
 
 namespace linescan{
 

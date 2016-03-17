@@ -28,6 +28,7 @@ namespace linescan{
 
 	void widget_central_image::paintEvent(QPaintEvent*){
 		QPainter painter(this);
+		painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
 		auto draw = [this, &painter](QImage const& image){
 			if(width() < image.width() || height() < image.height()){

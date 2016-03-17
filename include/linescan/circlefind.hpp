@@ -17,7 +17,66 @@
 namespace linescan{
 
 
-	std::vector< double > circlefind(
+	class circle{
+	public:
+		constexpr circle()noexcept:
+			center_(0, 0),
+			radius_(0)
+			{}
+
+		constexpr circle(float x, float y, float radius)noexcept:
+			center_(x, y),
+			radius_(radius)
+			{}
+
+		constexpr circle(
+			mitrax::point< float > const& center,
+			float radius
+		)noexcept:
+			center_(center),
+			radius_(radius)
+			{}
+
+		constexpr circle(circle&&)noexcept = default;
+
+		constexpr circle(circle const&)noexcept = default;
+
+
+		constexpr circle& operator=(circle&&)noexcept = default;
+
+		constexpr circle& operator=(circle const&)noexcept = default;
+
+
+		constexpr mitrax::point< float >& center()noexcept{
+			return center_;
+		}
+
+		constexpr mitrax::point< float > center()const noexcept{
+			return center_;
+		}
+
+		constexpr float& x()noexcept{ return center_.x(); }
+
+		constexpr float x()const noexcept{ return center_.x(); }
+
+		constexpr float& y()noexcept{ return center_.y(); }
+
+		constexpr float y()const noexcept{ return center_.y(); }
+
+		constexpr float& radius()noexcept{ return radius_; }
+
+		constexpr float radius()const noexcept{ return radius_; }
+
+		constexpr float diameter()const noexcept{ return radius() * 2; }
+
+
+	private:
+		mitrax::point< float > center_;
+		float radius_;
+	};
+
+
+	mitrax::raw_bitmap< circle > circlefind(
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		std::size_t x_count, std::size_t y_count,
 		float radius_in_mm, float distance_in_mm

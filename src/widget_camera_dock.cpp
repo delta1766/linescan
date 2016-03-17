@@ -13,30 +13,67 @@
 namespace linescan{
 
 
-	std::size_t scale_to_slide(double value, double min, double inc){
-		return static_cast< std::size_t >((value - min) / inc + 0.5);
+	namespace{
+
+
+		std::size_t scale_to_slide(double value, double min, double inc){
+			return static_cast< std::size_t >((value - min) / inc + 0.5);
+		}
+
+		template < typename O >
+		std::size_t scale_to_slide(double value, O const& object){
+			auto min = object.minimum();
+			auto inc = object.singleStep();
+
+			return scale_to_slide(value, min, inc);
+		}
+
+		template < typename T >
+		T scale_from_slide(double value, double min, double inc){
+			return static_cast< T >(value * inc + min);
+		}
+
+		template < typename T, typename O >
+		T scale_from_slide(double value, O const& object){
+			auto min = object.minimum();
+			auto inc = object.singleStep();
+
+			return scale_from_slide< T >(value, min, inc);
+		}
+
+		template < typename T >
+		class block_signals_t{
+		public:
+			block_signals_t(T& item):
+				item_(&item){
+					item_->blockSignals(true);
+				}
+
+			block_signals_t(block_signals_t&& v)noexcept:
+				item_(v.item_){
+				v.item_ = nullptr;
+			}
+
+			block_signals_t(block_signals_t const&) = delete;
+
+
+			~block_signals_t(){
+				if(item_) item_->blockSignals(false);
+			}
+
+
+		private:
+			T* item_;
+		};
+
+		template < typename T >
+		auto block_signals(T& item){
+			return block_signals_t< T >(item);
+		}
+
+
 	}
 
-	template < typename O >
-	std::size_t scale_to_slide(double value, O const& object){
-		auto min = object.minimum();
-		auto inc = object.singleStep();
-
-		return scale_to_slide(value, min, inc);
-	}
-
-	template < typename T >
-	T scale_from_slide(double value, double min, double inc){
-		return static_cast< T >(value * inc + min);
-	}
-
-	template < typename T, typename O >
-	T scale_from_slide(double value, O const& object){
-		auto min = object.minimum();
-		auto inc = object.singleStep();
-
-		return scale_from_slide< T >(value, min, inc);
-	}
 
 	widget_camera_dock::widget_camera_dock(camera& cam):
 		QDockWidget(tr("Camera settings")),
@@ -119,11 +156,15 @@ namespace linescan{
 
 		connect(&pixelclock_v_, int_valueChanged, [this](int value){
 			exception_catcher([&]{
-				pixelclock_.setValue(scale_to_slide(value, pixelclock_v_));
+				{
+					auto block = block_signals(pixelclock_);
+					pixelclock_.setValue(scale_to_slide(value, pixelclock_v_));
+				}
 
 				cam_.set_pixelclock(value);
 
 				set_framerate_ranges();
+				set_exposure_ranges();
 			});
 		});
 
@@ -137,7 +178,10 @@ namespace linescan{
 
 		connect(&framerate_v_, double_valueChanged, [this](double value){
 			exception_catcher([&]{
-				framerate_.setValue(scale_to_slide(value, framerate_v_));
+				{
+					auto block = block_signals(framerate_);
+					framerate_.setValue(scale_to_slide(value, framerate_v_));
+				}
 
 				cam_.set_framerate(value);
 
@@ -155,7 +199,10 @@ namespace linescan{
 
 		connect(&exposure_v_, double_valueChanged, [this](double value){
 			exception_catcher([&]{
-				exposure_.setValue(scale_to_slide(value, exposure_v_));
+				{
+					auto block = block_signals(exposure_);
+					exposure_.setValue(scale_to_slide(value, exposure_v_));
+				}
 
 				cam_.set_exposure(value);
 			});
@@ -171,7 +218,10 @@ namespace linescan{
 
 		connect(&gain_v_, int_valueChanged, [this](int value){
 			exception_catcher([&]{
-				gain_.setValue(value);
+				{
+					auto block = block_signals(gain_);
+					gain_.setValue(value);
+				}
 
 				cam_.set_gain(value);
 			});
@@ -200,16 +250,30 @@ namespace linescan{
 		auto inc = min_max_inc[2];
 		auto value = cam_.pixelclock();
 
+		if(value < min){
+			value = min;
+			cam_.set_pixelclock(value);
+		}else if(value > max){
+			value = max;
+			cam_.set_pixelclock(value);
+		}
+
 		auto int_max = scale_to_slide(max, min, inc);
 		auto int_value = scale_to_slide(value, min, inc);
 
-		pixelclock_v_.setRange(min, max);
-		pixelclock_v_.setSingleStep(inc);
-		pixelclock_v_.setValue(value);
+		{
+			auto block = block_signals(pixelclock_v_);
+			pixelclock_v_.setRange(min, max);
+			pixelclock_v_.setSingleStep(inc);
+			pixelclock_v_.setValue(value);
+		}
 
-		pixelclock_.setRange(0, int_max);
-		pixelclock_.setSingleStep(1);
-		pixelclock_.setValue(int_value);
+		{
+			auto block = block_signals(pixelclock_);
+			pixelclock_.setRange(0, int_max);
+			pixelclock_.setSingleStep(1);
+			pixelclock_.setValue(int_value);
+		}
 
 		pixelclock_ml_.setText(QString(tr("%1 MHz")).arg(min));
 		pixelclock_xl_.setText(QString(tr("%1 MHz")).arg(max));
@@ -223,16 +287,30 @@ namespace linescan{
 		auto inc = min_max_inc[2];
 		auto value = cam_.framerate();
 
+		if(value < min){
+			value = min;
+			cam_.set_framerate(value);
+		}else if(value > max){
+			value = max;
+			cam_.set_framerate(value);
+		}
+
 		auto int_max = scale_to_slide(max, min, inc);
 		auto int_value = scale_to_slide(value, min, inc);
 
-		framerate_v_.setRange(min, max);
-		framerate_v_.setSingleStep(inc);
-		framerate_v_.setValue(value);
+		{
+			auto block = block_signals(framerate_v_);
+			framerate_v_.setRange(min, max);
+			framerate_v_.setSingleStep(inc);
+			framerate_v_.setValue(value);
+		}
 
-		framerate_.setRange(0, int_max);
-		framerate_.setSingleStep(1);
-		framerate_.setValue(int_value);
+		{
+			auto block = block_signals(framerate_);
+			framerate_.setRange(0, int_max);
+			framerate_.setSingleStep(1);
+			framerate_.setValue(int_value);
+		}
 
 		framerate_ml_.setText(QString(tr("%1 fps")).arg(min, 0, 'f', 2));
 		framerate_xl_.setText(QString(tr("%1 fps")).arg(max, 0, 'f', 2));
@@ -246,16 +324,30 @@ namespace linescan{
 		auto inc = min_max_inc[2];
 		auto value = cam_.exposure_in_ms();
 
+		if(value < min){
+			value = min;
+			cam_.set_exposure(value);
+		}else if(value > max){
+			value = max;
+			cam_.set_exposure(value);
+		}
+
 		auto int_max = scale_to_slide(max, min, inc);
 		auto int_value = scale_to_slide(value, min, inc);
 
-		exposure_v_.setRange(min, max);
-		exposure_v_.setSingleStep(inc);
-		exposure_v_.setValue(value);
+		{
+			auto block = block_signals(exposure_v_);
+			exposure_v_.setRange(min, max);
+			exposure_v_.setSingleStep(inc);
+			exposure_v_.setValue(value);
+		}
 
-		exposure_.setRange(0, int_max);
-		exposure_.setSingleStep(1);
-		exposure_.setValue(int_value);
+		{
+			auto block = block_signals(exposure_);
+			exposure_.setRange(0, int_max);
+			exposure_.setSingleStep(1);
+			exposure_.setValue(int_value);
+		}
 
 		exposure_ml_.setText(QString(tr("%1 ms")).arg(min, 0, 'f', 2));
 		exposure_xl_.setText(QString(tr("%1 ms")).arg(max, 0, 'f', 2));
@@ -268,13 +360,19 @@ namespace linescan{
 		auto inc = 1;
 		auto value = cam_.gain_in_percent();
 
-		gain_v_.setRange(min, max);
-		gain_v_.setSingleStep(inc);
-		gain_v_.setValue(value);
+		{
+			auto block = block_signals(exposure_v_);
+			gain_v_.setRange(min, max);
+			gain_v_.setSingleStep(inc);
+			gain_v_.setValue(value);
+		}
 
-		gain_.setRange(min, max);
-		gain_.setSingleStep(inc);
-		gain_.setValue(value);
+		{
+			auto block = block_signals(exposure_v_);
+			gain_.setRange(min, max);
+			gain_.setSingleStep(inc);
+			gain_.setValue(value);
+		}
 
 		gain_ml_.setText(QString(tr("%1%")).arg(min));
 		gain_xl_.setText(QString(tr("%1%")).arg(max));

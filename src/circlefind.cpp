@@ -35,116 +35,64 @@ namespace linescan{
 		}
 
 
-		auto make_annulus_pattern(float radius, float length){
-			auto size = std::size_t((radius + length) * 2) + 1;
-			auto mx = size / 2.f - .5f;
-			auto my = size / 2.f - .5f;
-
-			return mitrax::make_square_matrix_by_function(mitrax::dims(size),
-				[mx, my, radius, length](std::size_t x, std::size_t y){
-					auto circle = std::sqrt(sqr(mx - x) + sqr(my - y));
-
-					if(circle < radius || circle > radius + length){
-						return false;
-					}
-
-					return true;
-				});
-		}
-
-
-		auto make_circle_pattern(float radius){
-			auto size = std::size_t(radius * 2) + 1;
-			auto mx = size / 2.f - .5f;
-			auto my = size / 2.f - .5f;
-
-			return mitrax::make_square_matrix_by_function(mitrax::dims(size),
-				[mx, my, radius](std::size_t x, std::size_t y){
-					auto circle = std::sqrt(sqr(mx - x) + sqr(my - y));
-
-					if(circle > radius) return true;
-					return false;
-				});
-		}
-
-
-		auto edge_scharr_x(mitrax::raw_bitmap< float > const& image){
-			using namespace mitrax::literals;
-
-			constexpr auto scharr_x_col =
-				mitrax::make_col_vector< float >(3_R, {3, 10, 3});
-			constexpr auto scharr_x_row =
-				mitrax::make_row_vector< float >(3_C, {1, 0, -1});
-
-			return mitrax::convolution(image, scharr_x_col, scharr_x_row);
-		}
-
-
-		auto edge_scharr_y(mitrax::raw_bitmap< float > const& image){
-			using namespace mitrax::literals;
-
-			constexpr auto scharr_y_col =
-				mitrax::make_col_vector< float >(3_R, {1, 0, -1});
-			constexpr auto scharr_y_row =
-				mitrax::make_row_vector< float >(3_C, {3, 10, 3});
-
-			return mitrax::convolution(image, scharr_y_col, scharr_y_row);
-		}
+// 		auto make_annulus_pattern(float radius, float length){
+// 			auto size = std::size_t((radius + length) * 2) + 1;
+// 			auto mx = size / 2.f - .5f;
+// 			auto my = size / 2.f - .5f;
+// 
+// 			return mitrax::make_square_matrix_by_function(mitrax::dims(size),
+// 				[mx, my, radius, length](std::size_t x, std::size_t y){
+// 					auto circle = std::sqrt(sqr(mx - x) + sqr(my - y));
+// 
+// 					if(circle < radius || circle > radius + length){
+// 						return false;
+// 					}
+// 
+// 					return true;
+// 				});
+// 		}
+// 
+// 
+// 		auto make_circle_pattern(float radius){
+// 			auto size = std::size_t(radius * 2) + 1;
+// 			auto mx = size / 2.f - .5f;
+// 			auto my = size / 2.f - .5f;
+// 
+// 			return mitrax::make_square_matrix_by_function(mitrax::dims(size),
+// 				[mx, my, radius](std::size_t x, std::size_t y){
+// 					auto circle = std::sqrt(sqr(mx - x) + sqr(my - y));
+// 
+// 					if(circle > radius) return true;
+// 					return false;
+// 				});
+// 		}
+// 
+// 
+// 		auto edge_scharr_x(mitrax::raw_bitmap< float > const& image){
+// 			using namespace mitrax::literals;
+// 
+// 			constexpr auto scharr_x_col =
+// 				mitrax::make_col_vector< float >(3_R, {3, 10, 3});
+// 			constexpr auto scharr_x_row =
+// 				mitrax::make_row_vector< float >(3_C, {1, 0, -1});
+// 
+// 			return mitrax::convolution(image, scharr_x_col, scharr_x_row);
+// 		}
+// 
+// 
+// 		auto edge_scharr_y(mitrax::raw_bitmap< float > const& image){
+// 			using namespace mitrax::literals;
+// 
+// 			constexpr auto scharr_y_col =
+// 				mitrax::make_col_vector< float >(3_R, {1, 0, -1});
+// 			constexpr auto scharr_y_row =
+// 				mitrax::make_row_vector< float >(3_C, {3, 10, 3});
+// 
+// 			return mitrax::convolution(image, scharr_y_col, scharr_y_row);
+// 		}
 
 
 	}
-
-
-	class circle{
-	public:
-		constexpr circle()noexcept:
-			center_(0, 0),
-			radius_(0)
-			{}
-
-		constexpr circle(float x, float y, float radius)noexcept:
-			center_(x, y),
-			radius_(radius)
-			{}
-
-		constexpr circle(point< float > const& center, float radius)noexcept:
-			center_(center),
-			radius_(radius)
-			{}
-
-		constexpr circle(circle&&)noexcept = default;
-
-		constexpr circle(circle const&)noexcept = default;
-
-
-		constexpr circle& operator=(circle&&)noexcept = default;
-
-		constexpr circle& operator=(circle const&)noexcept = default;
-
-
-		constexpr point< float >& center()noexcept{ return center_; }
-
-		constexpr point< float > center()const noexcept{ return center_; }
-
-		constexpr float& x()noexcept{ return center_.x(); }
-
-		constexpr float x()const noexcept{ return center_.x(); }
-
-		constexpr float& y()noexcept{ return center_.y(); }
-
-		constexpr float y()const noexcept{ return center_.y(); }
-
-		constexpr float& radius()noexcept{ return radius_; }
-
-		constexpr float radius()const noexcept{ return radius_; }
-
-		constexpr float diameter()const noexcept{ return radius() * 2; }
-
-
-	private:
-		point< float > center_;
-		float radius_;
-	};
 
 
 	circle fit_circle(
@@ -251,9 +199,7 @@ namespace linescan{
 
 		auto threshold = std::uint8_t(min + diff / 2);
 
-		save(image, "image.png");
 		auto binary = binarize(image, threshold);
-		save(binary, "binary.png");
 
 		auto area = std::size_t(min_radius * min_radius * 3.14159f);
 
@@ -283,7 +229,6 @@ namespace linescan{
 
 				return count > area;
 			});
-		save(segmentor.used(), "used.png");
 
 		if(!success) return { false, circle(), diff };
 
@@ -293,25 +238,24 @@ namespace linescan{
 			std::sqrt(center_count / 3.14159f)
 		);
 
-		c = fit_circle(
-			image, threshold,
-			c.x() - c.radius() * 0.15f, c.radius() * 0.3f, 8,
-			c.y() - c.radius() * 0.15f, c.radius() * 0.3f, 8,
-			c.radius() * 0.85f, c.radius() * 0.3f, 20
-		);
+// 		c = fit_circle(
+// 			image, threshold,
+// 			c.x() - c.radius() * 0.15f, c.radius() * 0.3f, 8,
+// 			c.y() - c.radius() * 0.15f, c.radius() * 0.3f, 8,
+// 			c.radius() * 0.85f, c.radius() * 0.3f, 20
+// 		);
 
 		return { true, c, diff };
 	}
 
 
-	std::vector< double > circlefind(
+	mitrax::raw_bitmap< circle > circlefind(
 		mitrax::raw_bitmap< std::uint8_t > const& org,
 		std::size_t x_count, std::size_t y_count,
 		float radius_in_mm, float distance_in_mm
 	){
 		using namespace mitrax::literals;
 
-// 		auto image = org;
 		auto image = median(org, mitrax::dims(3_C, 3_R));
 
 
@@ -333,7 +277,6 @@ namespace linescan{
 		auto const min_radius = radius_in_mm * min_pixel_per_mm;
 
 		auto const max_space = space_in_mm * max_pixel_per_mm;
-		auto const min_space = space_in_mm * min_pixel_per_mm;
 
 
 		auto p = point< size_t >(
@@ -346,14 +289,13 @@ namespace linescan{
 			std::size_t(max_radius * 4)
 		);
 
-		auto ref_middle_image = mitrax::sub_matrix(image, p, size);
-// 		save(ref_middle_image, "ref_middle.png");
+		auto ref = mitrax::sub_matrix(image, p, size);
 
 		bool success = false;
 		circle c;
 		std::uint8_t min_diff = 15;
 		std::tie(success, c, min_diff) = find_circle(
-			ref_middle_image, min_radius, min_diff
+			ref, min_radius, min_diff
 		);
 
 		c.x() += p.x();
@@ -519,56 +461,36 @@ namespace linescan{
 			line = std::move(circles_x);
 		}
 
-
-		auto debug = to_image(image).convertToFormat(QImage::Format_RGB32);
-		{
-			QPainter painter(&debug);
-			painter.setRenderHint(QPainter::Antialiasing, true);
-			painter.setPen(Qt::red);
-
-			for(auto& line: circles){
-				for(auto& c: line){
-					painter.drawEllipse(
-						QPointF(c.x(), c.y()),
-						c.radius(), c.radius()
-					);
-				}
+		for(auto& line: circles){
+			for(auto& c: line){
+				c.x() += 1;
+				c.y() += 1;
 			}
 		}
-		debug.save("debug.png", "PNG");
 
+// 		auto debug = to_image(org).convertToFormat(QImage::Format_RGB32);
+// 		{
+// 			QPainter painter(&debug);
+// 			painter.setRenderHint(QPainter::Antialiasing, true);
+// 			painter.setPen(Qt::red);
+// 
+// 			for(auto& line: circles){
+// 				for(auto& c: line){
+// 					painter.drawEllipse(
+// 						QPointF(c.x(), c.y()),
+// 						c.radius(), c.radius()
+// 					);
+// 				}
+// 			}
+// 		}
+// 		debug.save("debug.png", "PNG");
 
-// 		auto edge_x = edge_scharr_x(ref_middle_image);
-// 		auto edge_y = edge_scharr_y(ref_middle_image);
-// 		save(edge_x, "edge_x.png");
-// 		save(edge_y, "edge_y.png");
-// 
-// 		auto aptitude = mitrax::transform([](float x, float y){
-// 			return std::sqrt(sqr(x) + sqr(y));
-// 		}, edge_x, edge_y);
-// 		save(aptitude, "aptitude.png");
-// 
-// 		auto direction = mitrax::transform([](float x, float y){
-// 			return std::atan2(x, y);
-// 		}, edge_x, edge_y);
-// 		save(direction, "direction.png");
-// 
-// 
-// 		auto pattern = make_annulus_pattern(
-// 			min_radius, max_radius - min_radius
-// 		);
-// 		save(pattern, "pattern.png");
-// 
-// 
-// 		auto max = mitrax::convolution(aptitude, pattern,
-// 			[](float a, bool b){ return b ? sqr(a) : -sqr(a); });
-// 		save(max, "max.png");
-
-		std::cout << "ready" << std::endl;
-
-		std::vector< double > result;
-
-		return result;
+		return mitrax::make_matrix_by_function(
+			mitrax::dims(x_count, y_count),
+			[&circles](std::size_t x, std::size_t y){
+				return circles[y][x];
+			}
+  		);
 	}
 
 
