@@ -183,6 +183,7 @@ namespace linescan{
 				intrinsic_button_.setText(tr("Live"));
 			}
 		}),
+		intrinsic_image_count_(tr("0 Images")),
 		intrinsic_focal_length_(tr("Focal length")),
 		intrinsic_principal_point_(tr("Principal point"))
 	{
@@ -194,6 +195,7 @@ namespace linescan{
 		tabs_.setMinimumWidth(icon_cols + 50);
 		tabs_.setMaximumWidth(icon_cols + 50);
 
+		intrinsic_layout_.addWidget(&intrinsic_image_count_);
 		intrinsic_layout_.addWidget(&intrinsic_images_, 1);
 		intrinsic_layout_.addWidget(&intrinsic_button_);
 		intrinsic_layout_.addWidget(&intrinsic_focal_length_);
@@ -256,12 +258,8 @@ namespace linescan{
 					);
 
 					image_.set_overlay(draw_overlay(bitmap.dims(), circles));
-
-					auto item = new QListWidgetItem(
-						icon, "", &intrinsic_images_
-					);
-
-					item->setData(0, "");
+					new QListWidgetItem(icon, "", &intrinsic_images_);
+					intrinsic_images_.scrollToBottom();
 
 					circles_list_.push_back(std::move(circles));
 
@@ -272,12 +270,17 @@ namespace linescan{
 					);
 
 					intrinsic_focal_length_.setText(
-						QString(tr("Focal length: %1")).arg(parameters[0])
+						QString(tr("Focal length:\n%1 mm")).arg(parameters[0])
 					);
 
 					intrinsic_principal_point_.setText(
-						QString(tr("Principal point: %1x%2"))
-							.arg(parameters[1]).arg(parameters[2])
+						QString(tr("Principal point:\n%1x%2 px"))
+							.arg(parameters[1], 0, 'f', 0)
+							.arg(parameters[2], 0, 'f', 0)
+					);
+
+					intrinsic_image_count_.setText(
+						QString(tr("%1 Images")).arg(circles_list_.size())
 					);
 				}catch(...){
 					QMessageBox box(

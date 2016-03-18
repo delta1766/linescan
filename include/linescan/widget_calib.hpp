@@ -34,6 +34,7 @@ namespace linescan{
 		QWidget movements_;
 
 		QVBoxLayout intrinsic_layout_;
+		QLabel intrinsic_image_count_;
 		QListWidget intrinsic_images_;
 		QPushButton intrinsic_button_;
 		QLabel intrinsic_focal_length_;
