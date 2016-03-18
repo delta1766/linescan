@@ -7,7 +7,10 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_calib.hpp>
-#include <linescan/circlefind.hpp>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -32,6 +35,7 @@ namespace linescan{
 			QPainter painter(&overlay);
 			painter.setRenderHint(QPainter::Antialiasing, true);
 
+			// draw circles in red
 			painter.setPen(QPen(QBrush(Qt::red), 1));
 			for(auto const& c: circles){
 				painter.drawEllipse(
@@ -39,6 +43,7 @@ namespace linescan{
 				);
 			}
 
+			// draw outlines in green
 			painter.setPen(QPen(QBrush(Qt::green), 1));
 			auto p1 = circles(0, 0);
 			auto p2 = circles(0, std::size_t(circles.rows()) - 1);
@@ -55,9 +60,12 @@ namespace linescan{
 			painter.drawLine(P1, P3);
 			painter.drawLine(P2, P4);
 			painter.drawLine(P3, P4);
-			painter.drawLine(P1, P4);
-			painter.drawLine(P2, P4);
 
+			// draw outline cross in green
+			painter.drawLine(P1, P4);
+			painter.drawLine(P2, P3);
+
+			// draw grid in yellow
 			painter.setPen(QPen(QBrush(Qt::yellow), 1));
 			for(std::size_t y = 0; y < circles.rows(); ++y){
 				for(std::size_t x = 1; x < circles.cols(); ++x){
@@ -99,6 +107,71 @@ namespace linescan{
 		}
 
 
+		std::array< double, 3 > calc_intrinsic_parameters(
+			mitrax::bitmap_dims_t const& image_size,
+			std::vector< mitrax::raw_bitmap< circle > > const& circles_list,
+			float distance_in_mm
+		){
+			std::vector< std::vector< cv::Point3f > > object_points;
+			std::vector< std::vector< cv::Point2f > > image_points;
+			for(auto const& circles: circles_list){
+				std::vector< cv::Point3f > object_tmp;
+				std::vector< cv::Point2f > image_tmp;
+				for(std::size_t y = 0; y < circles.rows(); ++y){
+					for(std::size_t x = 0; x < circles.cols(); ++x){
+						object_tmp.emplace_back(
+							x * distance_in_mm, y * distance_in_mm, 0
+						);
+						image_tmp.emplace_back(
+							circles(x, y).x(), circles(x, y).y()
+						);
+					}
+				}
+				object_points.push_back(std::move(object_tmp));
+				image_points.push_back(std::move(image_tmp));
+			}
+
+			cv::Mat camera_matrix = cv::Mat::eye(3, 3, CV_64F);
+			camera_matrix.at< double >(0, 0) = 1.0;
+
+			cv::Mat distortion_coefficients = cv::Mat::zeros(4, 1, CV_64F);
+
+			auto flags =
+				CV_CALIB_FIX_K1 | CV_CALIB_FIX_K2 | CV_CALIB_FIX_K3 |
+				CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5 | CV_CALIB_FIX_K6 |
+				CV_CALIB_ZERO_TANGENT_DIST;
+			flags |= CV_CALIB_FIX_ASPECT_RATIO;
+// 			flags |= CV_CALIB_FIX_PRINCIPAL_POINT;
+
+			// Find intrinsic and extrinsic camera parameters
+			std::vector< cv::Mat > rotation_vectors;
+			std::vector< cv::Mat > translation_vectors;
+			cv::calibrateCamera(
+				object_points,
+				image_points,
+				cv::Size(image_size.cols(), image_size.rows()),
+				camera_matrix,
+				distortion_coefficients,
+				rotation_vectors,
+				translation_vectors,
+				flags
+			);
+
+			if(
+				!cv::checkRange(camera_matrix) ||
+				!cv::checkRange(distortion_coefficients)
+			){
+				throw std::runtime_error("cv::calibrateCamera() failed");
+			}
+
+			return {{
+				camera_matrix.at< double >(0, 0),
+				camera_matrix.at< double >(0, 2),
+				camera_matrix.at< double >(1, 2)
+			}};
+		}
+
+
 	}
 
 
@@ -109,7 +182,9 @@ namespace linescan{
 			}else{
 				intrinsic_button_.setText(tr("Live"));
 			}
-		})
+		}),
+		intrinsic_focal_length_(tr("Focal length")),
+		intrinsic_principal_point_(tr("Principal point"))
 	{
 		std::size_t icon_rows = 100;
 		std::size_t icon_cols = static_cast< std::size_t >(
@@ -121,6 +196,9 @@ namespace linescan{
 
 		intrinsic_layout_.addWidget(&intrinsic_images_, 1);
 		intrinsic_layout_.addWidget(&intrinsic_button_);
+		intrinsic_layout_.addWidget(&intrinsic_focal_length_);
+		intrinsic_layout_.addWidget(&intrinsic_principal_point_);
+
 		intrinsics_.setLayout(&intrinsic_layout_);
 
 		tabs_.addItem(&intrinsics_, "Intrinsics");
@@ -177,12 +255,30 @@ namespace linescan{
 						QPixmap::fromImage(image)
 					);
 
-					auto item =
-						new QListWidgetItem(icon, "", &intrinsic_images_);
+					image_.set_overlay(draw_overlay(bitmap.dims(), circles));
+
+					auto item = new QListWidgetItem(
+						icon, "", &intrinsic_images_
+					);
 
 					item->setData(0, "");
 
-					image_.set_overlay(draw_overlay(bitmap.dims(), circles));
+					circles_list_.push_back(std::move(circles));
+
+					auto parameters = calc_intrinsic_parameters(
+						bitmap.dims(),
+						circles_list_,
+						distance_mm
+					);
+
+					intrinsic_focal_length_.setText(
+						QString(tr("Focal length: %1")).arg(parameters[0])
+					);
+
+					intrinsic_principal_point_.setText(
+						QString(tr("Principal point: %1x%2"))
+							.arg(parameters[1]).arg(parameters[2])
+					);
 				}catch(...){
 					QMessageBox box(
 						QMessageBox::Warning,

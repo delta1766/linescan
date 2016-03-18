@@ -10,6 +10,7 @@
 #define _linescan__widget_calib__hpp_INCLUDED_
 
 #include "widget_live_image.hpp"
+#include "circlefind.hpp"
 
 #include <QtWidgets/QtWidgets>
 
@@ -35,6 +36,10 @@ namespace linescan{
 		QVBoxLayout intrinsic_layout_;
 		QListWidget intrinsic_images_;
 		QPushButton intrinsic_button_;
+		QLabel intrinsic_focal_length_;
+		QLabel intrinsic_principal_point_;
+
+		std::vector< mitrax::raw_bitmap< circle > > circles_list_;
 	};
 
 
