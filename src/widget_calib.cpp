@@ -10,6 +10,7 @@
 #include <linescan/circlefind.hpp>
 
 #include <cmath>
+#include <iostream>
 
 
 namespace linescan{
@@ -38,6 +39,45 @@ namespace linescan{
 				);
 			}
 
+			painter.setPen(QPen(QBrush(Qt::green), 1));
+			auto p1 = circles(0, 0);
+			auto p2 = circles(0, std::size_t(circles.rows()) - 1);
+			auto p3 = circles(std::size_t(circles.cols()) - 1, 0);
+			auto p4 = circles(
+				std::size_t(circles.cols()) - 1,
+				std::size_t(circles.rows()) - 1
+			);
+			auto P1 = QPointF(p1.x(), p1.y());
+			auto P2 = QPointF(p2.x(), p2.y());
+			auto P3 = QPointF(p3.x(), p3.y());
+			auto P4 = QPointF(p4.x(), p4.y());
+			painter.drawLine(P1, P2);
+			painter.drawLine(P1, P3);
+			painter.drawLine(P2, P4);
+			painter.drawLine(P3, P4);
+			painter.drawLine(P1, P4);
+			painter.drawLine(P2, P4);
+
+			painter.setPen(QPen(QBrush(Qt::yellow), 1));
+			for(std::size_t y = 0; y < circles.rows(); ++y){
+				for(std::size_t x = 1; x < circles.cols(); ++x){
+					auto p1 = circles(x - 1, y);
+					auto p2 = circles(x, y);
+					painter.drawLine(
+						QPointF(p1.x(), p1.y()), QPointF(p2.x(), p2.y())
+					);
+				}
+			}
+			for(std::size_t y = 1; y < circles.rows(); ++y){
+				for(std::size_t x = 0; x < circles.cols(); ++x){
+					auto p1 = circles(x, y - 1);
+					auto p2 = circles(x, y);
+					painter.drawLine(
+						QPointF(p1.x(), p1.y()), QPointF(p2.x(), p2.y())
+					);
+				}
+			}
+
 			return overlay;
 		}
 
@@ -50,9 +90,12 @@ namespace linescan{
 				auto overlay = draw_overlay(bitmap.dims(), circles);
 
 				return { std::move(bitmap), overlay };
+			}catch(std::exception const& error){
+				std::cerr << "Exception: " << error.what() << std::endl;
 			}catch(...){
-				return { std::move(bitmap), QImage() };
+				std::cerr << "Unknown exception" << std::endl;
 			}
+			return { std::move(bitmap), QImage() };
 		}
 
 
@@ -96,7 +139,14 @@ namespace linescan{
 				auto bitmap = image_.bitmap();
 
 				try{
-					auto circles = circlefind(bitmap, 12, 9, 1, 2.5);
+					auto distance_mm = 2.5f;
+					auto radius_mm = 1.f;
+
+					auto circles = circlefind(
+						bitmap, 12, 9, radius_mm, distance_mm
+					);
+
+					circles = finefit(bitmap, circles, radius_mm, distance_mm);
 
 					auto image = image_.image().convertToFormat(
 						QImage::Format_RGB32

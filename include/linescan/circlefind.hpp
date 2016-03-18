@@ -82,6 +82,12 @@ namespace linescan{
 		float radius_in_mm, float distance_in_mm
 	);
 
+	mitrax::raw_bitmap< circle > finefit(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::raw_bitmap< circle > circles,
+		float radius_mm, float distance_mm
+	);
+
 
 }
 

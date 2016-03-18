@@ -726,7 +726,7 @@ namespace linescan{
 			<< ".png";
 
 		++i_;
-		if(i_ == 9) i_ = 0;
+		if(i_ > 12) i_ = 0;
 
 		return load(os.str());
 #endif
