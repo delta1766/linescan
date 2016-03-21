@@ -10,7 +10,6 @@
 #define _linescan__control_F9S_base__hpp_INCLUDED_
 
 #include "serial_port.hpp"
-#include "mask_non_print.hpp"
 #include "vector.hpp"
 
 #include <condition_variable>
