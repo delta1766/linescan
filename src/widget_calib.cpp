@@ -184,6 +184,7 @@ namespace linescan{
 			}
 		}),
 		intrinsic_image_count_(tr("0 Images")),
+		intrinsic_auto_(tr("Auto Capture")),
 		intrinsic_focal_length_(tr("Focal length")),
 		intrinsic_principal_point_(tr("Principal point"))
 	{
@@ -198,8 +199,10 @@ namespace linescan{
 		intrinsic_layout_.addWidget(&intrinsic_image_count_);
 		intrinsic_layout_.addWidget(&intrinsic_images_, 1);
 		intrinsic_layout_.addWidget(&intrinsic_button_);
+		intrinsic_layout_.addWidget(&intrinsic_auto_);
 		intrinsic_layout_.addWidget(&intrinsic_focal_length_);
 		intrinsic_layout_.addWidget(&intrinsic_principal_point_);
+		intrinsic_auto_.setCheckable(true);
 
 		intrinsics_.setLayout(&intrinsic_layout_);
 
@@ -253,9 +256,7 @@ namespace linescan{
 						painter.drawImage(x, y, overlay);
 					}
 
-					auto icon = QIcon(
-						QPixmap::fromImage(image)
-					);
+					auto icon = QIcon(QPixmap::fromImage(image));
 
 					image_.set_overlay(draw_overlay(bitmap.dims(), circles));
 					new QListWidgetItem(icon, "", &intrinsic_images_);

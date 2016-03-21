@@ -37,6 +37,7 @@ namespace linescan{
 		QLabel intrinsic_image_count_;
 		QListWidget intrinsic_images_;
 		QPushButton intrinsic_button_;
+		QPushButton intrinsic_auto_;
 		QLabel intrinsic_focal_length_;
 		QLabel intrinsic_principal_point_;
 
