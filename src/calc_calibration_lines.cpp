@@ -12,13 +12,13 @@
 namespace linescan{
 
 
-	std::pair< vector< point< double > >, vector< point< double > > >
+	std::array< std::vector< mitrax::point< double > >, 2 >
 	calc_calibration_lines(
-		vector< double > const& line,
+		std::vector< double > const& line,
 		std::size_t count
 	){
-		vector< linescan::point< double > > line1;
-		vector< linescan::point< double > > line2;
+		std::vector< mitrax::point< double > > line1;
+		std::vector< mitrax::point< double > > line2;
 		for(std::size_t i = 0; i < line.size() - count; ++i){
 			if(line[i] == 0 || line[i + count] == 0) continue;
 
@@ -51,7 +51,7 @@ namespace linescan{
 			);
 		}
 
-		return {line1, line2};
+		return {{line1, line2}};
 	}
 
 

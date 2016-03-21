@@ -9,18 +9,18 @@
 #ifndef _linescan__calc_calibration_lines__hpp_INCLUDED_
 #define _linescan__calc_calibration_lines__hpp_INCLUDED_
 
-#include "point.hpp"
-#include "vector.hpp"
+#include <mitrax/point.hpp>
 
-#include <utility>
+#include <array>
+#include <vector>
 
 
 namespace linescan{
 
 
-	std::pair< vector< point< double > >, vector< point< double > > >
+	std::array< std::vector< mitrax::point< double > >, 2 >
 	calc_calibration_lines(
-		vector< double > const& top_distance_line,
+		std::vector< double > const& top_distance_line,
 		std::size_t count
 	);
 

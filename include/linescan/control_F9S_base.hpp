@@ -10,9 +10,9 @@
 #define _linescan__control_F9S_base__hpp_INCLUDED_
 
 #include "serial_port.hpp"
-#include "vector.hpp"
 
 #include <condition_variable>
+#include <vector>
 #include <mutex>
 
 #ifdef HARDWARE
@@ -55,17 +55,17 @@ namespace linescan{
 
 		virtual std::string name()const = 0;
 
-		void send(vector< command > const& commands);
+		void send(std::vector< command > const& commands);
 		void send(char const* data);
 
 		std::string get(
-			vector< command > const& commands,
+			std::vector< command > const& commands,
 			std::size_t repetitions = 3
 		);
 
 		template < typename Rep, typename Period >
 		std::string get(
-			vector< command > const& commands,
+			std::vector< command > const& commands,
 			std::chrono::duration< Rep, Period > const& timeout,
 			std::size_t repetitions = 3
 		){

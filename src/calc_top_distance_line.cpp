@@ -15,10 +15,10 @@
 namespace linescan{
 
 
-	vector< double > calc_top_distance_line(
+	std::vector< double > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& binary
 	){
-		vector< double > result(binary.cols());
+		std::vector< double > result(binary.cols());
 		for(std::size_t x = 0; x < binary.cols(); ++x){
 			std::size_t max_length = 0;
 			std::size_t start = 0;

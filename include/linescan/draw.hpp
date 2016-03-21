@@ -9,14 +9,12 @@
 #ifndef _linescan__draw__hpp_INCLUDED_
 #define _linescan__draw__hpp_INCLUDED_
 
-#include "vector.hpp"
-#include "point.hpp"
-
 #include <mitrax/matrix.hpp>
 
 #include <QtGui/QImage>
 
 #include <cmath>
+#include <vector>
 
 
 namespace linescan{
@@ -24,22 +22,22 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		point< double > const& point
+		mitrax::point< double > const& point
 	);
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		vector< point< double > > const& line
+		std::vector< mitrax::point< double > > const& line
 	);
 
 	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
-		vector< double > const& line,
+		std::vector< double > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);
 
 	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
-		vector< double > const& line,
+		std::vector< double > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);

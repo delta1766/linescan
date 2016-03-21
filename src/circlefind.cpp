@@ -9,7 +9,6 @@
 #include <linescan/circlefind.hpp>
 #include <linescan/binarize.hpp>
 #include <linescan/median.hpp>
-#include <linescan/point.hpp>
 
 #include <mitrax/convolution.hpp>
 #include <mitrax/segmentation.hpp>
@@ -178,7 +177,7 @@ namespace linescan{
 		auto mx = std::size_t(binary.cols()) / 2;
 		auto my = std::size_t(binary.rows()) / 2;
 
-		point< std::size_t > center(0, 0);
+		mitrax::point< std::size_t > center(0, 0);
 		std::size_t center_count = 0;
 		auto success = mitrax::square_area_search(
 			binary.dims(), mx, my, mx / 2,
@@ -242,7 +241,7 @@ namespace linescan{
 		auto const max_space = space_in_mm * max_pixel_per_mm;
 
 
-		auto p = point< size_t >(
+		auto p = mitrax::point< size_t >(
 			std::size_t(std::size_t(image.cols()) / 2 - max_radius * 2),
 			std::size_t(std::size_t(image.rows()) / 2 - max_radius * 2)
 		);
@@ -264,22 +263,22 @@ namespace linescan{
 		c.x() += p.x();
 		c.y() += p.y();
 
-		auto next_circle_nx = [](point< float > point, float length){
+		auto next_circle_nx = [](mitrax::point< float > point, float length){
 			point.x() -= length;
 			return point;
 		};
 
-		auto next_circle_px = [](point< float > point, float length){
+		auto next_circle_px = [](mitrax::point< float > point, float length){
 			point.x() += length;
 			return point;
 		};
 
-		auto next_circle_ny = [](point< float > point, float length){
+		auto next_circle_ny = [](mitrax::point< float > point, float length){
 			point.y() -= length;
 			return point;
 		};
 
-		auto next_circle_py = [](point< float > point, float length){
+		auto next_circle_py = [](mitrax::point< float > point, float length){
 			point.y() += length;
 			return point;
 		};
@@ -302,7 +301,7 @@ namespace linescan{
 					circles.back().diameter() + space / 2
 				);
 
-				auto p = point< std::size_t >(
+				auto p = mitrax::point< std::size_t >(
 					std::size_t(pos.x()),
 					std::size_t(pos.y())
 				);
