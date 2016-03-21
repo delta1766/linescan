@@ -7,11 +7,9 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/draw.hpp>
-#include <linescan/to_image.hpp>
-#include <linescan/binarize.hpp>
+#include <linescan/processing.hpp>
 #include <linescan/linear_function.hpp>
 #include <linescan/calc_top_distance_line.hpp>
-#include <linescan/erode.hpp>
 
 #include <QtGui/QPainter>
 
@@ -88,21 +86,31 @@ namespace linescan{
 		return image;
 	}
 
-	std::pair< QImage, QImage >
-	draw_laser_alignment(mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-		auto binary = binarize(bitmap, std::uint8_t(255));
-		binary = erode(binary, 3);
+	QImage draw_laser_alignment(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		std::uint8_t binarize_threshold,
+		std::size_t erode_value
+	){
+		auto binary = binarize(bitmap, binarize_threshold);
+		binary = erode(binary, erode_value);
+		return draw_laser_alignment(
+			bitmap.dims(),
+			calc_top_distance_line(binary)
+		);
+	}
 
-		auto top_distance_line = calc_top_distance_line(binary);
-
+	QImage draw_laser_alignment(
+		mitrax::bitmap_dims_t const& dims,
+		std::vector< double > const& line
+	){
 		std::vector< mitrax::point< double > > points;
-		for(std::size_t i = 0; i < top_distance_line.size(); ++i){
-			if(top_distance_line[i] == 0) continue;
-			points.emplace_back(i, top_distance_line[i]);
+		for(std::size_t i = 0; i < line.size(); ++i){
+			if(line[i] == 0) continue;
+			points.emplace_back(i, line[i]);
 		}
 
 		QImage overlay(
-			bitmap.cols(), bitmap.rows(), QImage::Format_ARGB32
+			dims.cols(), dims.rows(), QImage::Format_ARGB32
 		);
 		overlay.fill(0);
 
@@ -136,7 +144,7 @@ namespace linescan{
 			Qt::AlignCenter, text
 		);
 
-		return { to_image(std::move(bitmap)), overlay };
+		return overlay;
 	}
 
 

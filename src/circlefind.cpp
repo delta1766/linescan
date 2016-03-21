@@ -7,7 +7,7 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/circlefind.hpp>
-#include <linescan/binarize.hpp>
+#include <linescan/processing.hpp>
 #include <linescan/median.hpp>
 
 #include <mitrax/convolution.hpp>

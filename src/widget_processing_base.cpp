@@ -7,9 +7,8 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/widget_processing_base.hpp>
+#include <linescan/processing.hpp>
 #include <linescan/to_image.hpp>
-#include <linescan/binarize.hpp>
-#include <linescan/erode.hpp>
 
 
 namespace linescan{
@@ -35,7 +34,7 @@ namespace linescan{
 		glayout_.addWidget(&erode_, 4, 1, 1, 1);
 
 		binarize_threashold_.setValue(255);
-		erode_.setValue(3);
+		erode_.setValue(2);
 
 		binarize_threashold_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 		erode_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);

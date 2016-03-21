@@ -10,7 +10,6 @@
 #define _linescan__processing__hpp_INCLUDED_
 
 #include <mitrax/transform.hpp>
-#include <mitrax/pass_in.hpp>
 
 
 namespace linescan{
@@ -27,6 +26,14 @@ namespace linescan{
 		std::size_t size,
 		float variance = 0.7f
 	);
+
+	template < typename T >
+	inline auto
+	binarize(mitrax::raw_bitmap< T > const& image, T const& threshold){
+		return mitrax::transform([threshold](auto v){
+			return v >= threshold;
+		}, image);
+	}
 
 
 }

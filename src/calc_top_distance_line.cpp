@@ -8,8 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/calc_top_distance_line.hpp>
 
-#include <linescan/binarize.hpp>
-#include <linescan/erode.hpp>
+#include <linescan/processing.hpp>
 
 
 namespace linescan{

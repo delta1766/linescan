@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_calib_via_line.hpp>
 #include <linescan/exception_catcher.hpp>
+#include <linescan/to_image.hpp>
 #include <linescan/draw.hpp>
 
 
@@ -31,7 +32,15 @@ namespace linescan{
 		connect(&line_, &QRadioButton::released, [this]{
 			if(!line_.isChecked()) return;
 
-			image_.set_processor(&draw_laser_alignment);
+			image_.set_processor(
+				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
+					auto overlay = draw_laser_alignment(
+						bitmap, get_threashold(), get_erode()
+					);
+					return std::pair< QImage, QImage >(
+						to_image(std::move(bitmap)), overlay
+					);
+				});
 		});
 
 		connect(&start_, &QPushButton::released, [this]{

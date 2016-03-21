@@ -9,6 +9,7 @@
 #include <linescan/processing.hpp>
 
 #include <mitrax/convolution.hpp>
+#include <mitrax/pass_in.hpp>
 
 #include <cmath>
 
@@ -21,6 +22,7 @@ namespace linescan{
 		std::size_t size,
 		bool border_value
 	){
+		if(size == 0) return image;
 		return mitrax::pass_in(image.dims(),
 			mitrax::transform_per_view([](auto const& m){
 				bool result = false;
@@ -33,7 +35,7 @@ namespace linescan{
 				}
 
 				return result;
-			}, mitrax::cols(size), mitrax::rows(size), image),
+			}, mitrax::cols(size + 1), mitrax::rows(size + 1), image),
 			border_value
 		);
 	}

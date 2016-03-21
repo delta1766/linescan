@@ -9,6 +9,8 @@
 #ifndef _linescan__draw__hpp_INCLUDED_
 #define _linescan__draw__hpp_INCLUDED_
 
+#include <linescan/processing.hpp>
+
 #include <mitrax/matrix.hpp>
 
 #include <QtGui/QImage>
@@ -42,8 +44,16 @@ namespace linescan{
 		std::size_t rows
 	);
 
-	std::pair< QImage, QImage >
-	draw_laser_alignment(mitrax::raw_bitmap< std::uint8_t >&& bitmap);
+	QImage draw_laser_alignment(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		std::uint8_t binarize_threshold,
+		std::size_t erode_value
+	);
+
+	QImage draw_laser_alignment(
+		mitrax::bitmap_dims_t const& dims,
+		std::vector< double > const& line
+	);
 
 
 }
