@@ -7,7 +7,6 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/serial_port.hpp>
-#include <linescan/mask_non_print.hpp>
 
 #include <boost/asio/write.hpp>
 #include <boost/asio/buffer.hpp>

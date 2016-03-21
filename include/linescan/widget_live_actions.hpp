@@ -9,15 +9,13 @@
 #ifndef _linescan__widget_live_actions__hpp_INCLUDED_
 #define _linescan__widget_live_actions__hpp_INCLUDED_
 
-#include "widget_live_image.hpp"
-
-#include <QtWidgets/QtWidgets>
+#include "widget_processing_base.hpp"
 
 
 namespace linescan{
 
 
-	class widget_live_actions: public QWidget{
+	class widget_live_actions: public widget_processing_base{
 	public:
 		using message_callback_type = std::function< void(QString const&) >;
 
@@ -25,40 +23,17 @@ namespace linescan{
 
 
 	private:
-		std::uint8_t get_threashold()const;
-		std::uint8_t get_erode()const;
 		bool is_sub_pixel()const;
-
-		mitrax::raw_bitmap< bool > binarized(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap
-		)const;
-
-		mitrax::raw_bitmap< bool > eroded(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap
-		)const;
-
-
-		std::size_t save_count_;
 
 		message_callback_type message_;
 
-		QHBoxLayout hlayout_;
-		QGridLayout glayout_;
+		std::size_t save_count_;
 
-		QRadioButton original_;
-		QRadioButton binarized_;
-		QRadioButton eroded_;
 		QRadioButton line_;
 
-		QLabel binarize_threashold_l_;
-		QLabel erode_l_;
 		QLabel sub_pixel_l_;
-		QSpinBox binarize_threashold_;
-		QSpinBox erode_;
 		QCheckBox sub_pixel_;
 		QPushButton save_;
-
-		widget_live_image image_;
 	};
 
 

@@ -24,7 +24,7 @@ namespace linescan{
 
 	private:
 		QHBoxLayout layout_;
-		widget_live_bitmap< std::uint8_t > image_;
+		widget_live_image image_;
 	};
 
 
