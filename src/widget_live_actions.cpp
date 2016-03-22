@@ -8,7 +8,6 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_live_actions.hpp>
 #include <linescan/to_image.hpp>
-#include <linescan/linear_function.hpp>
 #include <linescan/calc_top_distance_line.hpp>
 #include <linescan/draw.hpp>
 

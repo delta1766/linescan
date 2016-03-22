@@ -81,7 +81,7 @@ namespace linescan{
 					points.emplace_back(i, top_distance_line[i]);
 				}
 
-				auto line = fit_polynom< 1 >(points.begin(), points.end());
+				auto line = fit_polynom< 1 >(points);
 
 				top_distance_to_height_.push_back({{
 					line(std::size_t(bitmap_.cols()) / 2), height_

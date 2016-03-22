@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/draw.hpp>
 #include <linescan/processing.hpp>
-#include <linescan/linear_function.hpp>
+#include <linescan/polynom.hpp>
 #include <linescan/calc_top_distance_line.hpp>
 
 #include <QtGui/QPainter>
@@ -118,9 +118,7 @@ namespace linescan{
 		auto text = [&]{
 			if(points.size() < 2) return QString("no line");
 
-			auto line = fit_linear_function< float >(
-				points.begin(), points.end()
-			);
+			auto line = fit_polynom< 1 >(points);
 
 			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
 			painter.drawLine(

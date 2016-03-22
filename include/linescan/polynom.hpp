@@ -6,66 +6,103 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__linear_function__hpp_INCLUDED_
-#define _linescan__linear_function__hpp_INCLUDED_
+#ifndef _linescan__polynom__hpp_INCLUDED_
+#define _linescan__polynom__hpp_INCLUDED_
+
+#include <mitrax/to_array.hpp>
+#include <mitrax/gaussian_elimination.hpp>
+
+#include <iterator>
+#include <cmath>
 
 
 namespace linescan{
 
 
-	template < typename T >
-	struct linear_function{
+	template < typename T, std::size_t Degree >
+	class polynom{
+	public:
 		using value_type = T;
 
-		constexpr linear_function(value_type const& a, value_type const& b):
-			a(a),
-			b(b)
-			{}
+		constexpr static std::size_t degree = Degree;
 
-		value_type const a;
-		value_type const b;
 
-		constexpr value_type operator()(value_type const& x)const{
-			return x * a + b;
+		constexpr polynom() = default;
+
+		constexpr polynom(
+			mitrax::raw_col_vector< value_type, Degree + 1 > const& coeffs
+		): coefficients_(coeffs) {}
+
+
+		constexpr value_type& operator[](std::size_t i){
+			return coefficients_[i];
 		}
+
+		constexpr value_type const& operator[](std::size_t i)const{
+			return coefficients_[i];
+		}
+
+
+		constexpr value_type operator()(value_type const& value)const{
+			value_type sum = 0;
+
+			for(std::size_t i = 0; i < Degree + 1; ++i){
+				value_type mul = 1;
+				for(std::size_t j = 0; j < i; ++j) mul *= value;
+				sum += mul * coefficients_[i];
+			}
+
+			return sum;
+		}
+
+
+	private:
+		mitrax::raw_col_vector< T, Degree + 1 > coefficients_;
 	};
 
-	template < typename Result, typename Iter >
-	linear_function< Result > fit_linear_function(Iter first, Iter last){
-		Result sx = 0;
-		Result sy = 0;
-		Result sxx = 0;
-		Result syy = 0;
-		Result sxy = 0;
-		Result n = 0;
 
-		while (first != last){
-			auto x = first->x();
-			auto y = first->y();
+	template < std::size_t Degree, typename Container >
+	auto fit_polynom(Container const& data){
+		using value_type = typename Container::value_type::y_value_type;
 
-			sx += static_cast< Result >(x);
-			sy += static_cast< Result >(y);
-			sxx += static_cast< Result >(x) * static_cast< Result >(x);
-			syy += static_cast< Result >(y) * static_cast< Result >(y);
-			sxy += static_cast< Result >(x) * static_cast< Result >(y);
+		auto matrix = mitrax::make_square_matrix_by_function(
+			mitrax::dims< Degree + 1 >(),
+			[&data](std::size_t x, std::size_t y){
+				auto sum = value_type();
 
-			n += 1;
+				for(auto const& value: data){
+					sum += std::pow(value.x(), x) * std::pow(value.x(), y);
+				}
 
-			++first;
-		}
+				return sum;
+			}
+		);
 
-		auto const a = (n * sxy - sx * sy) / (n * sxx - sx * sx);
-		auto const b = sy / n - a * sx / n;
+		auto vector = mitrax::make_col_vector_by_function(
+			mitrax::rows< Degree + 1 >(),
+			[&data](std::size_t i){
+				auto sum = value_type();
 
-		return linear_function< Result >(a, b);
+				for(auto const& value: data){
+					sum += std::pow(value.x(), i) * value.y();
+				}
+
+				return sum;
+			}
+		);
+
+		return polynom< value_type, Degree >(
+			mitrax::gaussian_elimination(matrix, vector)
+		);
 	}
+
 
 	template < typename T >
 	constexpr T intersection(
-		linear_function< T > const& lhs,
-		linear_function< T > const& rhs
+		polynom< T, 1 > const& lhs,
+		polynom< T, 1 > const& rhs
 	){
-		return (lhs.b - rhs.b) / (rhs.a - lhs.a);
+		return (lhs[0] - rhs[0]) / (rhs[1] - lhs[1]);
 	}
 
 }
