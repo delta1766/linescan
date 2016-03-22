@@ -9,7 +9,7 @@
 #include <linescan/widget_calib_via_line.hpp>
 #include <linescan/exception_catcher.hpp>
 #include <linescan/calc_top_distance_line.hpp>
-#include <linescan/linear_function.hpp>
+#include <linescan/polynom.hpp>
 #include <linescan/to_image.hpp>
 #include <linescan/save.hpp>
 #include <linescan/draw.hpp>
@@ -72,7 +72,7 @@ namespace linescan{
 
 				image_.set_images(
 					to_image(bitmap_),
-					draw_laser_alignment(top_distance_line)
+					draw_laser_alignment(bitmap_.dims(), top_distance_line)
 				);
 
 				std::vector< mitrax::point< float > > points;
@@ -81,9 +81,7 @@ namespace linescan{
 					points.emplace_back(i, top_distance_line[i]);
 				}
 
-				auto line = fit_linear_function< float >(
-					points.begin(), points.end()
-				);
+				auto line = fit_polynom< 1 >(points.begin(), points.end());
 
 				top_distance_to_height_.push_back({{
 					line(std::size_t(bitmap_.cols()) / 2), height_
