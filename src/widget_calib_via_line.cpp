@@ -93,6 +93,36 @@ namespace linescan{
 
 			if(running_) timer_.start(1);
 		});
+
+		std::vector< mitrax::point< float > > points;
+		{
+			std::ifstream is("calib_via_line.txt");
+			for(float a, b; is >> a >> b;){
+				points.emplace_back(a, b);
+			}
+		}
+
+		{
+			QMessageBox box(
+				QMessageBox::Warning,
+				QObject::tr("Error"),
+				QString("%1").arg(points.size()),
+				QMessageBox::Ok
+			);
+			box.exec();
+		}
+
+		{
+			auto f = fit_polynom< 3 >(points);
+			QMessageBox box(
+				QMessageBox::Warning,
+				QObject::tr("Error"),
+				QString("%1 * x^3 + %2 * x^2 + %3 * x^1 + %4")
+					.arg(f[3]).arg(f[2]).arg(f[1]).arg(f[0]),
+				QMessageBox::Ok
+			);
+			box.exec();
+		}
 	}
 
 	bool widget_calib_via_line::is_running()const{
@@ -128,11 +158,11 @@ namespace linescan{
 			image_.start_live();
 			start_.setText(tr("Start"));
 
-			save(bitmap_, "calib.png");
+			save(bitmap_, "calib_via_line.png");
 			{
-				std::ofstream os("calib.txt");
+				std::ofstream os("calib_via_line.txt");
 				for(auto const& v: top_distance_to_height_){
-					os << v[0] << ", " << v[1] << '\n';
+					os << v[0] << ' ' << v[1] << '\n';
 				}
 			}
 		}
