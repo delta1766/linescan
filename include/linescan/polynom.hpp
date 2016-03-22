@@ -9,10 +9,8 @@
 #ifndef _linescan__polynom__hpp_INCLUDED_
 #define _linescan__polynom__hpp_INCLUDED_
 
-#include <mitrax/to_array.hpp>
 #include <mitrax/gaussian_elimination.hpp>
 
-#include <iterator>
 #include <cmath>
 
 
