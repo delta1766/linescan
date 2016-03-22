@@ -17,8 +17,14 @@
 namespace linescan{
 
 
-	std::vector< double > calc_top_distance_line(
+	std::vector< float > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& image
+	);
+
+	std::vector< float > calc_top_distance_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		std::uint8_t binarize_threshold,
+		std::size_t erode_value
 	);
 
 

@@ -19,7 +19,7 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		mitrax::point< double > const& point
+		mitrax::point< float > const& point
 	){
 		auto x = static_cast< int >(point.x());
 		auto y = static_cast< int >(point.y());
@@ -27,7 +27,7 @@ namespace linescan{
 		auto dx = point.x() - x;
 		auto dy = point.y() - y;
 
-		auto draw = [&image](int x, int y, double v){
+		auto draw = [&image](int x, int y, float v){
 			if(
 				x < 0 || y < 0 ||
 				x >= static_cast< int >(image.cols()) ||
@@ -46,7 +46,7 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		std::vector< mitrax::point< double > > const& line
+		std::vector< mitrax::point< float > > const& line
 	){
 		for(std::size_t i = 0; i < line.size(); ++i){
 			draw(image, line[i]);
@@ -54,14 +54,14 @@ namespace linescan{
 	}
 
 	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
-		std::vector< double > const& line,
+		std::vector< float > const& line,
 		std::size_t cols,
 		std::size_t rows
 	){
 		auto image =
 			mitrax::make_matrix< std::uint8_t >(mitrax::dims(cols, rows));
 
-		std::vector< mitrax::point< double > > point_line;
+		std::vector< mitrax::point< float > > point_line;
 		for(std::size_t i = 0; i < line.size(); ++i){
 			if(line[i] == 0) continue;
 			point_line.emplace_back(i, line[i]);
@@ -72,7 +72,7 @@ namespace linescan{
 	}
 
 	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
-		std::vector< double > const& line,
+		std::vector< float > const& line,
 		std::size_t cols,
 		std::size_t rows
 	){
@@ -91,19 +91,17 @@ namespace linescan{
 		std::uint8_t binarize_threshold,
 		std::size_t erode_value
 	){
-		auto binary = binarize(bitmap, binarize_threshold);
-		binary = erode(binary, erode_value);
 		return draw_laser_alignment(
 			bitmap.dims(),
-			calc_top_distance_line(binary)
+			calc_top_distance_line(bitmap, binarize_threshold, erode_value)
 		);
 	}
 
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
-		std::vector< double > const& line
+		std::vector< float > const& line
 	){
-		std::vector< mitrax::point< double > > points;
+		std::vector< mitrax::point< float > > points;
 		for(std::size_t i = 0; i < line.size(); ++i){
 			if(line[i] == 0) continue;
 			points.emplace_back(i, line[i]);
@@ -120,7 +118,7 @@ namespace linescan{
 		auto text = [&]{
 			if(points.size() < 2) return QString("no line");
 
-			auto line = fit_linear_function< double >(
+			auto line = fit_linear_function< float >(
 				points.begin(), points.end()
 			);
 

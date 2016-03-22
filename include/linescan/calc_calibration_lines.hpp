@@ -18,9 +18,9 @@
 namespace linescan{
 
 
-	std::array< std::vector< mitrax::point< double > >, 2 >
+	std::array< std::vector< mitrax::point< float > >, 2 >
 	calc_calibration_lines(
-		std::vector< double > const& top_distance_line,
+		std::vector< float > const& top_distance_line,
 		std::size_t count
 	);
 

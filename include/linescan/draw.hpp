@@ -24,22 +24,22 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		mitrax::point< double > const& point
+		mitrax::point< float > const& point
 	);
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		std::vector< mitrax::point< double > > const& line
+		std::vector< mitrax::point< float > > const& line
 	);
 
 	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
-		std::vector< double > const& line,
+		std::vector< float > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);
 
 	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
-		std::vector< double > const& line,
+		std::vector< float > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);
@@ -52,7 +52,7 @@ namespace linescan{
 
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
-		std::vector< double > const& line
+		std::vector< float > const& line
 	);
 
 

@@ -16,12 +16,12 @@ namespace linescan{
 	namespace{
 
 
-		std::size_t scale_to_slide(double value, double min, double inc){
+		std::size_t scale_to_slide(float value, float min, float inc){
 			return static_cast< std::size_t >((value - min) / inc + 0.5);
 		}
 
 		template < typename O >
-		std::size_t scale_to_slide(double value, O const& object){
+		std::size_t scale_to_slide(float value, O const& object){
 			auto min = object.minimum();
 			auto inc = object.singleStep();
 
@@ -29,12 +29,12 @@ namespace linescan{
 		}
 
 		template < typename T >
-		T scale_from_slide(double value, double min, double inc){
+		T scale_from_slide(float value, float min, float inc){
 			return static_cast< T >(value * inc + min);
 		}
 
 		template < typename T, typename O >
-		T scale_from_slide(double value, O const& object){
+		T scale_from_slide(float value, O const& object){
 			auto min = object.minimum();
 			auto inc = object.singleStep();
 
@@ -157,7 +157,7 @@ namespace linescan{
 		constexpr auto int_valueChanged =
 			static_cast< void(QSpinBox::*)(int) >(&QSpinBox::valueChanged);
 	
-		constexpr auto double_valueChanged =
+		constexpr auto float_valueChanged =
 			static_cast< void(QDoubleSpinBox::*)(double) >(
 				&QDoubleSpinBox::valueChanged
 			);
@@ -184,7 +184,7 @@ namespace linescan{
 			});
 		});
 
-		connect(&framerate_v_, double_valueChanged, [this](double value){
+		connect(&framerate_v_, float_valueChanged, [this](float value){
 			exception_catcher([&]{
 				cam_.set_framerate(value);
 
@@ -208,12 +208,12 @@ namespace linescan{
 		connect(&framerate_, &QSlider::valueChanged, [this](int value){
 			exception_catcher([&]{
 				framerate_v_.setValue(
-					scale_from_slide< double >(value, framerate_v_)
+					scale_from_slide< float >(value, framerate_v_)
 				);
 			});
 		});
 
-		connect(&exposure_v_, double_valueChanged, [this](double value){
+		connect(&exposure_v_, float_valueChanged, [this](float value){
 			exception_catcher([&]{
 				{
 					auto block = block_signals(exposure_);
@@ -227,7 +227,7 @@ namespace linescan{
 		connect(&exposure_, &QSlider::valueChanged, [this](int value){
 			exception_catcher([&]{
 				exposure_v_.setValue(
-					scale_from_slide< double >(value, exposure_v_)
+					scale_from_slide< float >(value, exposure_v_)
 				);
 			});
 		});

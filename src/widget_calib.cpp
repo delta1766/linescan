@@ -107,7 +107,7 @@ namespace linescan{
 		}
 
 
-		std::array< double, 3 > calc_intrinsic_parameters(
+		std::array< float, 3 > calc_intrinsic_parameters(
 			mitrax::bitmap_dims_t const& image_size,
 			std::vector< mitrax::raw_bitmap< circle > > const& circles_list,
 			float distance_in_mm
@@ -132,7 +132,7 @@ namespace linescan{
 			}
 
 			cv::Mat camera_matrix = cv::Mat::eye(3, 3, CV_64F);
-			camera_matrix.at< double >(0, 0) = 1.0;
+			camera_matrix.at< float >(0, 0) = 1.0;
 
 			cv::Mat distortion_coefficients = cv::Mat::zeros(4, 1, CV_64F);
 
@@ -165,9 +165,9 @@ namespace linescan{
 			}
 
 			return {{
-				camera_matrix.at< double >(0, 0),
-				camera_matrix.at< double >(0, 2),
-				camera_matrix.at< double >(1, 2)
+				camera_matrix.at< float >(0, 0),
+				camera_matrix.at< float >(0, 2),
+				camera_matrix.at< float >(1, 2)
 			}};
 		}
 
@@ -190,7 +190,7 @@ namespace linescan{
 	{
 		std::size_t icon_rows = 100;
 		std::size_t icon_cols = static_cast< std::size_t >(
-			std::ceil(double(icon_rows) * cam.cols() / cam.rows()));
+			std::ceil(float(icon_rows) * cam.cols() / cam.rows()));
 
 		intrinsic_images_.setIconSize(QSize(icon_cols, icon_rows));
 		tabs_.setMinimumWidth(icon_cols + 50);
@@ -250,8 +250,8 @@ namespace linescan{
 
 					{
 						QPainter painter(&image);
-						auto x = double(image.width() - overlay.width()) / 2;
-						auto y = double(image.height() - overlay.height()) / 2;
+						auto x = float(image.width() - overlay.width()) / 2;
+						auto y = float(image.height() - overlay.height()) / 2;
 
 						painter.drawImage(x, y, overlay);
 					}

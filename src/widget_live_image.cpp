@@ -97,13 +97,11 @@ namespace linescan{
 	template < typename Image, typename Base >
 	void widget_live_image_base< Image, Base >::stop_live(){
 		set_live(false);
-		timer_.stop();
 	}
 
 	template < typename Image, typename Base >
 	void widget_live_image_base< Image, Base >::start_live(){
 		set_live(true);
-		timer_.start(0);
 	}
 
 	template < typename Image, typename Base >
@@ -120,7 +118,14 @@ namespace linescan{
 
 	template < typename Image, typename Base >
 	void widget_live_image_base< Image, Base >::set_live(bool is_live){
+		if(is_live){
+			timer_.start(0);
+		}else{
+			timer_.stop();
+		}
+
 		is_live_ = is_live;
+
 		if(live_toggle_callback_) live_toggle_callback_(is_live_);
 	}
 
