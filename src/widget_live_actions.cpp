@@ -49,7 +49,7 @@ namespace linescan{
 									line, bitmap.cols(), bitmap.rows()
 								));
 							}
-								
+
 							return to_image(draw_top_distance_line_student(
 								line, bitmap.cols(), bitmap.rows()
 							));

@@ -11,6 +11,7 @@
 #include <linescan/calc_top_distance_line.hpp>
 #include <linescan/polynom.hpp>
 #include <linescan/to_image.hpp>
+#include <linescan/load.hpp>
 #include <linescan/save.hpp>
 #include <linescan/draw.hpp>
 
@@ -56,13 +57,13 @@ namespace linescan{
 			if(running_){
 				stop();
 
-	// 			save(bitmap_, "calib_via_line.png");
-	// 			{
-	// 				std::ofstream os("calib_via_line.txt");
-	// 				for(auto const& v: top_distance_to_height_){
-	// 					os << v.x() << ' ' << v.y() << '\n';
-	// 				}
-	// 			}
+// 				save(bitmap_, "calib_via_line.png");
+// 				{
+// 					std::ofstream os("calib_via_line.txt");
+// 					for(auto const& v: top_distance_to_height_){
+// 						os << v.x() << ' ' << v.y() << '\n';
+// 					}
+// 				}
 
 				top_distance_to_height_.clear();
 				{
@@ -81,8 +82,61 @@ namespace linescan{
 							.arg(f[3]).arg(f[2]).arg(f[1]).arg(f[0]),
 						QMessageBox::Ok
 					);
-					box.exec();
+// 					box.exec();
 				}
+
+				bitmap_ = load("calib_via_line.png");
+
+				auto binary = eroded(bitmap_);
+				save(binary, "result.png");
+
+				std::vector< mitrax::point< double > > left_points;
+				std::vector< mitrax::point< double > > right_points;
+				std::size_t mid_x = std::size_t(binary.cols()) / 2;
+				std::size_t from_y = std::size_t(binary.rows()) * 2 / 100;
+				std::size_t to_y = std::size_t(binary.rows()) * 98 / 100;
+				for(std::size_t y = from_y; y < to_y; ++y){
+					if(!binary(mid_x, y)) continue;
+
+					for(std::size_t x = mid_x; x > 0; --x){
+						if(!binary(x, y)){
+							left_points.emplace_back(y, x);
+							break;
+						}
+					}
+
+					for(std::size_t x = mid_x; x < binary.cols(); ++x){
+						if(!binary(x, y)){
+							right_points.emplace_back(y, x);
+							break;
+						}
+					}
+				}
+
+				auto left_line = fit_polynom< 1 >(left_points);
+				auto right_line = fit_polynom< 1 >(right_points);
+
+				auto image = to_image(bitmap_)
+					.convertToFormat(QImage::Format_RGB32);
+
+				{
+					QPainter painter(&image);
+					painter.setRenderHint(QPainter::Antialiasing, true);
+
+					painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
+
+					painter.drawLine(
+						left_line(0), 0,
+						left_line(binary.rows()), binary.rows()
+					);
+
+					painter.drawLine(
+						right_line(0), 0,
+						right_line(binary.rows()), binary.rows()
+					);
+				}
+
+				image.save("dummy.png", "PNG");
 			}else{
 				start();
 			}
@@ -91,6 +145,17 @@ namespace linescan{
 		connect(&timer_, &QTimer::timeout, [this]{
 			exception_catcher([&]{
 				auto image = cam_.image();
+
+				static std::size_t save_count_ = 0;
+				auto name = QString("laser_%1.png")
+					.arg(save_count_, 4, 10, QLatin1Char('0')).toStdString();
+
+				++save_count_;
+
+				save(image, name);
+// 				bitmap_ = mitrax::transform([](auto a, auto b){
+// 					return std::min(a, b);
+// 				}, bitmap_, image);
 
 				bitmap_ = mitrax::transform([](auto a, auto b){
 					return std::max(a, b);
