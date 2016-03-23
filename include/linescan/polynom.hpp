@@ -63,6 +63,10 @@ namespace linescan{
 	auto fit_polynom(Container const& data){
 		using value_type = typename Container::value_type::y_value_type;
 
+		if(data.size() <= Degree){
+			throw std::logic_error("to less points for polynom fit");
+		}
+
 		auto matrix = mitrax::make_square_matrix_by_function(
 			mitrax::dims< Degree + 1 >(),
 			[&data](std::size_t x, std::size_t y){
