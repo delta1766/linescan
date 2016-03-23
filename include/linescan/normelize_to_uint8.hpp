@@ -30,10 +30,10 @@ namespace linescan{
 			}
 		}, image);
 
-		long double diff = max - min;
+		double diff = max - min;
 		return mitrax::transform([min, diff](auto v){
 			return static_cast< std::uint8_t >(
-				(static_cast< long double >(v) - min) / diff * 255
+				(static_cast< double >(v) - min) / diff * 255
 			);
 		}, image);
 	}

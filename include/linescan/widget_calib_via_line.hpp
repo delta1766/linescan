@@ -37,8 +37,8 @@ namespace linescan{
 		void set_running(bool is_running);
 
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
-		float height_;
-		std::vector< std::array< float, 2 > > top_distance_to_height_;
+		double height_;
+		std::vector< mitrax::point< double > > top_distance_to_height_;
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;

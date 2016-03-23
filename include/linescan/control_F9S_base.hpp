@@ -84,10 +84,15 @@ namespace linescan{
 		std::pair< std::string, bool > receive(
 			std::chrono::duration< Rep, Period > const& timeout
 		){
+#ifdef MCL
 			std::unique_lock< std::mutex > lock(mutex_);
 			bool ok =
 				cv_.wait_for(lock, timeout) == std::cv_status::no_timeout;
 			return {receive_, ok};
+#else
+			(void)timeout;
+			return {receive_, true};
+#endif
 		}
 
 		/// \brief sleep for 50ms
@@ -97,8 +102,10 @@ namespace linescan{
 
 
 	private:
+#ifdef MCL
 		std::mutex mutex_;
 		std::condition_variable cv_;
+#endif
 
 		std::string receive_;
 

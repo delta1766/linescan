@@ -18,9 +18,11 @@ namespace linescan{
 
 
 	template < typename F >
-	void exception_catcher(F&& f)try{
+	void exception_catcher(F&& f, bool make_message = true)try{
 		f();
 	}catch(std::exception const& error){
+		if(!make_message) return;
+
 		QMessageBox box(
 			QMessageBox::Warning,
 			QObject::tr("Error"),
@@ -30,6 +32,8 @@ namespace linescan{
 
 		box.exec();
 	}catch(...){
+		if(!make_message) return;
+
 		QMessageBox box(
 			QMessageBox::Critical,
 			QObject::tr("Fatal Error"),

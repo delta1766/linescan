@@ -16,6 +16,10 @@
 int main(int argc, char** argv)try{
 	QApplication app(argc, argv);
 
+	QCoreApplication::setOrganizationName("TU Ilmenau");
+	QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
+	QCoreApplication::setApplicationName("Linescan");
+
 	linescan::widget_main_window window;
 	window.showMaximized();
 
