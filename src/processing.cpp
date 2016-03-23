@@ -45,8 +45,13 @@ namespace linescan{
 		std::size_t size,
 		float variance
 	){
-		auto vc = mitrax::make_col_vector< float >(mitrax::rows(size));
-		auto vr = mitrax::make_row_vector< float >(mitrax::cols(size));
+		auto vc = mitrax::make_col_vector_by_default< float >(
+			mitrax::rows(size)
+		);
+
+		auto vr = mitrax::make_row_vector_by_default< float >(
+			mitrax::cols(size)
+		);
 
 		float sum = 0;
 		for(std::size_t i = 0; i < size; ++i){

@@ -209,8 +209,8 @@ namespace linescan{
 
 	void widget_calib_via_line::set_running(bool is_running){
 		if(is_running){
-			bitmap_ = mitrax::make_matrix(
-				mitrax::dims(cam_.cols(), cam_.rows()), std::uint8_t()
+			bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
+				cam_.cols(), cam_.rows()
 			);
 			top_distance_to_height_.clear();
 			height_ = 0;

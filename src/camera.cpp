@@ -709,8 +709,8 @@ namespace linescan{
 
 		throw_on_error(is_FreezeVideo(handle_, IS_WAIT), "is_FreezeVideo");
 
-		auto result = mitrax::make_matrix< std::uint8_t >(
-			mitrax::cols(cols_), mitrax::rows(rows_)
+		auto result = mitrax::make_bitmap_by_default< std::uint8_t >(
+			cols_, rows_
 		);
 		std::copy(buffer, buffer + cols_ * rows_, result.begin());
 

@@ -59,7 +59,7 @@ namespace linescan{
 		std::size_t rows
 	){
 		auto image =
-			mitrax::make_matrix< std::uint8_t >(mitrax::dims(cols, rows));
+			mitrax::make_bitmap_by_default< std::uint8_t >(cols, rows);
 
 		std::vector< mitrax::point< float > > point_line;
 		for(std::size_t i = 0; i < line.size(); ++i){
@@ -76,7 +76,7 @@ namespace linescan{
 		std::size_t cols,
 		std::size_t rows
 	){
-		auto image = mitrax::make_matrix< bool >(mitrax::dims(cols, rows));
+		auto image = mitrax::make_bitmap_by_default< bool >(cols, rows);
 
 		for(std::size_t i = 0; i < line.size(); ++i){
 			if(line[i] == 0) continue;

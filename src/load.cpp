@@ -21,8 +21,8 @@ namespace linescan{
 
 		png::image< png::gray_pixel > output;
 		output.read(name);
-		auto image = mitrax::make_matrix< std::uint8_t >(
-			mitrax::dims(output.get_width(), output.get_height())
+		auto image = mitrax::make_bitmap_by_default< std::uint8_t >(
+			output.get_width(), output.get_height()
 		);
 
 		for(std::size_t y = 0; y < output.get_height(); ++y){
