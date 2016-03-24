@@ -271,17 +271,17 @@ namespace linescan{
 					);
 
 					intrinsic_focal_length_.setText(
-						QString(tr("Focal length:\n%1 mm")).arg(parameters[0])
+						tr("Focal length:\n%1 mm").arg(parameters[0])
 					);
 
 					intrinsic_principal_point_.setText(
-						QString(tr("Principal point:\n%1x%2 px"))
+						tr("Principal point:\n%1x%2 px")
 							.arg(parameters[1], 0, 'f', 0)
 							.arg(parameters[2], 0, 'f', 0)
 					);
 
 					intrinsic_image_count_.setText(
-						QString(tr("%1 Images")).arg(circles_list_.size())
+						tr("%1 Images").arg(circles_list_.size())
 					);
 				}catch(...){
 					QMessageBox box(

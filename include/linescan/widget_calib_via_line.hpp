@@ -42,6 +42,14 @@ namespace linescan{
 		void analyze();
 		void set_running(bool is_running);
 
+		enum class step{
+			laser,
+			target,
+			complete
+		} step_ = step::laser;
+
+		void set_step(step s);
+
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
 		std::function< void(laser_calibration const&) > set_laser_calib_;
@@ -52,8 +60,9 @@ namespace linescan{
 
 		std::size_t save_count_line_;
 
-		QRadioButton line_;
+		QRadioButton laser_line_;
 
+		QLabel step_l_;
 		QPushButton laser_start_;
 		QLabel laser_auto_stop_l_;
 		QCheckBox laser_auto_stop_;

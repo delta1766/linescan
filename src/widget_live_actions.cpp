@@ -69,7 +69,7 @@ namespace linescan{
 
 			++save_count_;
 
-			message_(QString(tr("Save image '%1'.")).arg(name));
+			message_(tr("Save image '%1'.").arg(name));
 			image.save(name, "PNG");
 		});
 	}

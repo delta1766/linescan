@@ -34,7 +34,7 @@ namespace linescan{
 		set_laser_calib_(set_laser_calib),
 		height_(0),
 		save_count_line_(0),
-		line_(tr("Line image")),
+		laser_line_(tr("Laser image")),
 		laser_start_(tr("Start")),
 		laser_auto_stop_l_(tr("Auto stop")),
 		running_(false)
@@ -43,16 +43,17 @@ namespace linescan{
 		(void)mcl3_;
 #endif
 
-		radio_buttons_.addButton(&line_);
+		radio_buttons_.addButton(&laser_line_);
 
-		glayout_.addWidget(&line_, 5, 0, 1, 2);
-		glayout_.addWidget(&laser_start_, 6, 0, 1, 2);
-		glayout_.addWidget(&laser_auto_stop_l_, 7, 0, 1, 1);
-		glayout_.addWidget(&laser_auto_stop_, 7, 1, 1, 1);
-		glayout_.setRowStretch(8, 1);
+		glayout_.addWidget(&laser_line_, 5, 0, 1, 2);
+		glayout_.addWidget(&step_l_, 6, 0, 1, 2);
+		glayout_.addWidget(&laser_start_, 7, 0, 1, 2);
+		glayout_.addWidget(&laser_auto_stop_l_, 8, 0, 1, 1);
+		glayout_.addWidget(&laser_auto_stop_, 8, 1, 1, 1);
+		glayout_.setRowStretch(9, 1);
 
-		connect(&line_, &QRadioButton::released, [this]{
-			if(!line_.isChecked()) return;
+		connect(&laser_line_, &QRadioButton::released, [this]{
+			if(!laser_line_.isChecked()) return;
 
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
@@ -70,7 +71,7 @@ namespace linescan{
 		connect(&original_, &QRadioButton::released, start_live);
 		connect(&binarized_, &QRadioButton::released, start_live);
 		connect(&eroded_, &QRadioButton::released, start_live);
-		connect(&line_, &QRadioButton::released, start_live);
+		connect(&laser_line_, &QRadioButton::released, start_live);
 
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
@@ -137,9 +138,12 @@ namespace linescan{
 			if(running_) timer_.start(1);
 		});
 
+		step_l_.setAlignment(Qt::AlignCenter);
 		laser_auto_stop_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 		laser_auto_stop_l_.setEnabled(false);
 		laser_auto_stop_.setEnabled(false);
+
+		set_step(step::laser);
 	}
 
 	bool widget_calib_via_line::is_running()const{
@@ -247,13 +251,13 @@ namespace linescan{
 				QPoint(2, overlay.height() - 32),
 				QPoint(w / 2, overlay.height())),
 				Qt::AlignLeft | Qt::AlignVCenter,
-				QString(tr("Z = %L1 µm")).arg(0)
+				tr("Z = %L1 µm").arg(0)
 			);
 			painter.drawText(QRect(
 				QPoint(w / 2, overlay.height() - 32),
 				QPoint(w - 2, overlay.height())),
 				Qt::AlignRight | Qt::AlignVCenter,
-				QString("Z = %L1 µm").arg(height_)
+				tr("Z = %L1 µm").arg(height_)
 			);
 		}
 
@@ -274,7 +278,7 @@ namespace linescan{
 			sub_pixel_l_.setEnabled(enabled);
 			binarize_threashold_.setEnabled(enabled);
 			erode_.setEnabled(enabled);
-			line_.setEnabled(enabled);
+			laser_line_.setEnabled(enabled);
 			laser_auto_stop_l_.setEnabled(!enabled);
 			laser_auto_stop_.setEnabled(!enabled);
 		};
@@ -298,7 +302,7 @@ namespace linescan{
 			original_.setChecked(false);
 			binarized_.setChecked(false);
 			eroded_.setChecked(false);
-			line_.setChecked(false);
+			laser_line_.setChecked(false);
 			radio_buttons_.setExclusive(true);
 
 			set_enabled(false);
@@ -312,6 +316,27 @@ namespace linescan{
 #ifdef MCL
 			mcl3_.move_relative(0, 0, -height_);
 #endif
+		}
+	}
+
+	void widget_calib_via_line::set_step(step s){
+		auto text = tr("Step %1 from 2");
+		step_ = s;
+		switch(step_){
+			case step::laser:{
+				step_l_.setText(text.arg(1));
+				break;
+			}
+
+			case step::target:{
+				step_l_.setText(text.arg(2));
+				break;
+			}
+
+			case step::complete:{
+				step_l_.setText(tr("complete"));
+				break;
+			}
 		}
 	}
 

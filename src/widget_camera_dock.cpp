@@ -315,9 +315,9 @@ namespace linescan{
 			pixelclock_.setValue(int_value);
 		}
 
-		pixelclock_ml_.setText(QString(tr("%1 MHz")).arg(min));
-		pixelclock_xl_.setText(QString(tr("%1 MHz")).arg(max));
-		pixelclock_il_.setText(QString(tr("(%1 MHz)")).arg(inc));
+		pixelclock_ml_.setText(tr("%1 MHz").arg(min));
+		pixelclock_xl_.setText(tr("%1 MHz").arg(max));
+		pixelclock_il_.setText(tr("(%1 MHz)").arg(inc));
 	}
 
 	void widget_camera_dock::set_framerate_ranges(){
@@ -352,9 +352,9 @@ namespace linescan{
 			framerate_.setValue(int_value);
 		}
 
-		framerate_ml_.setText(QString(tr("%1 fps")).arg(min, 0, 'f', 2));
-		framerate_xl_.setText(QString(tr("%1 fps")).arg(max, 0, 'f', 2));
-		framerate_il_.setText(QString(tr("(%1 fps)")).arg(inc, 0, 'g', 2));
+		framerate_ml_.setText(tr("%1 fps").arg(min, 0, 'f', 2));
+		framerate_xl_.setText(tr("%1 fps").arg(max, 0, 'f', 2));
+		framerate_il_.setText(tr("(%1 fps)").arg(inc, 0, 'g', 2));
 	}
 
 	void widget_camera_dock::set_exposure_ranges(){
@@ -389,9 +389,9 @@ namespace linescan{
 			exposure_.setValue(int_value);
 		}
 
-		exposure_ml_.setText(QString(tr("%1 ms")).arg(min, 0, 'f', 2));
-		exposure_xl_.setText(QString(tr("%1 ms")).arg(max, 0, 'f', 2));
-		exposure_il_.setText(QString(tr("(%1 ms)")).arg(inc, 0, 'g', 2));
+		exposure_ml_.setText(tr("%1 ms").arg(min, 0, 'f', 2));
+		exposure_xl_.setText(tr("%1 ms").arg(max, 0, 'f', 2));
+		exposure_il_.setText(tr("(%1 ms)").arg(inc, 0, 'g', 2));
 	}
 
 	void widget_camera_dock::set_gain_ranges(){
@@ -414,9 +414,9 @@ namespace linescan{
 			gain_.setValue(value);
 		}
 
-		gain_ml_.setText(QString(tr("%1%")).arg(min));
-		gain_xl_.setText(QString(tr("%1%")).arg(max));
-		gain_il_.setText(QString(tr("(%1%)")).arg(inc));
+		gain_ml_.setText(tr("%1%").arg(min));
+		gain_xl_.setText(tr("%1%").arg(max));
+		gain_il_.setText(tr("(%1%)").arg(inc));
 	}
 
 	void widget_camera_dock::set_ranges(){
