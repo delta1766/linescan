@@ -190,6 +190,59 @@ namespace linescan{
 		auto left_laser_line_ = fit_polynom< 1 >(left_points);
 		auto right_laser_line_ = fit_polynom< 1 >(right_points);
 
+		// Create a transparent Overlay
+		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
+		overlay.fill(0);
+
+		{
+			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+
+			// Draw laser width functions
+			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
+			painter.drawLine(
+				left_laser_line_(0), 0,
+				left_laser_line_(overlay.height() - 1), overlay.height() - 1
+			);
+			painter.drawLine(
+				right_laser_line_(0), 0,
+				right_laser_line_(overlay.height() - 1), overlay.height() - 1
+			);
+
+			// draw camera y to Z-Coordinate mapping function
+			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
+			auto factor = std::size_t(bitmap_.cols()) / height_;
+			auto w = std::size_t(bitmap_.cols());
+
+			using namespace mitrax::literals;
+			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
+				auto y = std::size_t(bitmap_.rows()) - i - 1;
+				painter.drawLine(
+					w - y_to_height_(i) * factor, y,
+					w - y_to_height_(i + 1) * factor, y - 1
+				);
+			}
+
+			// Z-Coordinate is drawn in x-direction, draw min and max as text
+			QFont font = painter.font();
+			font.setPixelSize(24);
+			painter.setFont(font);
+			painter.drawText(QRect(
+				QPoint(2, overlay.height() - 32),
+				QPoint(w / 2, overlay.height())),
+				Qt::AlignLeft | Qt::AlignVCenter,
+				QString(tr("Z = %L1 µm")).arg(0)
+			);
+			painter.drawText(QRect(
+				QPoint(w / 2, overlay.height() - 32),
+				QPoint(w - 2, overlay.height())),
+				Qt::AlignRight | Qt::AlignVCenter,
+				QString("Z = %L1 µm").arg(height_)
+			);
+		}
+
+		image_.set_images(to_image(bitmap_), overlay);
+
 		std::cout
 			<< y_to_height_[3] << " * x^3 + "
 			<< y_to_height_[2] << " * x^2 + "
@@ -248,7 +301,9 @@ namespace linescan{
 			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
 
+#ifdef MCL
 			mcl3_.move_relative(0, 0, -height_);
+#endif
 		}
 	}
 
