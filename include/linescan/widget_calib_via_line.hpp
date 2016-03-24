@@ -11,6 +11,7 @@
 
 #include "widget_processing_base.hpp"
 #include "control_F9S_MCL3.hpp"
+#include "polynom.hpp"
 
 #include <iostream>
 
@@ -40,8 +41,16 @@ namespace linescan{
 		double height_;
 		std::vector< mitrax::point< double > > top_distance_to_height_;
 
+#ifndef CAM
+		std::size_t save_count_line_;
+#endif
+
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
+
+		polynom< double, 3 > y_to_height_;
+		polynom< double, 1 > left_laser_line_;
+		polynom< double, 1 > right_laser_line_;
 
 		QRadioButton line_;
 

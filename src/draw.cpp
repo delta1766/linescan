@@ -19,7 +19,7 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		mitrax::point< float > const& point
+		mitrax::point< double > const& point
 	){
 		auto x = static_cast< int >(point.x());
 		auto y = static_cast< int >(point.y());
@@ -27,7 +27,7 @@ namespace linescan{
 		auto dx = point.x() - x;
 		auto dy = point.y() - y;
 
-		auto draw = [&image](int x, int y, float v){
+		auto draw = [&image](int x, int y, double v){
 			if(
 				x < 0 || y < 0 ||
 				x >= static_cast< int >(image.cols()) ||
@@ -46,7 +46,7 @@ namespace linescan{
 
 	void draw(
 		mitrax::raw_bitmap< std::uint8_t >& image,
-		std::vector< mitrax::point< float > > const& line
+		std::vector< mitrax::point< double > > const& line
 	){
 		for(std::size_t i = 0; i < line.size(); ++i){
 			draw(image, line[i]);
@@ -54,33 +54,30 @@ namespace linescan{
 	}
 
 	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
-		std::vector< float > const& line,
+		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
 	){
 		auto image =
 			mitrax::make_bitmap_by_default< std::uint8_t >(cols, rows);
 
-		std::vector< mitrax::point< float > > point_line;
-		for(std::size_t i = 0; i < line.size(); ++i){
-			if(line[i] == 0) continue;
-			point_line.emplace_back(i, line[i]);
-		}
+		draw(image, line);
 
-		draw(image, point_line);
 		return image;
 	}
 
 	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
-		std::vector< float > const& line,
+		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
 	){
 		auto image = mitrax::make_bitmap_by_default< bool >(cols, rows);
 
-		for(std::size_t i = 0; i < line.size(); ++i){
-			if(line[i] == 0) continue;
-			image(i, static_cast< size_t >(line[i])) = true;
+		for(auto const& p: line){
+			image(
+				static_cast< size_t >(p.x() + 0.5),
+				static_cast< size_t >(p.y() + 0.5)
+			) = true;
 		}
 
 		return image;
@@ -99,14 +96,8 @@ namespace linescan{
 
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
-		std::vector< float > const& line
+		std::vector< mitrax::point< double > > const& points
 	){
-		std::vector< mitrax::point< float > > points;
-		for(std::size_t i = 0; i < line.size(); ++i){
-			if(line[i] == 0) continue;
-			points.emplace_back(i, line[i]);
-		}
-
 		QImage overlay(
 			dims.cols(), dims.rows(), QImage::Format_ARGB32
 		);

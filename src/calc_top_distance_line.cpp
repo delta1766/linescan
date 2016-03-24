@@ -14,10 +14,11 @@
 namespace linescan{
 
 
-	std::vector< float > calc_top_distance_line(
+	std::vector< mitrax::point< double > > calc_top_distance_line(
 		mitrax::raw_bitmap< bool > const& binary
 	){
-		std::vector< float > result(binary.cols());
+		std::vector< mitrax::point< double > > result;
+		result.reserve(binary.cols());
 		for(std::size_t x = 0; x < binary.cols(); ++x){
 			std::size_t max_length = 0;
 			std::size_t start = 0;
@@ -29,7 +30,7 @@ namespace linescan{
 					if(length > max_length){
 						max_length = length;
 
-						result[x] = start + length / 2.f;
+						result.emplace_back(x, start + length / 2.);
 					}
 
 					start = 0;
@@ -40,11 +41,12 @@ namespace linescan{
 				}
 			}
 		}
+		result.shrink_to_fit();
 
 		return result;
 	}
 
-	std::vector< float > calc_top_distance_line(
+	std::vector< mitrax::point< double > > calc_top_distance_line(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		std::uint8_t binarize_threshold,
 		std::size_t erode_value
