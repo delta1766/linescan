@@ -18,7 +18,7 @@ int main(int argc, char** argv)try{
 
 	QCoreApplication::setOrganizationName("TU Ilmenau");
 	QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
-	QCoreApplication::setApplicationName("Linescan");
+	QCoreApplication::setApplicationName("linescan");
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
 	linescan::widget_main_window window;

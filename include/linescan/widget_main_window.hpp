@@ -28,6 +28,8 @@ namespace linescan{
 
 
 	private:
+		QSettings settings_;
+
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 

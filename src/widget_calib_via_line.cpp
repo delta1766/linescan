@@ -162,7 +162,7 @@ namespace linescan{
 	void widget_calib_via_line::analyze(){
 		stop();
 
-		auto y_to_height_ = fit_polynom< 3 >(y_to_height_points_);
+		auto y_to_height = fit_polynom< 3 >(y_to_height_points_);
 
 		auto binary = eroded(bitmap_);
 
@@ -176,21 +176,21 @@ namespace linescan{
 
 			for(auto x = mid_x; x > 0; --x){
 				if(!binary(x, y)){
-					left_points.emplace_back(y, x);
+					left_points.emplace_back(x, y);
 					break;
 				}
 			}
 
 			for(auto x = mid_x; x < binary.cols(); ++x){
 				if(!binary(x, y)){
-					right_points.emplace_back(y, x);
+					right_points.emplace_back(x, y);
 					break;
 				}
 			}
 		}
 
-		auto left_laser_line_ = fit_polynom< 1 >(left_points);
-		auto right_laser_line_ = fit_polynom< 1 >(right_points);
+		auto left_laser_line = fit_polynom< 1 >(left_points);
+		auto right_laser_line = fit_polynom< 1 >(right_points);
 
 		// Create a transparent Overlay
 		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
@@ -200,15 +200,29 @@ namespace linescan{
 			QPainter painter(&overlay);
 			painter.setRenderHint(QPainter::Antialiasing, true);
 
+			using namespace mitrax::literals;
+
+			polynom< double, 1 > invert_left_line(
+				mitrax::make_col_vector< double >(2_R, {
+					1 / left_laser_line[0],
+					left_laser_line[1] / left_laser_line[0],
+				}));
+
+			polynom< double, 1 > invert_right_line(
+				mitrax::make_col_vector< double >(2_R, {
+					1 / right_laser_line[0],
+					right_laser_line[1] / right_laser_line[0],
+				}));
+
 			// Draw laser width functions
 			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
 			painter.drawLine(
-				left_laser_line_(0), 0,
-				left_laser_line_(overlay.height() - 1), overlay.height() - 1
+				invert_left_line(0), 0,
+				invert_left_line(overlay.height() - 1), overlay.height() - 1
 			);
 			painter.drawLine(
-				right_laser_line_(0), 0,
-				right_laser_line_(overlay.height() - 1), overlay.height() - 1
+				invert_right_line(0), 0,
+				invert_right_line(overlay.height() - 1), overlay.height() - 1
 			);
 
 			// draw camera y to Z-Coordinate mapping function
@@ -220,8 +234,8 @@ namespace linescan{
 			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
 				auto y = std::size_t(bitmap_.rows()) - i - 1;
 				painter.drawLine(
-					w - y_to_height_(i) * factor, y,
-					w - y_to_height_(i + 1) * factor, y - 1
+					w - y_to_height(i) * factor, y,
+					w - y_to_height(i + 1) * factor, y - 1
 				);
 			}
 
@@ -245,17 +259,9 @@ namespace linescan{
 
 		image_.set_images(to_image(bitmap_), overlay);
 
-		std::cout
-			<< y_to_height_[3] << " * x^3 + "
-			<< y_to_height_[2] << " * x^2 + "
-			<< y_to_height_[1] << " * x + "
-			<< y_to_height_[0] << std::endl;
-		std::cout
-			<< left_laser_line_[1] << " * x + "
-			<< left_laser_line_[0] << std::endl;
-		std::cout
-			<< right_laser_line_[1] << " * x + "
-			<< right_laser_line_[0] << std::endl;
+		laser_calibration calib;
+		calib.set(y_to_height, left_laser_line, right_laser_line);
+		set_laser_calib_(calib);
 	}
 
 	void widget_calib_via_line::set_running(bool is_running){

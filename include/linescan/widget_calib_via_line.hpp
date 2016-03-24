@@ -52,10 +52,6 @@ namespace linescan{
 
 		std::size_t save_count_line_;
 
-		polynom< double, 3 > y_to_height_;
-		polynom< double, 1 > left_laser_line_;
-		polynom< double, 1 > right_laser_line_;
-
 		QRadioButton line_;
 
 		QPushButton laser_start_;

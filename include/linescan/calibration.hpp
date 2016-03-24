@@ -40,6 +40,12 @@ namespace linescan{
 			return right_limit_(cam_y);
 		}
 
+		bool is_valid()const{ return valid_;}
+
+		polynom< double, 3 > cam_y_to_z_map()const{ return cam_y_to_z_map_;}
+		polynom< double, 1 > left_limit()const{ return left_limit_;}
+		polynom< double, 1 > right_limit()const{ return right_limit_;}
+
 	private:
 		bool valid_ = false;
 		polynom< double, 3 > cam_y_to_z_map_;
