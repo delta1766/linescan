@@ -26,6 +26,8 @@ namespace linescan{
 		sub_pixel_l_(tr("Subpixel")),
 		save_(tr("Save"))
 	{
+		radio_buttons_.addButton(&line_);
+
 		glayout_.addWidget(&line_, 5, 0, 1, 2);
 		glayout_.addWidget(&sub_pixel_l_, 6, 0, 1, 1);
 		glayout_.addWidget(&sub_pixel_, 6, 1, 1, 1);

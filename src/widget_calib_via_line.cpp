@@ -41,6 +41,8 @@ namespace linescan{
 		(void)mcl3_;
 #endif
 
+		radio_buttons_.addButton(&line_);
+
 		glayout_.addWidget(&line_, 5, 0, 1, 2);
 		glayout_.addWidget(&laser_start_, 6, 0, 1, 2);
 		glayout_.addWidget(&laser_auto_stop_l_, 7, 0, 1, 1);
@@ -62,6 +64,12 @@ namespace linescan{
 				});
 		});
 
+		auto start_live = [this]{ image_.start_live(); };
+		connect(&original_, &QRadioButton::released, start_live);
+		connect(&binarized_, &QRadioButton::released, start_live);
+		connect(&eroded_, &QRadioButton::released, start_live);
+		connect(&line_, &QRadioButton::released, start_live);
+
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
 				analyze();
@@ -76,8 +84,8 @@ namespace linescan{
 					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
 					.toStdString();
 
-				++save_count_line_;
-// 				save_count_line_ += 10;
+// 				++save_count_line_;
+				save_count_line_ += 10;
 
 #ifdef CAM
 				auto image = cam_.image();
@@ -110,8 +118,8 @@ namespace linescan{
 #ifdef MCL
 				mcl3_.move_relative(0, 0, 100);
 #endif
-				height_ += 100;
-// 				height_ += 1000;
+// 				height_ += 100;
+				height_ += 1000;
 			}, false);
 
 			if(
@@ -223,10 +231,16 @@ namespace linescan{
 			timer_.start(0);
 			laser_start_.setText(tr("Stop"));
 
+			radio_buttons_.setExclusive(false);
+			original_.setChecked(false);
+			binarized_.setChecked(false);
+			eroded_.setChecked(false);
+			line_.setChecked(false);
+			radio_buttons_.setExclusive(true);
+
 			set_enabled(false);
 		}else{
 			timer_.stop();
-			image_.start_live();
 			laser_start_.setText(tr("Start"));
 
 			laser_auto_stop_.setChecked(false);

@@ -43,6 +43,10 @@ namespace linescan{
 		hlayout_.addLayout(&glayout_);
 		hlayout_.addWidget(&image_, 1);
 
+		radio_buttons_.addButton(&original_);
+		radio_buttons_.addButton(&binarized_);
+		radio_buttons_.addButton(&eroded_);
+
 		original_.setChecked(true);
 
 

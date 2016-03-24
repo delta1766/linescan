@@ -39,6 +39,7 @@ namespace linescan{
 		QHBoxLayout hlayout_;
 		QGridLayout glayout_;
 
+		QButtonGroup radio_buttons_;
 		QRadioButton original_;
 		QRadioButton binarized_;
 		QRadioButton eroded_;
