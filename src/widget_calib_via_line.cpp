@@ -218,6 +218,8 @@ namespace linescan{
 			laser_auto_stop_.setEnabled(!enabled);
 		};
 
+		running_ = is_running;
+
 		if(is_running){
 			bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 				cam_.cols(), cam_.rows()
@@ -245,9 +247,9 @@ namespace linescan{
 
 			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
-		}
 
-		running_ = is_running;
+			mcl3_.move_relative(0, 0, -height_);
+		}
 	}
 
 
