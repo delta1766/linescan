@@ -35,18 +35,17 @@ namespace linescan{
 
 
 	private:
+		void analyze();
 		void set_running(bool is_running);
-
-		mitrax::raw_bitmap< std::uint8_t > bitmap_;
-		double height_;
-		std::vector< mitrax::point< double > > top_distance_to_height_;
-
-#ifndef CAM
-		std::size_t save_count_line_;
-#endif
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
+
+		mitrax::raw_bitmap< std::uint8_t > bitmap_;
+		double height_;
+		std::vector< mitrax::point< double > > y_to_height_points_;
+
+		std::size_t save_count_line_;
 
 		polynom< double, 3 > y_to_height_;
 		polynom< double, 1 > left_laser_line_;
@@ -54,7 +53,9 @@ namespace linescan{
 
 		QRadioButton line_;
 
-		QPushButton start_;
+		QPushButton laser_start_;
+		QLabel laser_auto_stop_l_;
+		QCheckBox laser_auto_stop_;
 
 		bool running_;
 

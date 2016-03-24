@@ -17,6 +17,7 @@
 #include <QtCore/QSettings>
 
 #include <fstream>
+#include <iomanip>
 
 
 namespace linescan{
@@ -29,13 +30,22 @@ namespace linescan{
 		widget_processing_base(cam),
 		cam_(cam),
 		mcl3_(mcl3),
+		height_(0),
+		save_count_line_(0),
 		line_(tr("Line image")),
-		start_(tr("Start")),
+		laser_start_(tr("Start")),
+		laser_auto_stop_l_(tr("Auto stop")),
 		running_(false)
 	{
+#ifndef MCL
+		(void)mcl3_;
+#endif
+
 		glayout_.addWidget(&line_, 5, 0, 1, 2);
-		glayout_.addWidget(&start_, 6, 0, 1, 2);
-		glayout_.setRowStretch(7, 1);
+		glayout_.addWidget(&laser_start_, 6, 0, 1, 2);
+		glayout_.addWidget(&laser_auto_stop_l_, 7, 0, 1, 1);
+		glayout_.addWidget(&laser_auto_stop_, 7, 1, 1, 1);
+		glayout_.setRowStretch(8, 1);
 
 		connect(&line_, &QRadioButton::released, [this]{
 			if(!line_.isChecked()) return;
@@ -52,41 +62,10 @@ namespace linescan{
 				});
 		});
 
-		connect(&start_, &QPushButton::released, [this]{
+		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
-				stop();
-
-				auto y_to_height_ = fit_polynom< 3 >(top_distance_to_height_);
-
-				auto binary = eroded(bitmap_);
-
-				std::vector< mitrax::point< double > > left_points;
-				std::vector< mitrax::point< double > > right_points;
-				std::size_t mid_x = std::size_t(binary.cols()) / 2;
-				std::size_t from_y = std::size_t(binary.rows()) * 2 / 100;
-				std::size_t to_y = std::size_t(binary.rows()) * 98 / 100;
-				for(std::size_t y = from_y; y < to_y; ++y){
-					if(!binary(mid_x, y)) continue;
-
-					for(std::size_t x = mid_x; x > 0; --x){
-						if(!binary(x, y)){
-							left_points.emplace_back(y, x);
-							break;
-						}
-					}
-
-					for(std::size_t x = mid_x; x < binary.cols(); ++x){
-						if(!binary(x, y)){
-							right_points.emplace_back(y, x);
-							break;
-						}
-					}
-				}
-
-				auto left_laser_line_ = fit_polynom< 1 >(left_points);
-				auto right_laser_line_ = fit_polynom< 1 >(right_points);
+				analyze();
 			}else{
-				save_count_line_ = 0;
 				start();
 			}
 		});
@@ -98,6 +77,7 @@ namespace linescan{
 					.toStdString();
 
 				++save_count_line_;
+// 				save_count_line_ += 10;
 
 #ifdef CAM
 				auto image = cam_.image();
@@ -122,16 +102,34 @@ namespace linescan{
 
 				auto line = fit_polynom< 1 >(points);
 
-				top_distance_to_height_.emplace_back(
+				std::cout << height_ << std::endl;
+				y_to_height_points_.emplace_back(
 					line(std::size_t(bitmap_.cols()) / 2), height_
 				);
 
+#ifdef MCL
 				mcl3_.move_relative(0, 0, 100);
+#endif
 				height_ += 100;
+// 				height_ += 1000;
 			}, false);
+
+			if(
+				y_to_height_points_.size() > 0 &&
+				laser_auto_stop_.isChecked() &&
+				y_to_height_points_.back().x() <= 
+				std::size_t(bitmap_.rows()) - y_to_height_points_.front().x()
+			){
+				analyze();
+				return;
+			}
 
 			if(running_) timer_.start(1);
 		});
+
+		laser_auto_stop_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		laser_auto_stop_l_.setEnabled(false);
+		laser_auto_stop_.setEnabled(false);
 	}
 
 	bool widget_calib_via_line::is_running()const{
@@ -151,6 +149,52 @@ namespace linescan{
 		stop();
 	}
 
+	void widget_calib_via_line::analyze(){
+		stop();
+
+		auto y_to_height_ = fit_polynom< 3 >(y_to_height_points_);
+
+		auto binary = eroded(bitmap_);
+
+		std::vector< mitrax::point< double > > left_points;
+		std::vector< mitrax::point< double > > right_points;
+		auto mid_x = std::size_t(binary.cols()) / 2;
+		auto from_y = std::size_t(y_to_height_points_.back().x());
+		auto to_y = std::size_t(y_to_height_points_.front().x());
+		for(auto y = from_y; y < to_y; ++y){
+			if(!binary(mid_x, y)) continue;
+
+			for(auto x = mid_x; x > 0; --x){
+				if(!binary(x, y)){
+					left_points.emplace_back(y, x);
+					break;
+				}
+			}
+
+			for(auto x = mid_x; x < binary.cols(); ++x){
+				if(!binary(x, y)){
+					right_points.emplace_back(y, x);
+					break;
+				}
+			}
+		}
+
+		auto left_laser_line_ = fit_polynom< 1 >(left_points);
+		auto right_laser_line_ = fit_polynom< 1 >(right_points);
+
+		std::cout
+			<< y_to_height_[3] << " * x^3 + "
+			<< y_to_height_[2] << " * x^2 + "
+			<< y_to_height_[1] << " * x + "
+			<< y_to_height_[0] << std::endl;
+		std::cout
+			<< left_laser_line_[1] << " * x + "
+			<< left_laser_line_[0] << std::endl;
+		std::cout
+			<< right_laser_line_[1] << " * x + "
+			<< right_laser_line_[0] << std::endl;
+	}
+
 	void widget_calib_via_line::set_running(bool is_running){
 		auto set_enabled = [this](bool enabled){
 			original_.setEnabled(enabled);
@@ -162,25 +206,30 @@ namespace linescan{
 			binarize_threashold_.setEnabled(enabled);
 			erode_.setEnabled(enabled);
 			line_.setEnabled(enabled);
+			laser_auto_stop_l_.setEnabled(!enabled);
+			laser_auto_stop_.setEnabled(!enabled);
 		};
 
 		if(is_running){
 			bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 				cam_.cols(), cam_.rows()
 			);
-			top_distance_to_height_.clear();
+			y_to_height_points_.clear();
 			height_ = 0;
+
+			save_count_line_ = 0;
 
 			image_.stop_live();
 			timer_.start(0);
-			start_.setText(tr("Stop"));
+			laser_start_.setText(tr("Stop"));
 
 			set_enabled(false);
 		}else{
 			timer_.stop();
 			image_.start_live();
-			start_.setText(tr("Start"));
+			laser_start_.setText(tr("Start"));
 
+			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
 		}
 
