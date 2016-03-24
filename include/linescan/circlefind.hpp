@@ -76,6 +76,13 @@ namespace linescan{
 	};
 
 
+	circle fit_circle(
+		mitrax::raw_bitmap< float > const& image,
+		float x_from, float x_length, std::size_t x_steps,
+		float y_from, float y_length, std::size_t y_steps,
+		float r_from, float r_length, std::size_t r_steps
+	);
+
 	mitrax::raw_bitmap< circle > circlefind(
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		std::size_t x_count, std::size_t y_count,

@@ -15,24 +15,26 @@ namespace linescan{
 	widget_main_window::widget_main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
-		cam_dock_(cam_),
-		live_actions_(cam_, [this](QString const& message){
+		cam_dock_w_(cam_),
+		live_actions_w_(cam_, [this](QString const& message){
 			statusBar()->showMessage(message, 5000);
 		}),
-		laser_alignment_(cam_),
-		calib_(cam_),
-		calib_via_line_(cam_, mcl3_)
+		laser_alignment_w_(cam_),
+		calib_w_(cam_),
+		calib_via_line_w_(cam_, mcl3_, [this](laser_calibration const& calib){
+			calib_ = calib;
+		})
 	{
-		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_);
+		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
 
-		tabs_.addTab(&live_actions_, tr("Live"));
-		tabs_.addTab(&laser_alignment_, tr("Laser align"));
-		tabs_.addTab(&calib_, tr("Calibration"));
-		tabs_.addTab(&calib_via_line_, tr("Calibration via line"));
+		tabs_w_.addTab(&live_actions_w_, tr("Live"));
+		tabs_w_.addTab(&laser_alignment_w_, tr("Laser align"));
+		tabs_w_.addTab(&calib_w_, tr("Calibration"));
+		tabs_w_.addTab(&calib_via_line_w_, tr("Calibration via line"));
 
 		statusBar();
 
-		setCentralWidget(&tabs_);
+		setCentralWidget(&tabs_w_);
 	}
 
 

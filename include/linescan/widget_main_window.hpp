@@ -31,14 +31,16 @@ namespace linescan{
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 
-		widget_camera_dock cam_dock_;
+		laser_calibration calib_;
 
-		QTabWidget tabs_;
+		widget_camera_dock cam_dock_w_;
 
-		widget_live_actions live_actions_;
-		widget_laser_alignment laser_alignment_;
-		widget_calib calib_;
-		widget_calib_via_line calib_via_line_;
+		QTabWidget tabs_w_;
+
+		widget_live_actions live_actions_w_;
+		widget_laser_alignment laser_alignment_w_;
+		widget_calib calib_w_;
+		widget_calib_via_line calib_via_line_w_;
 	};
 
 

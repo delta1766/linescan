@@ -25,11 +25,13 @@ namespace linescan{
 
 	widget_calib_via_line::widget_calib_via_line(
 		camera& cam,
-		control_F9S_MCL3& mcl3
+		control_F9S_MCL3& mcl3,
+		std::function< void(laser_calibration const&) > set_laser_calib
 	):
 		widget_processing_base(cam),
 		cam_(cam),
 		mcl3_(mcl3),
+		set_laser_calib_(set_laser_calib),
 		height_(0),
 		save_count_line_(0),
 		line_(tr("Line image")),

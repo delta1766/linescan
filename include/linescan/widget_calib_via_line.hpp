@@ -11,7 +11,7 @@
 
 #include "widget_processing_base.hpp"
 #include "control_F9S_MCL3.hpp"
-#include "polynom.hpp"
+#include "calibration.hpp"
 
 #include <iostream>
 
@@ -21,7 +21,11 @@ namespace linescan{
 
 	class widget_calib_via_line: public widget_processing_base{
 	public:
-		widget_calib_via_line(camera& cam, control_F9S_MCL3& mcl3);
+		widget_calib_via_line(
+			camera& cam,
+			control_F9S_MCL3& mcl3,
+			std::function< void(laser_calibration const&) > set_laser_calib
+		);
 
 
 		bool is_running()const;
@@ -40,6 +44,7 @@ namespace linescan{
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
+		std::function< void(laser_calibration const&) > set_laser_calib_;
 
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
 		double height_;
