@@ -75,7 +75,7 @@ namespace linescan{
 
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
-				analyze();
+				analyze_laser();
 			}else{
 				start();
 			}
@@ -131,7 +131,7 @@ namespace linescan{
 				y_to_height_points_.back().x() <= 
 				std::size_t(bitmap_.rows()) - y_to_height_points_.front().x()
 			){
-				analyze();
+				analyze_laser();
 				return;
 			}
 
@@ -163,7 +163,7 @@ namespace linescan{
 		stop();
 	}
 
-	void widget_calib_via_line::analyze(){
+	void widget_calib_via_line::analyze_laser(){
 		stop();
 
 		auto y_to_height = fit_polynom< 3 >(y_to_height_points_);
@@ -266,6 +266,8 @@ namespace linescan{
 		laser_calibration calib;
 		calib.set(y_to_height, left_laser_line, right_laser_line);
 		set_laser_calib_(calib);
+
+		set_step(step::target);
 	}
 
 	void widget_calib_via_line::set_running(bool is_running){

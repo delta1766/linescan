@@ -9,7 +9,8 @@
 #ifndef _linescan__draw__hpp_INCLUDED_
 #define _linescan__draw__hpp_INCLUDED_
 
-#include <linescan/processing.hpp>
+#include "processing.hpp"
+#include "polynom.hpp"
 
 #include <mitrax/matrix.hpp>
 
@@ -53,6 +54,11 @@ namespace linescan{
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
 		std::vector< mitrax::point< double > > const& line
+	);
+
+	QImage draw_line(
+		mitrax::bitmap_dims_t const& dims,
+		polynom< double, 1 > const& line
 	);
 
 

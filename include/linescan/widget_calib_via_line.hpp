@@ -39,7 +39,7 @@ namespace linescan{
 
 
 	private:
-		void analyze();
+		void analyze_laser();
 		void set_running(bool is_running);
 
 		enum class step{
