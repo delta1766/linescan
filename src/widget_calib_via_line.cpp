@@ -56,18 +56,18 @@ namespace linescan{
 		connect(&laser_line_, &QRadioButton::released, [this]{
 			if(!laser_line_.isChecked()) return;
 
-// 			if(step_ != step::target){
-// 				image_.set_processor(
-// 					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-// 						auto overlay = draw_laser_alignment(
-// 							bitmap, get_threashold(), get_erode()
-// 						);
-// 
-// 						return std::pair< QImage, QImage >(
-// 							to_image(std::move(bitmap)), overlay
-// 						);
-// 					});
-// 			}else{
+			if(step_ != step::target){
+				image_.set_processor(
+					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
+						auto overlay = draw_laser_alignment(
+							bitmap, get_threashold(), get_erode()
+						);
+
+						return std::pair< QImage, QImage >(
+							to_image(std::move(bitmap)), overlay
+						);
+					});
+			}else{
 				image_.set_processor(
 					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
 						auto overlay = draw_circle_line(bitmap);
@@ -76,7 +76,7 @@ namespace linescan{
 							to_image(std::move(bitmap)), overlay
 						);
 					});
-// 			}
+			}
 		});
 
 		auto start_live = [this]{ image_.start_live(); };
@@ -99,8 +99,7 @@ namespace linescan{
 					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
 					.toStdString();
 
-// 				++save_count_line_;
-				save_count_line_ += 10;
+				++save_count_line_;
 
 #ifdef CAM
 				auto image = cam_.image();
@@ -132,9 +131,8 @@ namespace linescan{
 
 			exception_catcher([&]{
 #ifdef MCL
-				mcl3_.move_relative(0, 0, 100);
+				mcl3_.move_relative(0, 0, 1000);
 #endif
-// 				height_ += 100;
 				height_ += 1000;
 			}, false);
 
@@ -177,8 +175,6 @@ namespace linescan{
 	}
 
 	void widget_calib_via_line::analyze_laser(){
-		stop();
-
 		auto y_to_height = fit_polynom< 3 >(y_to_height_points_);
 
 		auto binary = eroded(bitmap_);
@@ -193,14 +189,14 @@ namespace linescan{
 
 			for(auto x = mid_x; x > 0; --x){
 				if(!binary(x, y)){
-					left_points.emplace_back(x, y);
+					left_points.emplace_back(y, x);
 					break;
 				}
 			}
 
 			for(auto x = mid_x; x < binary.cols(); ++x){
 				if(!binary(x, y)){
-					right_points.emplace_back(x, y);
+					right_points.emplace_back(y, x);
 					break;
 				}
 			}
@@ -219,27 +215,15 @@ namespace linescan{
 
 			using namespace mitrax::literals;
 
-			polynom< double, 1 > invert_left_line(
-				mitrax::make_col_vector< double >(2_R, {
-					1 / left_laser_line[0],
-					left_laser_line[1] / left_laser_line[0],
-				}));
-
-			polynom< double, 1 > invert_right_line(
-				mitrax::make_col_vector< double >(2_R, {
-					1 / right_laser_line[0],
-					right_laser_line[1] / right_laser_line[0],
-				}));
-
 			// Draw laser width functions
 			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
 			painter.drawLine(
-				invert_left_line(0), 0,
-				invert_left_line(overlay.height() - 1), overlay.height() - 1
+				left_laser_line(0), 0,
+				left_laser_line(overlay.height() - 1), overlay.height() - 1
 			);
 			painter.drawLine(
-				invert_right_line(0), 0,
-				invert_right_line(overlay.height() - 1), overlay.height() - 1
+				right_laser_line(0), 0,
+				right_laser_line(overlay.height() - 1), overlay.height() - 1
 			);
 
 			// draw camera y to Z-Coordinate mapping function
@@ -252,8 +236,8 @@ namespace linescan{
 			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
 				auto y = std::size_t(bitmap_.rows()) - i - 1;
 				painter.drawLine(
-					w - y_to_height(i) * factor, y,
-					w - y_to_height(i + 1) * factor, y - 1
+					y_to_height(y) * factor, y,
+					y_to_height(y - 1) * factor, y + 1
 				);
 			}
 
@@ -282,6 +266,8 @@ namespace linescan{
 		set_laser_calib_(calib);
 
 		set_step(step::target);
+
+		stop();
 	}
 
 	void widget_calib_via_line::set_running(bool is_running){
@@ -330,7 +316,10 @@ namespace linescan{
 			set_enabled(true);
 
 #ifdef MCL
-			mcl3_.move_relative(0, 0, -height_);
+			if(!y_to_height_points_.empty()){
+				mcl3_.move_relative(0, 0, -y_to_height_points_.back().y());
+			}
+			y_to_height_points_.clear();
 #endif
 		}
 	}
