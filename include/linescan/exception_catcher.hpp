@@ -10,6 +10,7 @@
 #define _linescan__exception_catcher__hpp_INCLUDED_
 
 #include <exception>
+#include <iostream>
 
 #include <QtWidgets/QMessageBox>
 
@@ -21,7 +22,10 @@ namespace linescan{
 	void exception_catcher(F&& f, bool make_message = true)try{
 		f();
 	}catch(std::exception const& error){
-		if(!make_message) return;
+		if(!make_message){
+			std::cerr << "Exception: " << error.what() << std::endl;
+			return;
+		}
 
 		QMessageBox box(
 			QMessageBox::Warning,
@@ -32,7 +36,10 @@ namespace linescan{
 
 		box.exec();
 	}catch(...){
-		if(!make_message) return;
+		if(!make_message){
+			std::cerr << "Unknown exception" << std::endl;
+			return;
+		}
 
 		QMessageBox box(
 			QMessageBox::Critical,
