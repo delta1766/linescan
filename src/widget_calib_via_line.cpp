@@ -9,6 +9,7 @@
 #include <linescan/widget_calib_via_line.hpp>
 #include <linescan/exception_catcher.hpp>
 #include <linescan/calc_top_distance_line.hpp>
+#include <linescan/circlefind.hpp>
 #include <linescan/to_image.hpp>
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
@@ -55,16 +56,27 @@ namespace linescan{
 		connect(&laser_line_, &QRadioButton::released, [this]{
 			if(!laser_line_.isChecked()) return;
 
-			image_.set_processor(
-				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-					auto overlay = draw_laser_alignment(
-						bitmap, get_threashold(), get_erode()
-					);
+// 			if(step_ != step::target){
+// 				image_.set_processor(
+// 					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
+// 						auto overlay = draw_laser_alignment(
+// 							bitmap, get_threashold(), get_erode()
+// 						);
+// 
+// 						return std::pair< QImage, QImage >(
+// 							to_image(std::move(bitmap)), overlay
+// 						);
+// 					});
+// 			}else{
+				image_.set_processor(
+					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
+						auto overlay = draw_circle_line(bitmap);
 
-					return std::pair< QImage, QImage >(
-						to_image(std::move(bitmap)), overlay
-					);
-				});
+						return std::pair< QImage, QImage >(
+							to_image(std::move(bitmap)), overlay
+						);
+					});
+// 			}
 		});
 
 		auto start_live = [this]{ image_.start_live(); };

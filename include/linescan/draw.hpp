@@ -11,6 +11,7 @@
 
 #include "processing.hpp"
 #include "polynom.hpp"
+#include "circlefind.hpp"
 
 #include <mitrax/matrix.hpp>
 
@@ -54,6 +55,15 @@ namespace linescan{
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
 		std::vector< mitrax::point< double > > const& line
+	);
+
+	QImage draw_circle_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+	);
+
+	QImage draw_circle_line(
+		mitrax::bitmap_dims_t const& dims,
+		std::array< circle, 2 > const& circles
 	);
 
 	QImage draw_line(

@@ -12,6 +12,7 @@
 #include <mitrax/matrix.hpp>
 
 #include <vector>
+#include <array>
 
 
 namespace linescan{
@@ -89,10 +90,19 @@ namespace linescan{
 		float radius_in_mm, float distance_in_mm
 	);
 
-	mitrax::raw_bitmap< circle > finefit(
+	mitrax::raw_bitmap< circle > fine_fit(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		mitrax::raw_bitmap< circle > circles,
 		float radius_mm, float distance_mm
+	);
+
+	std::array< circle, 2 > find_calib_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+	);
+
+	std::array< circle, 2 > find_calib_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		circle const& c1, circle const& c2
 	);
 
 

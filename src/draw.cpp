@@ -13,6 +13,8 @@
 
 #include <QtGui/QPainter>
 
+#include <iostream>
+
 
 namespace linescan{
 
@@ -152,6 +154,64 @@ namespace linescan{
 			overlay,
 			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1)
 		);
+
+		return overlay;
+	}
+
+	QImage draw_circle_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+	){
+		try{
+			return draw_circle_line(bitmap.dims(), find_calib_line(bitmap));
+		}catch(std::exception const& error){
+			std::cerr << "Exception: " << error.what() << std::endl;
+		}catch(...){
+			std::cerr << "Unknown exception" << std::endl;
+		}
+
+		QImage overlay(
+			bitmap.cols(), bitmap.rows(), QImage::Format_ARGB32
+		);
+		overlay.fill(0);
+
+		draw_align_text(overlay, QObject::tr("no circles"));
+
+		return overlay;
+	}
+
+	QImage draw_circle_line(
+		mitrax::bitmap_dims_t const& dims,
+		std::array< circle, 2 > const& circles
+	){
+		using namespace mitrax::literals;
+
+		auto c1 = circles[0];
+		auto c2 = circles[1];
+
+		double dx = c2.x() - c1.x();
+		double dy = c2.y() - c1.y();
+		if(dx == 0) dx = 1;
+
+		auto m = dy / dx;
+		auto a = c1.y() - m * c1.x();
+		polynom< double, 1 > line(
+			mitrax::make_col_vector< double >(2_R, {a, m})
+		);
+
+		auto overlay = draw_line(dims, line);
+
+		{
+			// draw circles in red
+			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+
+			painter.setPen(QPen(QBrush(Qt::red), 1));
+			for(auto const& c: circles){
+				painter.drawEllipse(
+					QPointF(c.x(), c.y()), c.radius(), c.radius()
+				);
+			}
+		}
 
 		return overlay;
 	}

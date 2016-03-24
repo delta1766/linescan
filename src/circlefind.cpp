@@ -9,6 +9,7 @@
 #include <linescan/circlefind.hpp>
 #include <linescan/processing.hpp>
 #include <linescan/median.hpp>
+#include <linescan/save.hpp>
 
 #include <mitrax/convolution.hpp>
 #include <mitrax/segmentation.hpp>
@@ -16,7 +17,7 @@
 
 #include <array>
 #include <cmath>
-#include <string>
+#include <iostream>
 
 
 namespace linescan{
@@ -219,7 +220,6 @@ namespace linescan{
 		using namespace mitrax::literals;
 
 		auto image = median(org, mitrax::dims(3_C, 3_R));
-
 
 		if(2 * radius_in_mm >= distance_in_mm){
 			throw std::logic_error("Circles are overlapping");
@@ -447,7 +447,7 @@ namespace linescan{
   		);
 	}
 
-	mitrax::raw_bitmap< circle > finefit(
+	mitrax::raw_bitmap< circle > fine_fit(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		mitrax::raw_bitmap< circle > circles,
 		float radius_mm, float distance_mm
@@ -507,6 +507,168 @@ namespace linescan{
 		}
 
 		return circles;
+	}
+
+	circle fine_fit(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		circle const& c, float variance
+	){
+		auto r = c.radius();
+		auto space = r * variance;
+
+		auto pos = mitrax::point< std::size_t >(
+			std::size_t(c.x() - r - space / 2 + 0.5f),
+			std::size_t(c.y() - r - space / 2 + 0.5f)
+		);
+
+		auto dim = mitrax::dims(
+			std::size_t(r * 2 + space)
+		);
+
+		auto dims = mitrax::dims(dim, dim);
+
+		if(pos.x() + dims.cols() > bitmap.cols()){
+			dims.set_cols(bitmap.cols() - mitrax::cols(pos.x()));
+		}
+
+		if(pos.y() + dims.rows() > bitmap.rows()){
+			dims.set_rows(bitmap.rows() - mitrax::rows(pos.y()));
+		}
+
+		auto image = mitrax::sub_matrix(bitmap, pos, dims);
+
+		auto scaled = mitrax::make_matrix_by_function(
+			(image.dims() + mitrax::dims(2, 2)) / 3,
+			[&image](std::size_t x, std::size_t y){
+				x *= 3;
+				y *= 3;
+
+				std::size_t ex = x + 2;
+				std::size_t ey = y + 2;
+
+				if(ex >= image.cols()) x = std::size_t(image.cols()) - 3;
+				if(ey >= image.rows()) y = std::size_t(image.rows()) - 3;
+
+				float v = 0;
+				for(std::size_t dy = 0; dy < 3; ++dy){
+					for(std::size_t dx = 0; dx < 3; ++dx){
+						v += image(x + dx, y + dy);
+					}
+				}
+
+				return v / 9;
+			});
+		r /= 3;
+
+		auto edge = edge_scharr_amplitude(scaled);
+
+		auto circle = fit_circle(
+			edge,
+			std::size_t(edge.cols()) / 2.f - r * 0.15f, r * 0.3f, 16,
+			std::size_t(edge.rows()) / 2.f - r * 0.15f, r * 0.3f, 16,
+			r * 0.85f, r * 0.3f, 30
+		);
+
+		circle.x() = (circle.x() + 1) * 3 + pos.x() + 1;
+		circle.y() = (circle.y() + 1) * 3 + pos.y() + 1;
+		circle.radius() *= 3;
+
+		return circle;
+	}
+
+	circle find_calib_circle(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::point< std::size_t > const& pos,
+		mitrax::dims_t< 0, 0 > dims
+	){
+		using namespace mitrax::literals;
+
+		if(pos.x() + dims.cols() > bitmap.cols()){
+			dims.set_cols(bitmap.cols() - mitrax::cols(pos.x()));
+		}
+
+		if(pos.y() + dims.rows() > bitmap.rows()){
+			dims.set_rows(bitmap.rows() - mitrax::rows(pos.y()));
+		}
+
+		auto image = mitrax::sub_matrix(bitmap, pos, dims);
+		image = median(image, mitrax::dims(3_C, 3_R));
+
+		auto circle_data = find_circle(image, 8, 15);
+
+		if(!std::get< 0 >(circle_data)){
+			throw std::runtime_error("circle not found");
+		}
+
+		auto circle = std::get< 1 >(circle_data);
+
+		circle.x() += pos.x() + 1;
+		circle.y() += pos.y() + 1;
+
+		circle = fine_fit(bitmap, circle, 0.3);
+
+		return circle;
+	}
+
+	std::array< circle, 2 > find_calib_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+	){
+		using namespace mitrax::literals;
+
+		auto pos1 = mitrax::point< std::size_t >(
+			0,
+			bitmap.rows() - bitmap.rows() / 5_R
+		);
+
+		auto pos2 = mitrax::point< std::size_t >(
+			bitmap.cols() - bitmap.cols() / 2_C,
+			bitmap.rows() - bitmap.rows() / 5_R
+		);
+
+		auto dims = mitrax::dims(
+			bitmap.cols() / 2_C,
+			bitmap.rows() / 5_R
+		);
+
+		return {{
+			find_calib_circle(bitmap, pos1, dims),
+			find_calib_circle(bitmap, pos2, dims)
+		}};
+	}
+
+	std::array< circle, 2 > find_calib_line(
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		circle const& c1, circle const& c2
+	){
+		auto d1 = std::size_t(c1.radius() * 1.1f);
+		auto pos1 = mitrax::point< std::size_t >(
+			c1.x() < d1 ? 0 : c1.x() - d1,
+			c1.y() < d1 ? 0 : c1.y() - d1
+		);
+
+		auto d2 = std::size_t(c2.radius() * 1.1f);
+		auto pos2 = mitrax::point< std::size_t >(
+			c2.x() < d2 ? 0 : c2.x() - d2,
+			c2.y() < d2 ? 0 : c2.y() - d2
+		);
+
+		auto cols = std::size_t(bitmap.cols());
+		auto rows = std::size_t(bitmap.rows());
+
+		auto dims1 = mitrax::dims(
+			pos1.x() + 2 * d1 > cols ? cols : pos1.x() + 2 * d1,
+			pos1.y() + 2 * d1 > rows ? rows : pos1.y() + 2 * d1
+		);
+
+		auto dims2 = mitrax::dims(
+			pos2.x() + 2 * d2 > cols ? cols : pos2.x() + 2 * d2,
+			pos2.y() + 2 * d2 > rows ? rows : pos2.y() + 2 * d2
+		);
+
+		return {{
+			find_calib_circle(bitmap, pos1, dims1),
+			find_calib_circle(bitmap, pos2, dims2)
+		}};
 	}
 
 

@@ -229,7 +229,7 @@ namespace linescan{
 						bitmap, 12, 9, radius_mm, distance_mm
 					);
 
-					circles = finefit(bitmap, circles, radius_mm, distance_mm);
+					circles = fine_fit(bitmap, circles, radius_mm, distance_mm);
 
 					auto image = image_.image().convertToFormat(
 						QImage::Format_RGB32
