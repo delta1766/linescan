@@ -94,16 +94,7 @@ namespace linescan{
 		);
 	}
 
-	QImage draw_laser_alignment(
-		mitrax::bitmap_dims_t const& dims,
-		std::vector< mitrax::point< double > > const& points
-	){
-		if(points.size() < 2){
-			QImage overlay(
-				dims.cols(), dims.rows(), QImage::Format_ARGB32
-			);
-			overlay.fill(0);
-
+	void draw_align_text(QImage& overlay, QString const& text){
 			QPainter painter(&overlay);
 			painter.setRenderHint(QPainter::Antialiasing, true);
 
@@ -114,8 +105,21 @@ namespace linescan{
 
 			painter.drawText(
 				0, 0, overlay.width(), overlay.height() / 2,
-				Qt::AlignCenter, QObject::tr("no line")
+				Qt::AlignCenter, text
 			);
+	}
+
+	QImage draw_laser_alignment(
+		mitrax::bitmap_dims_t const& dims,
+		std::vector< mitrax::point< double > > const& points
+	){
+		if(points.size() < 2){
+			QImage overlay(
+				dims.cols(), dims.rows(), QImage::Format_ARGB32
+			);
+			overlay.fill(0);
+
+			draw_align_text(overlay, QObject::tr("no line"));
 
 			return overlay;
 		}
@@ -132,25 +136,21 @@ namespace linescan{
 		);
 		overlay.fill(0);
 
-		QPainter painter(&overlay);
-		painter.setRenderHint(QPainter::Antialiasing, true);
+		{
+			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
 
-		painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
-		painter.drawLine(
-			0, line(0),
-			overlay.width() - 1, line(overlay.width() - 1)
-		);
-
-		painter.setPen(qRgb(0, 255, 0));
-		QFont font = painter.font();
-		font.setPixelSize(128);
-		painter.setFont(font);
+			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
+			painter.drawLine(
+				0, line(0),
+				overlay.width() - 1, line(overlay.width() - 1)
+			);
+		}
 
 		auto angle = std::sin((line(100) - line(0)) / 100);
-
-		painter.drawText(
-			0, 0, overlay.width(), overlay.height() / 2,
-			Qt::AlignCenter, QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1)
+		draw_align_text(
+			overlay,
+			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1)
 		);
 
 		return overlay;

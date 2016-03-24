@@ -106,18 +106,19 @@ namespace linescan{
 					image, get_threashold(), get_erode()
 				);
 
-				image_.set_images(
-					to_image(bitmap_),
-					draw_laser_alignment(bitmap_.dims(), points)
-				);
-
 				auto line = fit_polynom< 1 >(points);
 
-				std::cout << height_ << std::endl;
+				image_.set_images(
+					to_image(bitmap_),
+					draw_line(bitmap_.dims(), line)
+				);
+
 				y_to_height_points_.emplace_back(
 					line(std::size_t(bitmap_.cols()) / 2), height_
 				);
+			}, false);
 
+			exception_catcher([&]{
 #ifdef MCL
 				mcl3_.move_relative(0, 0, 100);
 #endif
@@ -230,8 +231,9 @@ namespace linescan{
 			);
 
 			// draw camera y to Z-Coordinate mapping function
+			auto max_height_ = y_to_height_points_.back().y();
 			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
-			auto factor = std::size_t(bitmap_.cols()) / height_;
+			auto factor = std::size_t(bitmap_.cols()) / max_height_;
 			auto w = std::size_t(bitmap_.cols());
 
 			using namespace mitrax::literals;
@@ -257,7 +259,7 @@ namespace linescan{
 				QPoint(w / 2, overlay.height() - 32),
 				QPoint(w - 2, overlay.height())),
 				Qt::AlignRight | Qt::AlignVCenter,
-				tr("Z = %L1 µm").arg(height_)
+				tr("Z = %L1 µm").arg(max_height_)
 			);
 		}
 
