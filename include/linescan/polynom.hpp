@@ -58,6 +58,25 @@ namespace linescan{
 		mitrax::raw_col_vector< T, Degree + 1 > coefficients_;
 	};
 
+	template < typename T >
+	constexpr polynom< T, 1 > to_polynom(
+		mitrax::point< T > const& p1, mitrax::point< T > const& p2
+	){
+		using namespace mitrax::literals;
+
+		double dx = p2.x() - p1.x();
+		double dy = p2.y() - p1.y();
+		if(dx == 0) throw std::runtime_error(
+				"Can not make linear function, y coordinates are identical"
+			);
+
+		auto m = dy / dx;
+		auto a = p1.y() - m * p1.x();
+		return polynom< double, 1 >(
+			mitrax::make_col_vector< double >(2_R, {a, m})
+		);
+	}
+
 
 	template < std::size_t Degree, typename Container >
 	auto fit_polynom(Container const& data){

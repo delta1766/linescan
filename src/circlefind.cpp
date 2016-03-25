@@ -9,7 +9,6 @@
 #include <linescan/circlefind.hpp>
 #include <linescan/processing.hpp>
 #include <linescan/median.hpp>
-#include <linescan/save.hpp>
 
 #include <mitrax/convolution.hpp>
 #include <mitrax/segmentation.hpp>
@@ -17,7 +16,6 @@
 
 #include <array>
 #include <cmath>
-#include <iostream>
 
 
 namespace linescan{
@@ -576,29 +574,19 @@ namespace linescan{
 		return circle;
 	}
 
-	circle find_calib_circle(
+	std::pair< circle, bool > find_calib_circle(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		mitrax::point< std::size_t > const& pos,
 		mitrax::dims_t< 0, 0 > dims
 	){
 		using namespace mitrax::literals;
 
-		if(pos.x() + dims.cols() > bitmap.cols()){
-			dims.set_cols(bitmap.cols() - mitrax::cols(pos.x()));
-		}
-
-		if(pos.y() + dims.rows() > bitmap.rows()){
-			dims.set_rows(bitmap.rows() - mitrax::rows(pos.y()));
-		}
-
 		auto image = mitrax::sub_matrix(bitmap, pos, dims);
 		image = median(image, mitrax::dims(3_C, 3_R));
 
 		auto circle_data = find_circle(image, 8, 15);
 
-		if(!std::get< 0 >(circle_data)){
-			throw std::runtime_error("circle not found");
-		}
+		if(!std::get< 0 >(circle_data)) return { circle(), false };
 
 		auto circle = std::get< 1 >(circle_data);
 
@@ -607,10 +595,10 @@ namespace linescan{
 
 		circle = fine_fit(bitmap, circle, 0.3);
 
-		return circle;
+		return { circle, true };
 	}
 
-	std::array< circle, 2 > find_calib_line(
+	std::vector< circle > find_calib_circles(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap
 	){
 		using namespace mitrax::literals;
@@ -630,23 +618,28 @@ namespace linescan{
 			bitmap.rows() / 5_R
 		);
 
-		return {{
-			find_calib_circle(bitmap, pos1, dims),
-			find_calib_circle(bitmap, pos2, dims)
-		}};
+		auto circle1 = find_calib_circle(bitmap, pos1, dims);
+		auto circle2 = find_calib_circle(bitmap, pos2, dims);
+
+		std::vector< circle > result;
+		result.reserve(2);
+		if(circle1.second) result.push_back(circle1.first);
+		if(circle2.second) result.push_back(circle2.first);
+
+		return result;
 	}
 
-	std::array< circle, 2 > find_calib_line(
+	std::vector< circle > find_calib_circles(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		circle const& c1, circle const& c2
 	){
-		auto d1 = std::size_t(c1.radius() * 1.1f);
+		auto d1 = std::size_t(c1.radius() * 2);
 		auto pos1 = mitrax::point< std::size_t >(
 			c1.x() < d1 ? 0 : c1.x() - d1,
 			c1.y() < d1 ? 0 : c1.y() - d1
 		);
 
-		auto d2 = std::size_t(c2.radius() * 1.1f);
+		auto d2 = std::size_t(c2.radius() * 2);
 		auto pos2 = mitrax::point< std::size_t >(
 			c2.x() < d2 ? 0 : c2.x() - d2,
 			c2.y() < d2 ? 0 : c2.y() - d2
@@ -656,19 +649,24 @@ namespace linescan{
 		auto rows = std::size_t(bitmap.rows());
 
 		auto dims1 = mitrax::dims(
-			pos1.x() + 2 * d1 > cols ? cols : pos1.x() + 2 * d1,
-			pos1.y() + 2 * d1 > rows ? rows : pos1.y() + 2 * d1
+			pos1.x() + 2 * d1 > cols ? cols - pos1.x() : 2 * d1,
+			pos1.y() + 2 * d1 > rows ? rows - pos1.y() : 2 * d1
 		);
 
 		auto dims2 = mitrax::dims(
-			pos2.x() + 2 * d2 > cols ? cols : pos2.x() + 2 * d2,
-			pos2.y() + 2 * d2 > rows ? rows : pos2.y() + 2 * d2
+			pos2.x() + 2 * d2 > cols ? cols - pos2.x() : 2 * d2,
+			pos2.y() + 2 * d2 > rows ? rows - pos2.y() : 2 * d2
 		);
 
-		return {{
-			find_calib_circle(bitmap, pos1, dims1),
-			find_calib_circle(bitmap, pos2, dims2)
-		}};
+		auto circle1 = find_calib_circle(bitmap, pos1, dims1);
+		auto circle2 = find_calib_circle(bitmap, pos2, dims2);
+
+		std::vector< circle > result;
+		result.reserve(2);
+		if(circle1.second) result.push_back(circle1.first);
+		if(circle2.second) result.push_back(circle2.first);
+
+		return result;
 	}
 
 

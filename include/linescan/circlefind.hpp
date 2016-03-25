@@ -76,6 +76,10 @@ namespace linescan{
 		float radius_;
 	};
 
+	constexpr mitrax::point< double > to_point(circle const& c){
+		return { c.x(), c.y() };
+	}
+
 
 	circle fit_circle(
 		mitrax::raw_bitmap< float > const& image,
@@ -96,11 +100,11 @@ namespace linescan{
 		float radius_mm, float distance_mm
 	);
 
-	std::array< circle, 2 > find_calib_line(
+	std::vector< circle > find_calib_circles(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap
 	);
 
-	std::array< circle, 2 > find_calib_line(
+	std::vector< circle > find_calib_circles(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		circle const& c1, circle const& c2
 	);

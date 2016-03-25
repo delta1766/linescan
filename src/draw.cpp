@@ -96,125 +96,123 @@ namespace linescan{
 		);
 	}
 
-	void draw_align_text(QImage& overlay, QString const& text){
-			QPainter painter(&overlay);
-			painter.setRenderHint(QPainter::Antialiasing, true);
+	void draw_align_text(
+		QImage& overlay, QString const& text, std::size_t font_size
+	){
+		QPainter painter(&overlay);
+		painter.setRenderHint(QPainter::Antialiasing, true);
 
-			painter.setPen(qRgb(0, 255, 0));
-			QFont font = painter.font();
-			font.setPixelSize(128);
-			painter.setFont(font);
+		painter.setPen(qRgb(0, 255, 0));
+		QFont font = painter.font();
+		font.setPixelSize(font_size);
+		painter.setFont(font);
 
-			painter.drawText(
-				0, 0, overlay.width(), overlay.height() / 2,
-				Qt::AlignCenter, text
-			);
+		painter.drawText(
+			0, 0, overlay.width(), overlay.height() / 2,
+			Qt::AlignCenter, text
+		);
 	}
 
 	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
 		std::vector< mitrax::point< double > > const& points
 	){
-		if(points.size() < 2){
-			QImage overlay(
-				dims.cols(), dims.rows(), QImage::Format_ARGB32
-			);
-			overlay.fill(0);
+		QImage overlay(
+			dims.cols(), dims.rows(), QImage::Format_ARGB32
+		);
+		overlay.fill(0);
 
-			draw_align_text(overlay, QObject::tr("no line"));
+		if(points.size() < 2){
+			draw_align_text(overlay, QObject::tr("no line"), 128);
 
 			return overlay;
 		}
 
-		return draw_line(dims, fit_polynom< 1 >(points));
+		draw_line(overlay, fit_polynom< 1 >(points));
+
+		return overlay;
+	}
+
+	void draw_line(QImage& overlay, polynom< double, 1 > const& line){
+		auto angle = std::sin((line(100) - line(0)) / 100);
+		draw_align_text(
+			overlay,
+			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1),
+			128
+		);
+
+		QPainter painter(&overlay);
+		painter.setRenderHint(QPainter::Antialiasing, true);
+
+		painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
+		painter.drawLine(
+			0, line(0),
+			overlay.width() - 1, line(overlay.width() - 1)
+		);
 	}
 
 	QImage draw_line(
 		mitrax::bitmap_dims_t const& dims,
 		polynom< double, 1 > const& line
 	){
-		QImage overlay(
-			dims.cols(), dims.rows(), QImage::Format_ARGB32
-		);
+		QImage overlay(dims.cols(), dims.rows(), QImage::Format_ARGB32);
 		overlay.fill(0);
 
-		{
-			QPainter painter(&overlay);
-			painter.setRenderHint(QPainter::Antialiasing, true);
+		draw_line(overlay, line);
 
-			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 3));
-			painter.drawLine(
-				0, line(0),
-				overlay.width() - 1, line(overlay.width() - 1)
+		return overlay;
+	}
+
+	QImage draw_circles(QImage& overlay, std::vector< circle > const& circles){
+		QPainter painter(&overlay);
+		painter.setRenderHint(QPainter::Antialiasing, true);
+
+		painter.setPen(QPen(QBrush(Qt::red), 1));
+		for(auto const& c: circles){
+			painter.drawEllipse(
+				QPointF(c.x(), c.y()), c.radius(), c.radius()
 			);
 		}
-
-		auto angle = std::sin((line(100) - line(0)) / 100);
-		draw_align_text(
-			overlay,
-			QString("%1°").arg(angle * 180 / M_PI, 0, 'f', 1)
-		);
 
 		return overlay;
 	}
 
 	QImage draw_circle_line(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		std::vector< circle > const& circles
 	){
-		try{
-			return draw_circle_line(bitmap.dims(), find_calib_line(bitmap));
-		}catch(std::exception const& error){
-			std::cerr << "Exception: " << error.what() << std::endl;
-		}catch(...){
-			std::cerr << "Unknown exception" << std::endl;
-		}
-
 		QImage overlay(
 			bitmap.cols(), bitmap.rows(), QImage::Format_ARGB32
 		);
 		overlay.fill(0);
 
-		draw_align_text(overlay, QObject::tr("no circles"));
+		draw_circles(overlay, circles);
 
-		return overlay;
-	}
-
-	QImage draw_circle_line(
-		mitrax::bitmap_dims_t const& dims,
-		std::array< circle, 2 > const& circles
-	){
-		using namespace mitrax::literals;
-
-		auto c1 = circles[0];
-		auto c2 = circles[1];
-
-		double dx = c2.x() - c1.x();
-		double dy = c2.y() - c1.y();
-		if(dx == 0) dx = 1;
-
-		auto m = dy / dx;
-		auto a = c1.y() - m * c1.x();
-		polynom< double, 1 > line(
-			mitrax::make_col_vector< double >(2_R, {a, m})
-		);
-
-		auto overlay = draw_line(dims, line);
-
-		{
-			// draw circles in red
-			QPainter painter(&overlay);
-			painter.setRenderHint(QPainter::Antialiasing, true);
-
-			painter.setPen(QPen(QBrush(Qt::red), 1));
-			for(auto const& c: circles){
-				painter.drawEllipse(
-					QPointF(c.x(), c.y()), c.radius(), c.radius()
-				);
-			}
+		if(circles.size() != 2){
+			draw_align_text(overlay, QObject::tr("not two circles found"), 64);
+			return overlay;
 		}
 
+		if(circles[1].x() == circles[0].x()){
+			draw_align_text(
+				overlay,
+				QObject::tr("can not make linear function"),
+				64
+			);
+			return overlay;
+		}
+
+		auto line = to_polynom(to_point(circles[0]), to_point(circles[1]));
+
+		draw_line(overlay, line);
+
 		return overlay;
 	}
+
+	QImage draw_circle_line(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
+		return draw_circle_line(bitmap, find_calib_circles(bitmap));
+	}
+
 
 
 

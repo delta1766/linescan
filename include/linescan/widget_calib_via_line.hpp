@@ -12,6 +12,7 @@
 #include "widget_processing_base.hpp"
 #include "control_F9S_MCL3.hpp"
 #include "calibration.hpp"
+#include "circlefind.hpp"
 
 #include <iostream>
 
@@ -40,6 +41,8 @@ namespace linescan{
 
 	private:
 		void analyze_laser();
+		void analyze_target();
+		void reset();
 		void set_running(bool is_running);
 
 		enum class step{
@@ -54,9 +57,13 @@ namespace linescan{
 		control_F9S_MCL3& mcl3_;
 		std::function< void(laser_calibration const&) > set_laser_calib_;
 
-		mitrax::raw_bitmap< std::uint8_t > bitmap_;
 		double height_;
+		mitrax::raw_bitmap< std::uint8_t > bitmap_;
+		std::vector< mitrax::point< double > > left_points_;
+		std::vector< mitrax::point< double > > right_points_;
 		std::vector< mitrax::point< double > > y_to_height_points_;
+		std::vector< circle > last_circles_;
+		std::array< mitrax::point< double >, 2 > target_differences_;
 
 		std::size_t save_count_line_;
 

@@ -62,14 +62,16 @@ namespace linescan{
 	);
 
 	QImage draw_circle_line(
-		mitrax::bitmap_dims_t const& dims,
-		std::array< circle, 2 > const& circles
+		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		std::vector< circle > const& circles
 	);
 
 	QImage draw_line(
 		mitrax::bitmap_dims_t const& dims,
 		polynom< double, 1 > const& line
 	);
+
+	void draw_line(QImage& overlay, polynom< double, 1 > const& line);
 
 
 }

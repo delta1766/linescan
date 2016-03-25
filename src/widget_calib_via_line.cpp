@@ -9,7 +9,6 @@
 #include <linescan/widget_calib_via_line.hpp>
 #include <linescan/exception_catcher.hpp>
 #include <linescan/calc_top_distance_line.hpp>
-#include <linescan/circlefind.hpp>
 #include <linescan/to_image.hpp>
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
@@ -34,9 +33,9 @@ namespace linescan{
 		mcl3_(mcl3),
 		set_laser_calib_(set_laser_calib),
 		height_(0),
+		target_differences_{{{0, 0}, {0, 0}}},
 		save_count_line_(0),
 		laser_line_(tr("Laser image")),
-		laser_start_(tr("Start")),
 		laser_auto_stop_l_(tr("Auto stop")),
 		running_(false)
 	{
@@ -87,14 +86,18 @@ namespace linescan{
 
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
-				analyze_laser();
+				switch(step_){
+					case step::laser: analyze_laser(); break;
+					case step::target: analyze_target(); break;
+					case step::complete: reset(); break;
+				}
 			}else{
 				start();
 			}
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{
-			exception_catcher([&]{
+			if(step_ == step::laser) exception_catcher([&]{
 				auto name = QString("data/laser/laser_%1.png")
 					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
 					.toStdString();
@@ -123,6 +126,76 @@ namespace linescan{
 					to_image(bitmap_),
 					draw_line(bitmap_.dims(), line)
 				);
+
+				y_to_height_points_.emplace_back(
+					line(std::size_t(bitmap_.cols()) / 2), height_
+				);
+			}, false);
+
+			if(step_ == step::target) exception_catcher([&]{
+				auto name = QString("data/target/laser_%1.png")
+					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
+					.toStdString();
+
+				++save_count_line_;
+
+#ifdef CAM
+				auto image = cam_.image();
+				(void)name;
+// 				save(image, name);
+#else
+				auto image = load(name);
+#endif
+
+				bitmap_ = mitrax::transform([](auto a, auto b){
+					return std::min(a, b);
+				}, bitmap_, image);
+
+				auto circles = last_circles_.size() == 2 ?
+					find_calib_circles(
+						image, last_circles_[0], last_circles_[1]
+					) : find_calib_circles(image);
+
+				if(last_circles_.size() == 2){
+					last_circles_[0].x() += target_differences_[0].x();
+					last_circles_[0].y() += target_differences_[0].y();
+					last_circles_[1].x() += target_differences_[1].x();
+					last_circles_[1].y() += target_differences_[1].y();
+				}
+
+				image_.set_images(
+					to_image(bitmap_),
+					draw_circle_line(image, circles)
+				);
+
+				if(circles.size() != 2 || circles[0].x() == circles[1].x()){
+					return;
+				}
+
+				if(last_circles_.size() == 2 && (
+					circles[0].radius() < last_circles_[0].radius() * 0.6 ||
+					circles[1].radius() < last_circles_[1].radius() * 0.6 ||
+					circles[0].radius() > last_circles_[0].radius() * 1.4 ||
+					circles[1].radius() > last_circles_[1].radius() * 1.4
+				)){
+					return;
+				}
+
+				auto line =
+					to_polynom(to_point(circles[0]), to_point(circles[1]));
+
+				if(last_circles_.size() == 2){
+					std::cout << (target_differences_[0].x() =
+						circles[0].x() - last_circles_[0].x()) << std::endl;
+					std::cout << (target_differences_[0].y() =
+						circles[0].y() - last_circles_[0].y()) << std::endl;
+					std::cout << (target_differences_[1].x() =
+						circles[1].x() - last_circles_[1].x()) << std::endl;
+					std::cout << (target_differences_[1].y() =
+						circles[1].y() - last_circles_[1].y()) << std::endl;
+				}
+
+				last_circles_ = circles;
 
 				y_to_height_points_.emplace_back(
 					line(std::size_t(bitmap_.cols()) / 2), height_
@@ -270,6 +343,18 @@ namespace linescan{
 		stop();
 	}
 
+	void widget_calib_via_line::analyze_target(){
+		set_step(step::complete);
+
+		stop();
+	}
+
+	void widget_calib_via_line::reset(){
+		set_step(step::laser);
+
+		stop();
+	}
+
 	void widget_calib_via_line::set_running(bool is_running){
 		auto set_enabled = [this](bool enabled){
 			original_.setEnabled(enabled);
@@ -288,9 +373,20 @@ namespace linescan{
 		running_ = is_running;
 
 		if(is_running){
-			bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
-				cam_.cols(), cam_.rows()
-			);
+			switch(step_){
+				case step::laser:
+					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
+						cam_.cols(), cam_.rows()
+					);
+					break;
+				case step::target:
+					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
+						cam_.cols(), cam_.rows(), 255
+					);
+					last_circles_.clear();
+					break;
+				case step::complete: break;
+			}
 			y_to_height_points_.clear();
 			height_ = 0;
 
@@ -330,16 +426,19 @@ namespace linescan{
 		switch(step_){
 			case step::laser:{
 				step_l_.setText(text.arg(1));
+				laser_start_.setText(tr("Start"));
 				break;
 			}
 
 			case step::target:{
 				step_l_.setText(text.arg(2));
+				laser_start_.setText(tr("Start"));
 				break;
 			}
 
 			case step::complete:{
 				step_l_.setText(tr("complete"));
+				laser_start_.setText(tr("Reset"));
 				break;
 			}
 		}
