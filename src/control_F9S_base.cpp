@@ -79,6 +79,9 @@ namespace linescan{
 
 		port_.send(data);
 #else
+		throw std::logic_error(
+			"call control_F9S_base::send in simulation mode"
+		);
 		(void)commands;
 #endif
 	}
@@ -87,6 +90,9 @@ namespace linescan{
 #ifdef MCL
 		port_.send(data);
 #else
+		throw std::logic_error(
+			"call control_F9S_base::send in simulation mode"
+		);
 		(void)data;
 #endif
 	}

@@ -39,10 +39,6 @@ namespace linescan{
 		laser_auto_stop_l_(tr("Auto stop")),
 		running_(false)
 	{
-#ifndef MCL
-		(void)mcl3_;
-#endif
-
 		radio_buttons_.addButton(&laser_line_);
 
 		glayout_.addWidget(&laser_line_, 5, 0, 1, 2);
@@ -203,9 +199,7 @@ namespace linescan{
 			}, false);
 
 			exception_catcher([&]{
-#ifdef MCL
 				mcl3_.move_relative(0, 0, 1000);
-#endif
 				height_ += 1000;
 			}, false);
 
@@ -411,12 +405,10 @@ namespace linescan{
 			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
 
-#ifdef MCL
 			if(!y_to_height_points_.empty()){
 				mcl3_.move_relative(0, 0, -y_to_height_points_.back().y());
 			}
 			y_to_height_points_.clear();
-#endif
 		}
 	}
 

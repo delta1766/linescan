@@ -36,16 +36,31 @@ namespace linescan{
 		/// \brief Stop all movements
 		void stop();
 
+		/// \brief Set positions without movement
+		///
+		/// Values in µm.
 		void set_position(std::int64_t x, std::int64_t y, std::int64_t z);
 
+		/// \brief Move to position
+		///
+		/// Values in µm.
 		void move_to(std::int64_t x, std::int64_t y, std::int64_t z);
 
+		/// \brief Move relative to actual position
+		///
+		/// Values in µm.
 		void move_relative(std::int64_t x, std::int64_t y, std::int64_t z);
 
 		void activate_joystick();
 
+		/// \brief Get actual position
+		///
+		/// Values in µm.
 		std::array< std::int64_t, 3 > position();
 
+		/// \brief Get target position
+		///
+		/// Values in µm.
 		std::array< std::int64_t, 3 > preselection();
 
 
@@ -59,6 +74,17 @@ namespace linescan{
 		bool joystick_;
 
 		std::mutex joystick_mutex_;
+
+
+#ifndef MCL
+		std::int64_t pre_x_;
+		std::int64_t pre_y_;
+		std::int64_t pre_z_;
+
+		std::int64_t x_;
+		std::int64_t y_;
+		std::int64_t z_;
+#endif
 
 
 		void deactivate_joystick();

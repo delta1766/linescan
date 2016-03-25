@@ -69,6 +69,7 @@ namespace linescan{
 			std::chrono::duration< Rep, Period > const& timeout,
 			std::size_t repetitions = 3
 		){
+#ifdef MCL
 			for(std::size_t i = 0; i < repetitions; ++i){
 				send(commands);
 				auto result = receive(timeout);
@@ -76,6 +77,14 @@ namespace linescan{
 			}
 
 			throw std::runtime_error("no answer from " + name());
+#else
+			throw std::logic_error(
+				"call control_F9S_base::get in simulation mode"
+			);
+			(void)commands;
+			(void)timeout;
+			(void)repetitions;
+#endif
 		}
 
 		std::pair< std::string, bool > receive();
@@ -90,8 +99,10 @@ namespace linescan{
 				cv_.wait_for(lock, timeout) == std::cv_status::no_timeout;
 			return {receive_, ok};
 #else
+			throw std::logic_error(
+				"call control_F9S_base::receive in simulation mode"
+			);
 			(void)timeout;
-			return {receive_, true};
 #endif
 		}
 

@@ -15,6 +15,14 @@ namespace linescan{
 	control_F9S_MCL3::control_F9S_MCL3(std::string const& device):
 		control_F9S_base(device),
 		joystick_(false)
+#ifndef MCL
+		,pre_x_(0)
+		,pre_y_(0)
+		,pre_z_(0)
+		,x_(0)
+		,y_(0)
+		,z_(0)
+#endif
 	{
 #ifdef MCL3
 		write_resolution(10);
@@ -79,18 +87,23 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL3::activate_joystick(){
+#ifdef MCL3
 		std::lock_guard< std::mutex > lock(joystick_mutex_);
 		send({{write::command, 'j'}, {read::start}});
+#endif
 		joystick_ = true;
 	}
 
 	void control_F9S_MCL3::deactivate_joystick(){
+#ifdef MCL3
 		std::lock_guard< std::mutex > lock(joystick_mutex_);
 		if(!joystick_) return;
 
 		send("j");
+#endif
 		joystick_ = false;
 
+#ifdef MCL3
 		auto answer = receive();
 		if(answer.second) return;
 		if(regex_search(answer.first, move_answer_expected)) return;
@@ -98,6 +111,7 @@ namespace linescan{
 		throw std::logic_error(
 			"answer after deactivating joystick was '" + answer.first + "'"
 		);
+#endif
 	}
 
 	void control_F9S_MCL3::calibrate(){
@@ -105,6 +119,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
+#ifdef MCL3
 		// TODO: respect mask
 		auto answer = get({{write::command, 'c'}, {read::start}}, 30s);
 		if(answer == "AAA-.") return;
@@ -113,6 +128,11 @@ namespace linescan{
 			"answer after calibrate was '" + answer +
 			"', expected was 'AAA-.'"
 		);
+#else
+		x_ = -500000;
+		y_ = -500000;
+		z_ = -500000;
+#endif
 	}
 
 	void control_F9S_MCL3::move_to_end(){
@@ -120,6 +140,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
+#ifdef MCL3
 		// TODO: respect mask
 		auto answer = get({{write::command, 'l'}, {read::start}}, 30s);
 		if(answer == "DDD-.") return;
@@ -128,17 +149,24 @@ namespace linescan{
 			"answer after move to end was '" + answer +
 			"', expected was 'DDD-.'"
 		);
+#else
+		x_ = 500000;
+		y_ = 500000;
+		z_ = 500000;
+#endif
 	}
 
 	void control_F9S_MCL3::stop(){
 		deactivate_joystick();
 
+#ifdef MCL3
 		auto answer = get({{write::command, 'a'}, {read::start}});
 		if(regex_search(answer, move_answer_expected)) return;
 
 		throw std::logic_error(
 			"answer after stop was '" + answer + "'"
 		);
+#endif
 	}
 
 	void control_F9S_MCL3::set_position(
@@ -146,12 +174,18 @@ namespace linescan{
 	){
 		deactivate_joystick();
 
+#ifdef MCL3
 		send({
 			{write::absolute_position_x, x},
 			{write::absolute_position_y, y},
 			{write::absolute_position_z, z}
 		});
 		delay();
+#else
+		x_ = x;
+		y_ = y;
+		z_ = z;
+#endif
 	}
 
 	void control_F9S_MCL3::move_to(
@@ -161,6 +195,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
+#ifdef MCL3
 		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
@@ -174,6 +209,14 @@ namespace linescan{
 		throw std::logic_error(
 			"answer after move_to was '" + answer + "'"
 		);
+#else
+		pre_x_ = x;
+		pre_y_ = y;
+		pre_z_ = z;
+		x_ = x;
+		y_ = y;
+		z_ = z;
+#endif
 	}
 
 	void control_F9S_MCL3::move_relative(
@@ -183,6 +226,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
+#ifdef MCL3
 		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
@@ -196,22 +240,30 @@ namespace linescan{
 		throw std::logic_error(
 			"answer after move_relative was '" + answer + "'"
 		);
+#else
+		x_ += x;
+		y_ += y;
+		z_ += z;
+		pre_x_ = x_;
+		pre_y_ = y_;
+		pre_z_ = z_;
+#endif
 	}
 
 	std::array< std::int64_t, 3 > control_F9S_MCL3::position(){
-		return {{
-			read_x(),
-			read_y(),
-			read_z()
-		}};
+#ifdef MCL3
+		return {{ read_x(), read_y(), read_z() }};
+#else
+		return {{ x_, y_, z_ }};
+#endif
 	}
 
 	std::array< std::int64_t, 3 > control_F9S_MCL3::preselection(){
-		return {{
-			read_pre_x(),
-			read_pre_y(),
-			read_pre_z()
-		}};
+#ifdef MCL3
+		return {{ read_pre_x(), read_pre_y(), read_pre_z() }};
+#else
+		return {{ pre_x_, pre_y_, pre_z_ }};
+#endif
 	}
 
 
