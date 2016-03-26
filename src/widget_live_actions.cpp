@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_live_actions.hpp>
 #include <linescan/to_image.hpp>
-#include <linescan/calc_top_distance_line.hpp>
+#include <linescan/calc_laser_line.hpp>
 #include <linescan/draw.hpp>
 
 
@@ -42,17 +42,17 @@ namespace linescan{
 
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-					auto line = calc_top_distance_line(eroded(bitmap));
+					auto line = calc_laser_line(eroded(bitmap));
 
 					return std::pair< QImage, QImage >{
 						[this, &line, &bitmap]{
 							if(is_sub_pixel()){
-								return to_image(draw_top_distance_line(
+								return to_image(draw_laser_line(
 									line, bitmap.cols(), bitmap.rows()
 								));
 							}
 
-							return to_image(draw_top_distance_line_student(
+							return to_image(draw_laser_line_student(
 								line, bitmap.cols(), bitmap.rows()
 							));
 						}(),

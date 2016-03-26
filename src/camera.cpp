@@ -722,11 +722,11 @@ namespace linescan{
 		return result;
 #else
 		std::ostringstream os;
-		os << "data/live_" << std::setfill('0') << std::setw(4) << i_
+		os << "data/object/laser_" << std::setfill('0') << std::setw(4) << i_
 			<< ".png";
 
 		++i_;
-		if(i_ > 12) i_ = 0;
+		if(i_ > 325) i_ = 0;
 
 		return load(os.str());
 #endif

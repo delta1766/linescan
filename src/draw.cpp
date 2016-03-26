@@ -9,7 +9,7 @@
 #include <linescan/draw.hpp>
 #include <linescan/processing.hpp>
 #include <linescan/polynom.hpp>
-#include <linescan/calc_top_distance_line.hpp>
+#include <linescan/calc_laser_line.hpp>
 
 #include <QtGui/QPainter>
 
@@ -55,7 +55,7 @@ namespace linescan{
 		}
 	}
 
-	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
+	mitrax::raw_bitmap< std::uint8_t > draw_laser_line(
 		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
@@ -68,7 +68,7 @@ namespace linescan{
 		return image;
 	}
 
-	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
+	mitrax::raw_bitmap< bool > draw_laser_line_student(
 		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
@@ -92,7 +92,7 @@ namespace linescan{
 	){
 		return draw_laser_alignment(
 			bitmap.dims(),
-			calc_top_distance_line(bitmap, binarize_threshold, erode_value)
+			calc_laser_line(bitmap, binarize_threshold, erode_value)
 		);
 	}
 

@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/calc_top_distance_line.hpp>
+#include <linescan/calc_laser_line.hpp>
 
 #include <linescan/processing.hpp>
 
@@ -14,7 +14,7 @@
 namespace linescan{
 
 
-	std::vector< mitrax::point< double > > calc_top_distance_line(
+	std::vector< mitrax::point< double > > calc_laser_line(
 		mitrax::raw_bitmap< bool > const& binary
 	){
 		std::vector< mitrax::point< double > > result;
@@ -46,14 +46,14 @@ namespace linescan{
 		return result;
 	}
 
-	std::vector< mitrax::point< double > > calc_top_distance_line(
+	std::vector< mitrax::point< double > > calc_laser_line(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
 		std::uint8_t binarize_threshold,
 		std::size_t erode_value
 	){
 		auto binary = binarize(bitmap, binarize_threshold);
 		binary = erode(binary, erode_value);
-		return calc_top_distance_line(binary);
+		return calc_laser_line(binary);
 	}
 
 

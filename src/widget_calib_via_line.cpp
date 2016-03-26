@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_calib_via_line.hpp>
 #include <linescan/exception_catcher.hpp>
-#include <linescan/calc_top_distance_line.hpp>
+#include <linescan/calc_laser_line.hpp>
 #include <linescan/to_image.hpp>
 #include <linescan/load.hpp>
 #include <linescan/save.hpp>
@@ -112,7 +112,7 @@ namespace linescan{
 					return std::max(a, b);
 				}, bitmap_, image);
 
-				auto points = calc_top_distance_line(
+				auto points = calc_laser_line(
 					image, get_threashold(), get_erode()
 				);
 

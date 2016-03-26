@@ -34,13 +34,13 @@ namespace linescan{
 		std::vector< mitrax::point< double > > const& line
 	);
 
-	mitrax::raw_bitmap< std::uint8_t > draw_top_distance_line(
+	mitrax::raw_bitmap< std::uint8_t > draw_laser_line(
 		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
 	);
 
-	mitrax::raw_bitmap< bool > draw_top_distance_line_student(
+	mitrax::raw_bitmap< bool > draw_laser_line_student(
 		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
