@@ -244,7 +244,7 @@ namespace linescan{
 	void widget_calib_via_line::analyze_laser(){
 		auto y_to_height = fit_polynom< 3 >(y_to_height_points_);
 
-		auto binary = eroded(bitmap_);
+		auto binary = erode(binarize(bitmap_, get_threashold()), get_erode());
 
 		std::vector< mitrax::point< double > > left_points;
 		std::vector< mitrax::point< double > > right_points;

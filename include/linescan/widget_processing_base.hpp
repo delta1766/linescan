@@ -27,14 +27,6 @@ namespace linescan{
 		std::uint8_t get_erode()const;
 		bool is_sub_pixel()const;
 
-		mitrax::raw_bitmap< bool > binarized(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap
-		)const;
-
-		mitrax::raw_bitmap< bool > eroded(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap
-		)const;
-
 
 		QHBoxLayout hlayout_;
 		QGridLayout glayout_;

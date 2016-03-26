@@ -62,7 +62,7 @@ namespace linescan{
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
 					return std::pair< QImage, QImage >{
-						to_image(binarized(bitmap)),
+						to_image(binarize(bitmap, get_threashold())),
 						QImage()
 					};
 				});
@@ -74,7 +74,9 @@ namespace linescan{
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
 					return std::pair< QImage, QImage >{
-						to_image(eroded(bitmap)),
+						to_image(erode(
+							binarize(bitmap, get_threashold()), get_erode()
+						)),
 						QImage()
 					};
 				});
@@ -89,18 +91,6 @@ namespace linescan{
 
 	std::uint8_t widget_processing_base::get_erode()const{
 		return static_cast< std::uint8_t >(erode_.value());
-	}
-
-	mitrax::raw_bitmap< bool > widget_processing_base::binarized(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
-	)const{
-		return binarize(bitmap, get_threashold());
-	}
-
-	mitrax::raw_bitmap< bool > widget_processing_base::eroded(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
-	)const{
-		return erode(binarized(bitmap), get_erode());
 	}
 
 
