@@ -13,40 +13,40 @@
 #include <iostream>
 
 
-int main(int argc, char** argv)try{
+int main(int argc, char** argv){
 	QApplication app(argc, argv);
 
-	QCoreApplication::setOrganizationName("TU Ilmenau");
-	QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
-	QCoreApplication::setApplicationName("linescan");
-	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+	try{
+		QCoreApplication::setOrganizationName("TU Ilmenau");
+		QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
+		QCoreApplication::setApplicationName("linescan");
+		QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-	linescan::widget_main_window window;
-	window.showMaximized();
+		linescan::widget_main_window window;
+		window.showMaximized();
 
-	return app.exec();
-}catch(std::exception const& e){
-	QApplication app(argc, argv);
+		return app.exec();
+	}catch(std::exception const& e){
+		QMessageBox box(
+			QMessageBox::Critical,
+			QObject::tr("Crash"),
+			QString("Exit with exception: [%1] %2")
+				.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
+				.arg(e.what()),
+			QMessageBox::Ok
+		);
 
-	QMessageBox box(
-		QMessageBox::Critical,
-		QObject::tr("Crash"),
-		QString("Exit with exception: [%1] %2")
-			.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
-			.arg(e.what()),
-		QMessageBox::Ok
-	);
+		box.exec();
+	}catch(...){
+		QMessageBox box(
+			QMessageBox::Critical,
+			QObject::tr("Fatal Crash"),
+			"Exit with unknown exception!",
+			QMessageBox::Ok
+		);
 
-	box.exec();
-}catch(...){
-	QApplication app(argc, argv);
+		box.exec();
+	}
 
-	QMessageBox box(
-		QMessageBox::Critical,
-		QObject::tr("Fatal Crash"),
-		"Exit with unknown exception!",
-		QMessageBox::Ok
-	);
-
-	box.exec();
+	return 1;
 }
