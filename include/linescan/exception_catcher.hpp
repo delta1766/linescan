@@ -19,12 +19,13 @@ namespace linescan{
 
 
 	template < typename F >
-	void exception_catcher(F&& f, bool make_message = true)try{
+	bool exception_catcher(F&& f, bool make_message = true)try{
 		f();
+		return true;
 	}catch(std::exception const& error){
 		if(!make_message){
 			std::cerr << "Exception: " << error.what() << std::endl;
-			return;
+			return false;
 		}
 
 		QMessageBox box(
@@ -35,10 +36,12 @@ namespace linescan{
 		);
 
 		box.exec();
+
+		return false;
 	}catch(...){
 		if(!make_message){
 			std::cerr << "Unknown exception" << std::endl;
-			return;
+			return false;
 		}
 
 		QMessageBox box(
@@ -49,6 +52,8 @@ namespace linescan{
 		);
 
 		box.exec();
+
+		return false;
 	}
 
 
