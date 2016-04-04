@@ -40,6 +40,28 @@ namespace linescan{
 
 
 	private:
+		struct laser_analyse_data{
+			laser_analyse_data(double x1, double x2, double y_2d, double z_3d):
+				x1(x1), x2(x2), y_2d(y_2d), z_3d(z_3d) {}
+
+			double x1;
+			double x2;
+			double y_2d;
+			double z_3d;
+		};
+
+		struct circle_analyse_data{
+			circle_analyse_data(
+				circle const& c1, circle const& c2, double y_2d, double z_3d
+			):
+				c1(c1), c2(c2), y_2d(y_2d), z_3d(z_3d) {}
+
+			circle c1;
+			circle c2;
+			double y_2d;
+			double z_3d;
+		};
+
 		void analyze_laser();
 		void analyze_target();
 		void reset();
@@ -59,10 +81,10 @@ namespace linescan{
 
 		double height_;
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
-		std::vector< mitrax::point< double > > left_points_;
-		std::vector< mitrax::point< double > > right_points_;
-		std::vector< mitrax::point< double > > y_to_height_points_;
-		std::vector< circle > last_circles_;
+		std::vector< laser_analyse_data > laser_calib_;
+		std::vector< circle_analyse_data > circle_calib_;
+// 		std::vector< mitrax::point< double > > y_to_height_points_;
+// 		std::vector< circle > last_circles_;
 		std::array< mitrax::point< double >, 2 > target_differences_;
 
 		std::size_t save_count_line_;

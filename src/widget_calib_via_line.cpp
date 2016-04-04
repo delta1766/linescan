@@ -123,8 +123,11 @@ namespace linescan{
 					draw_line(bitmap_.dims(), line)
 				);
 
-				y_to_height_points_.emplace_back(
-					line(std::size_t(bitmap_.cols()) / 2), height_
+				laser_calib_.emplace_back(
+					points.front().x(),
+					points.back().x(),
+					line(std::size_t(bitmap_.cols()) / 2),
+					height_
 				);
 			}, false);
 
@@ -147,54 +150,58 @@ namespace linescan{
 					return std::min(a, b);
 				}, bitmap_, image);
 
-				auto circles = last_circles_.size() == 2 ?
-					find_calib_circles(
-						image, last_circles_[0], last_circles_[1]
-					) : find_calib_circles(image);
+				auto c = [this, &image](){
+					if(circle_calib_.size() < 4){
+						return find_calib_circles(image);
+					}
 
-				if(last_circles_.size() == 2){
-					last_circles_[0].x() += target_differences_[0].x();
-					last_circles_[0].y() += target_differences_[0].y();
-					last_circles_[1].x() += target_differences_[1].x();
-					last_circles_[1].y() += target_differences_[1].y();
-				}
+					std::vector< mitrax::point< double > > x1;
+					std::vector< mitrax::point< double > > y1;
+					std::vector< mitrax::point< double > > x2;
+					std::vector< mitrax::point< double > > y2;
+					for(auto const& v: circle_calib_){
+						x1.emplace_back(v.z_3d, v.c1.x());
+						y1.emplace_back(v.z_3d, v.c1.y());
+						x2.emplace_back(v.z_3d, v.c2.x());
+						y2.emplace_back(v.z_3d, v.c2.y());
+					}
+
+					return find_calib_circles(
+						image,
+						circle(
+							fit_polynom< 3 >(x1)(height_),
+							fit_polynom< 3 >(y1)(height_),
+							circle_calib_.back().c1.radius()
+						),
+						circle(
+							fit_polynom< 3 >(x2)(height_),
+							fit_polynom< 3 >(y2)(height_),
+							circle_calib_.back().c2.radius()
+						)
+					);
+				}();
 
 				image_.set_images(
 					to_image(bitmap_),
-					draw_circle_line(image, circles)
+					draw_circle_line(image, c)
 				);
 
-				if(circles.size() != 2 || circles[0].x() == circles[1].x()){
+				if(c.size() != 2 || c[0].x() == c[1].x()){
 					return;
 				}
 
-				if(last_circles_.size() == 2 && (
-					circles[0].radius() < last_circles_[0].radius() * 0.6 ||
-					circles[1].radius() < last_circles_[1].radius() * 0.6 ||
-					circles[0].radius() > last_circles_[0].radius() * 1.4 ||
-					circles[1].radius() > last_circles_[1].radius() * 1.4
+				if(!circle_calib_.empty() && (
+					c[0].radius() < circle_calib_.back().c1.radius() * 0.8 ||
+					c[1].radius() < circle_calib_.back().c2.radius() * 0.8 ||
+					c[0].radius() > circle_calib_.back().c1.radius() * 1.2 ||
+					c[1].radius() > circle_calib_.back().c2.radius() * 1.2
 				)){
 					return;
 				}
 
-				auto line =
-					to_polynom(to_point(circles[0]), to_point(circles[1]));
-
-				if(last_circles_.size() == 2){
-					std::cout << (target_differences_[0].x() =
-						circles[0].x() - last_circles_[0].x()) << std::endl;
-					std::cout << (target_differences_[0].y() =
-						circles[0].y() - last_circles_[0].y()) << std::endl;
-					std::cout << (target_differences_[1].x() =
-						circles[1].x() - last_circles_[1].x()) << std::endl;
-					std::cout << (target_differences_[1].y() =
-						circles[1].y() - last_circles_[1].y()) << std::endl;
-				}
-
-				last_circles_ = circles;
-
-				y_to_height_points_.emplace_back(
-					line(std::size_t(bitmap_.cols()) / 2), height_
+				auto line = to_polynom(to_point(c[0]), to_point(c[1]));
+				circle_calib_.emplace_back(
+					c[0], c[1], line(cam_.cols() / 2), height_
 				);
 			}, false);
 
@@ -204,13 +211,23 @@ namespace linescan{
 			}, false);
 
 			if(
-				y_to_height_points_.size() > 0 &&
-				laser_auto_stop_.isChecked() &&
-				y_to_height_points_.back().x() <= 
-				std::size_t(bitmap_.rows()) - y_to_height_points_.front().x()
+				step_ == step::laser &&
+				laser_calib_.size() > 1 && laser_auto_stop_.isChecked()
 			){
-				analyze_laser();
-				return;
+				auto y1 = cam_.rows() - laser_calib_.front().y_2d;
+				auto y2 = laser_calib_.back().y_2d;
+
+				if(y2 <= y1) analyze_laser();
+			}
+
+			if(
+				step_ == step::target &&
+				circle_calib_.size() > 1 && laser_auto_stop_.isChecked()
+			){
+				auto y1 = cam_.rows() - circle_calib_.front().y_2d;
+				auto y2 = circle_calib_.back().y_2d;
+
+				if(y2 <= y1) analyze_target();
 			}
 
 			if(running_) timer_.start(1);
@@ -242,35 +259,18 @@ namespace linescan{
 	}
 
 	void widget_calib_via_line::analyze_laser(){
-		auto y_to_height = fit_polynom< 3 >(y_to_height_points_);
-
-		auto binary = erode(binarize(bitmap_, get_threashold()), get_erode());
-
 		std::vector< mitrax::point< double > > left_points;
 		std::vector< mitrax::point< double > > right_points;
-		auto mid_x = std::size_t(binary.cols()) / 2;
-		auto from_y = std::size_t(y_to_height_points_.back().x());
-		auto to_y = std::size_t(y_to_height_points_.front().x());
-		for(auto y = from_y; y < to_y; ++y){
-			if(!binary(mid_x, y)) continue;
-
-			for(auto x = mid_x; x > 0; --x){
-				if(!binary(x, y)){
-					left_points.emplace_back(y, x);
-					break;
-				}
-			}
-
-			for(auto x = mid_x; x < binary.cols(); ++x){
-				if(!binary(x, y)){
-					right_points.emplace_back(y, x);
-					break;
-				}
-			}
+		std::vector< mitrax::point< double > > y_to_height_points;
+		for(auto const& v: laser_calib_){
+			left_points.emplace_back(v.y_2d, v.x1);
+			right_points.emplace_back(v.y_2d, v.x2);
+			y_to_height_points.emplace_back(v.y_2d, v.z_3d);
 		}
 
 		auto left_laser_line = fit_polynom< 1 >(left_points);
 		auto right_laser_line = fit_polynom< 1 >(right_points);
+		auto y_to_height = fit_polynom< 3 >(y_to_height_points);
 
 		// Create a transparent Overlay
 		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
@@ -294,7 +294,7 @@ namespace linescan{
 			);
 
 			// draw camera y to Z-Coordinate mapping function
-			auto max_height_ = y_to_height_points_.back().y();
+			auto max_height_ = laser_calib_.back().z_3d;
 			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
 			auto factor = std::size_t(bitmap_.cols()) / max_height_;
 			auto w = std::size_t(bitmap_.cols());
@@ -338,6 +338,77 @@ namespace linescan{
 	}
 
 	void widget_calib_via_line::analyze_target(){
+		std::vector< mitrax::point< double > > left_points;
+		std::vector< mitrax::point< double > > right_points;
+		std::vector< mitrax::point< double > > y_to_height_points;
+		for(auto const& v: circle_calib_){
+			left_points.emplace_back(v.c1.y(), v.c1.x());
+			right_points.emplace_back(v.c2.y(), v.c2.x());
+			y_to_height_points.emplace_back(v.y_2d, v.z_3d);
+		}
+
+		auto left_laser_line = fit_polynom< 1 >(left_points);
+		auto right_laser_line = fit_polynom< 1 >(right_points);
+		auto y_to_height = fit_polynom< 3 >(y_to_height_points);
+
+		// Create a transparent Overlay
+		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
+		overlay.fill(0);
+
+		{
+			QPainter painter(&overlay);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+
+			// Draw laser width functions
+			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
+			painter.drawLine(
+				left_laser_line(0), 0,
+				left_laser_line(overlay.height() - 1), overlay.height() - 1
+			);
+			painter.drawLine(
+				right_laser_line(0), 0,
+				right_laser_line(overlay.height() - 1), overlay.height() - 1
+			);
+
+			// draw camera y to Z-Coordinate mapping function
+			auto max_height_ = circle_calib_.back().z_3d;
+			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
+			auto factor = std::size_t(bitmap_.cols()) / max_height_;
+			auto w = std::size_t(bitmap_.cols());
+
+			using namespace mitrax::literals;
+			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
+				auto y = std::size_t(bitmap_.rows()) - i - 1;
+				painter.drawLine(
+					y_to_height(y) * factor, y,
+					y_to_height(y - 1) * factor, y + 1
+				);
+			}
+
+			// Z-Coordinate is drawn in x-direction, draw min and max as text
+			QFont font = painter.font();
+			font.setPixelSize(24);
+			painter.setFont(font);
+			painter.drawText(QRect(
+				QPoint(2, overlay.height() - 32),
+				QPoint(w / 2, overlay.height())),
+				Qt::AlignLeft | Qt::AlignVCenter,
+				tr("Z = %L1 µm").arg(0)
+			);
+			painter.drawText(QRect(
+				QPoint(w / 2, overlay.height() - 32),
+				QPoint(w - 2, overlay.height())),
+				Qt::AlignRight | Qt::AlignVCenter,
+				tr("Z = %L1 µm").arg(max_height_)
+			);
+		}
+
+		image_.set_images(to_image(bitmap_), overlay);
+
+// 		laser_calibration calib;
+// 		calib.set(y_to_height, left_laser_line, right_laser_line);
+// 		set_laser_calib_(calib);
+
 		set_step(step::complete);
 
 		stop();
@@ -372,16 +443,16 @@ namespace linescan{
 					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 						cam_.cols(), cam_.rows()
 					);
+					laser_calib_.clear();
 					break;
 				case step::target:
 					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 						cam_.cols(), cam_.rows(), 255
 					);
-					last_circles_.clear();
+					circle_calib_.clear();
 					break;
 				case step::complete: break;
 			}
-			y_to_height_points_.clear();
 			height_ = 0;
 
 			save_count_line_ = 0;
@@ -405,10 +476,10 @@ namespace linescan{
 			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
 
-			if(!y_to_height_points_.empty()){
-				mcl3_.move_relative(0, 0, -y_to_height_points_.back().y());
-			}
-			y_to_height_points_.clear();
+// 			if(!y_to_height_points_.empty()){
+// 				mcl3_.move_relative(0, 0, -y_to_height_points_.back().y());
+// 			}
+// 			y_to_height_points_.clear();
 		}
 	}
 

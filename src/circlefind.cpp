@@ -593,7 +593,7 @@ namespace linescan{
 		circle.x() += pos.x() + 1;
 		circle.y() += pos.y() + 1;
 
-		circle = fine_fit(bitmap, circle, 0.3);
+		circle = fine_fit(bitmap, circle, 1);
 
 		return { circle, true };
 	}
