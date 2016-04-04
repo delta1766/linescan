@@ -26,10 +26,27 @@ int main(int argc, char** argv)try{
 
 	return app.exec();
 }catch(std::exception const& e){
-	std::cerr
-		<< "Exit with exception: ["
-		<< boost::typeindex::type_id_runtime(e).pretty_name() << "] "
-		<< e.what() << std::endl;
+	QApplication app(argc, argv);
+
+	QMessageBox box(
+		QMessageBox::Critical,
+		QObject::tr("Crash"),
+		QString("Exit with exception: [%1] %2")
+		.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
+		.arg(e.what()),
+		QMessageBox::Ok
+	);
+
+	box.exec();
 }catch(...){
-	std::cerr << "Exit with unknown exception" << std::endl;
+	QApplication app(argc, argv);
+
+	QMessageBox box(
+		QMessageBox::Critical,
+		QObject::tr("Fatal Crash"),
+		"Exit with unknown exception!",
+		QMessageBox::Ok
+	);
+
+	box.exec();
 }
