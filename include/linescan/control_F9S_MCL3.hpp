@@ -63,6 +63,15 @@ namespace linescan{
 		/// Values in µm.
 		std::array< std::int64_t, 3 > preselection();
 
+		/// \brief Get actual x coordinate in µm
+		std::int64_t read_x();
+
+		/// \brief Get actual y coordinate in µm
+		std::int64_t read_y();
+
+		/// \brief Get actual z coordinate in µm
+		std::int64_t read_z();
+
 
 	protected:
 		std::string name()const override;
@@ -94,12 +103,6 @@ namespace linescan{
 		std::int64_t read_pre_y();
 
 		std::int64_t read_pre_z();
-
-		std::int64_t read_x();
-
-		std::int64_t read_y();
-
-		std::int64_t read_z();
 
 		std::string read_status();
 

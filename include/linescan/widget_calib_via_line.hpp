@@ -62,6 +62,13 @@ namespace linescan{
 			double z_3d;
 		};
 
+		QImage draw_analyse(
+			std::vector< mitrax::point< double > > left_points,
+			std::vector< mitrax::point< double > > right_points,
+			std::vector< mitrax::point< double > > y_to_height_points,
+			double min_z, double max_z
+		)const;
+
 		void analyze_laser();
 		void analyze_target();
 		void reset();
@@ -79,15 +86,12 @@ namespace linescan{
 		control_F9S_MCL3& mcl3_;
 		std::function< void(laser_calibration const&) > set_laser_calib_;
 
-		double height_;
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
 		std::vector< laser_analyse_data > laser_calib_;
 		std::vector< circle_analyse_data > circle_calib_;
-// 		std::vector< mitrax::point< double > > y_to_height_points_;
-// 		std::vector< circle > last_circles_;
-		std::array< mitrax::point< double >, 2 > target_differences_;
 
 		std::size_t save_count_line_;
+		std::array< std::int64_t, 3 > null_pos_;
 
 		QRadioButton laser_line_;
 

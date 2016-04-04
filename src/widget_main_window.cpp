@@ -119,6 +119,8 @@ namespace linescan{
 			}));
 
 		calib_.set(cam_y_to_z_map, laser_left_limit, laser_right_limit);
+
+		mcl3_.set_position(0, 0, 0);
 	}
 
 

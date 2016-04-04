@@ -32,9 +32,8 @@ namespace linescan{
 		cam_(cam),
 		mcl3_(mcl3),
 		set_laser_calib_(set_laser_calib),
-		height_(0),
-		target_differences_{{{0, 0}, {0, 0}}},
 		save_count_line_(0),
+		null_pos_(mcl3_.position()),
 		laser_line_(tr("Laser image")),
 		laser_auto_stop_l_(tr("Auto stop")),
 		running_(false)
@@ -83,7 +82,9 @@ namespace linescan{
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
 				switch(step_){
-					case step::laser: analyze_laser(); break;
+					case step::laser:
+						analyze_laser();
+						break;
 					case step::target: analyze_target(); break;
 					case step::complete: reset(); break;
 				}
@@ -127,7 +128,7 @@ namespace linescan{
 					points.front().x(),
 					points.back().x(),
 					line(std::size_t(bitmap_.cols()) / 2),
-					height_
+					mcl3_.read_z()
 				);
 			}, false);
 
@@ -169,13 +170,13 @@ namespace linescan{
 					return find_calib_circles(
 						image,
 						circle(
-							fit_polynom< 3 >(x1)(height_),
-							fit_polynom< 3 >(y1)(height_),
+							fit_polynom< 3 >(x1)(mcl3_.read_z()),
+							fit_polynom< 3 >(y1)(mcl3_.read_z()),
 							circle_calib_.back().c1.radius()
 						),
 						circle(
-							fit_polynom< 3 >(x2)(height_),
-							fit_polynom< 3 >(y2)(height_),
+							fit_polynom< 3 >(x2)(mcl3_.read_z()),
+							fit_polynom< 3 >(y2)(mcl3_.read_z()),
 							circle_calib_.back().c2.radius()
 						)
 					);
@@ -201,13 +202,12 @@ namespace linescan{
 
 				auto line = to_polynom(to_point(c[0]), to_point(c[1]));
 				circle_calib_.emplace_back(
-					c[0], c[1], line(cam_.cols() / 2), height_
+					c[0], c[1], line(cam_.cols() / 2), mcl3_.read_z()
 				);
 			}, false);
 
 			exception_catcher([&]{
 				mcl3_.move_relative(0, 0, 1000);
-				height_ += 1000;
 			}, false);
 
 			if(
@@ -258,16 +258,12 @@ namespace linescan{
 		stop();
 	}
 
-	void widget_calib_via_line::analyze_laser(){
-		std::vector< mitrax::point< double > > left_points;
-		std::vector< mitrax::point< double > > right_points;
-		std::vector< mitrax::point< double > > y_to_height_points;
-		for(auto const& v: laser_calib_){
-			left_points.emplace_back(v.y_2d, v.x1);
-			right_points.emplace_back(v.y_2d, v.x2);
-			y_to_height_points.emplace_back(v.y_2d, v.z_3d);
-		}
-
+	QImage widget_calib_via_line::draw_analyse(
+		std::vector< mitrax::point< double > > left_points,
+		std::vector< mitrax::point< double > > right_points,
+		std::vector< mitrax::point< double > > y_to_height_points,
+		double height_min, double height_max
+	)const{
 		auto left_laser_line = fit_polynom< 1 >(left_points);
 		auto right_laser_line = fit_polynom< 1 >(right_points);
 		auto y_to_height = fit_polynom< 3 >(y_to_height_points);
@@ -276,61 +272,76 @@ namespace linescan{
 		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
 		overlay.fill(0);
 
-		{
-			QPainter painter(&overlay);
-			painter.setRenderHint(QPainter::Antialiasing, true);
+		QPainter painter(&overlay);
+		painter.setRenderHint(QPainter::Antialiasing, true);
 
-			using namespace mitrax::literals;
+		// Draw laser width functions
+		painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
+		painter.drawLine(
+			left_laser_line(0), 0,
+			left_laser_line(overlay.height() - 1), overlay.height() - 1
+		);
+		painter.drawLine(
+			right_laser_line(0), 0,
+			right_laser_line(overlay.height() - 1), overlay.height() - 1
+		);
 
-			// Draw laser width functions
-			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
+		// draw camera y to Z-Coordinate mapping function
+		auto height_diff = height_max - height_min;
+		painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
+		auto factor = std::size_t(bitmap_.cols()) / height_diff;
+		auto w = std::size_t(bitmap_.cols());
+
+		using namespace mitrax::literals;
+		for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
+			auto y = std::size_t(bitmap_.rows()) - i - 1;
 			painter.drawLine(
-				left_laser_line(0), 0,
-				left_laser_line(overlay.height() - 1), overlay.height() - 1
-			);
-			painter.drawLine(
-				right_laser_line(0), 0,
-				right_laser_line(overlay.height() - 1), overlay.height() - 1
-			);
-
-			// draw camera y to Z-Coordinate mapping function
-			auto max_height_ = laser_calib_.back().z_3d;
-			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
-			auto factor = std::size_t(bitmap_.cols()) / max_height_;
-			auto w = std::size_t(bitmap_.cols());
-
-			using namespace mitrax::literals;
-			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
-				auto y = std::size_t(bitmap_.rows()) - i - 1;
-				painter.drawLine(
-					y_to_height(y) * factor, y,
-					y_to_height(y - 1) * factor, y + 1
-				);
-			}
-
-			// Z-Coordinate is drawn in x-direction, draw min and max as text
-			QFont font = painter.font();
-			font.setPixelSize(24);
-			painter.setFont(font);
-			painter.drawText(QRect(
-				QPoint(2, overlay.height() - 32),
-				QPoint(w / 2, overlay.height())),
-				Qt::AlignLeft | Qt::AlignVCenter,
-				tr("Z = %L1 µm").arg(0)
-			);
-			painter.drawText(QRect(
-				QPoint(w / 2, overlay.height() - 32),
-				QPoint(w - 2, overlay.height())),
-				Qt::AlignRight | Qt::AlignVCenter,
-				tr("Z = %L1 µm").arg(max_height_)
+				(y_to_height(y) - height_min) * factor, y,
+				(y_to_height(y - 1) - height_min) * factor, y + 1
 			);
 		}
 
-		image_.set_images(to_image(bitmap_), overlay);
+		// Z-Coordinate is drawn in x-direction, draw min and max as text
+		QFont font = painter.font();
+		font.setPixelSize(24);
+		painter.setFont(font);
+		painter.drawText(QRect(
+			QPoint(2, overlay.height() - 32),
+			QPoint(w / 2, overlay.height())),
+			Qt::AlignLeft | Qt::AlignVCenter,
+			tr("Z = %L1 µm").arg(height_min)
+		);
+		painter.drawText(QRect(
+			QPoint(w / 2, overlay.height() - 32),
+			QPoint(w - 2, overlay.height())),
+			Qt::AlignRight | Qt::AlignVCenter,
+			tr("Z = %L1 µm").arg(height_max)
+		);
 
-		laser_calibration calib;
-		calib.set(y_to_height, left_laser_line, right_laser_line);
-		set_laser_calib_(calib);
+		return overlay;
+	}
+
+	void widget_calib_via_line::analyze_laser(){
+		std::vector< mitrax::point< double > > left_points;
+		std::vector< mitrax::point< double > > right_points;
+		std::vector< mitrax::point< double > > y_to_height_points;
+		left_points.reserve(laser_calib_.size());
+		right_points.reserve(laser_calib_.size());
+		y_to_height_points.reserve(laser_calib_.size());
+		for(auto const& v: laser_calib_){
+			left_points.emplace_back(v.y_2d, v.x1);
+			right_points.emplace_back(v.y_2d, v.x2);
+			y_to_height_points.emplace_back(v.y_2d, v.z_3d);
+		}
+
+		image_.set_images(to_image(bitmap_), draw_analyse(
+			left_points, right_points, y_to_height_points,
+			laser_calib_.front().z_3d, laser_calib_.back().z_3d
+		));
+
+// 		laser_calibration calib;
+// 		calib.set(y_to_height, left_laser_line, right_laser_line);
+// 		set_laser_calib_(calib);
 
 		set_step(step::target);
 
@@ -341,69 +352,19 @@ namespace linescan{
 		std::vector< mitrax::point< double > > left_points;
 		std::vector< mitrax::point< double > > right_points;
 		std::vector< mitrax::point< double > > y_to_height_points;
+		left_points.reserve(circle_calib_.size());
+		right_points.reserve(circle_calib_.size());
+		y_to_height_points.reserve(circle_calib_.size());
 		for(auto const& v: circle_calib_){
 			left_points.emplace_back(v.c1.y(), v.c1.x());
 			right_points.emplace_back(v.c2.y(), v.c2.x());
 			y_to_height_points.emplace_back(v.y_2d, v.z_3d);
 		}
 
-		auto left_laser_line = fit_polynom< 1 >(left_points);
-		auto right_laser_line = fit_polynom< 1 >(right_points);
-		auto y_to_height = fit_polynom< 3 >(y_to_height_points);
-
-		// Create a transparent Overlay
-		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
-		overlay.fill(0);
-
-		{
-			QPainter painter(&overlay);
-			painter.setRenderHint(QPainter::Antialiasing, true);
-
-			// Draw laser width functions
-			painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
-			painter.drawLine(
-				left_laser_line(0), 0,
-				left_laser_line(overlay.height() - 1), overlay.height() - 1
-			);
-			painter.drawLine(
-				right_laser_line(0), 0,
-				right_laser_line(overlay.height() - 1), overlay.height() - 1
-			);
-
-			// draw camera y to Z-Coordinate mapping function
-			auto max_height_ = circle_calib_.back().z_3d;
-			painter.setPen(QPen(QBrush(qRgb(192, 192, 0)), 2));
-			auto factor = std::size_t(bitmap_.cols()) / max_height_;
-			auto w = std::size_t(bitmap_.cols());
-
-			using namespace mitrax::literals;
-			for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
-				auto y = std::size_t(bitmap_.rows()) - i - 1;
-				painter.drawLine(
-					y_to_height(y) * factor, y,
-					y_to_height(y - 1) * factor, y + 1
-				);
-			}
-
-			// Z-Coordinate is drawn in x-direction, draw min and max as text
-			QFont font = painter.font();
-			font.setPixelSize(24);
-			painter.setFont(font);
-			painter.drawText(QRect(
-				QPoint(2, overlay.height() - 32),
-				QPoint(w / 2, overlay.height())),
-				Qt::AlignLeft | Qt::AlignVCenter,
-				tr("Z = %L1 µm").arg(0)
-			);
-			painter.drawText(QRect(
-				QPoint(w / 2, overlay.height() - 32),
-				QPoint(w - 2, overlay.height())),
-				Qt::AlignRight | Qt::AlignVCenter,
-				tr("Z = %L1 µm").arg(max_height_)
-			);
-		}
-
-		image_.set_images(to_image(bitmap_), overlay);
+		image_.set_images(to_image(bitmap_), draw_analyse(
+			left_points, right_points, y_to_height_points,
+			circle_calib_.front().z_3d, circle_calib_.back().z_3d
+		));
 
 // 		laser_calibration calib;
 // 		calib.set(y_to_height, left_laser_line, right_laser_line);
@@ -440,6 +401,7 @@ namespace linescan{
 		if(is_running){
 			switch(step_){
 				case step::laser:
+					null_pos_ = mcl3_.position();
 					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 						cam_.cols(), cam_.rows()
 					);
@@ -451,9 +413,10 @@ namespace linescan{
 					);
 					circle_calib_.clear();
 					break;
-				case step::complete: break;
+				case step::complete:
+					reset();
+					return;
 			}
-			height_ = 0;
 
 			save_count_line_ = 0;
 
@@ -476,10 +439,7 @@ namespace linescan{
 			laser_auto_stop_.setChecked(false);
 			set_enabled(true);
 
-// 			if(!y_to_height_points_.empty()){
-// 				mcl3_.move_relative(0, 0, -y_to_height_points_.back().y());
-// 			}
-// 			y_to_height_points_.clear();
+			mcl3_.move_to(null_pos_[0], null_pos_[1], null_pos_[2]);
 		}
 	}
 
