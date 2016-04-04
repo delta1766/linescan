@@ -91,6 +91,7 @@ namespace linescan{
 		std::vector< circle_analyse_data > circle_calib_;
 
 		std::size_t save_count_line_;
+		std::size_t exception_count_;
 		std::array< std::int64_t, 3 > null_pos_;
 
 		QRadioButton laser_line_;
