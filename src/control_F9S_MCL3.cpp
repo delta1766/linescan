@@ -24,7 +24,7 @@ namespace linescan{
 		,z_(0)
 #endif
 	{
-#ifdef MCL3
+#ifdef MCL
 		write_resolution(10);
 
 		auto resolution = read_resolution();
@@ -87,7 +87,7 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL3::activate_joystick(){
-#ifdef MCL3
+#ifdef MCL
 		std::lock_guard< std::mutex > lock(joystick_mutex_);
 		send({{write::command, 'j'}, {read::start}});
 #endif
@@ -95,7 +95,7 @@ namespace linescan{
 	}
 
 	void control_F9S_MCL3::deactivate_joystick(){
-#ifdef MCL3
+#ifdef MCL
 		std::lock_guard< std::mutex > lock(joystick_mutex_);
 		if(!joystick_) return;
 
@@ -103,7 +103,7 @@ namespace linescan{
 #endif
 		joystick_ = false;
 
-#ifdef MCL3
+#ifdef MCL
 		auto answer = receive();
 		if(answer.second) return;
 		if(regex_search(answer.first, move_answer_expected)) return;
@@ -119,7 +119,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		// TODO: respect mask
 		auto answer = get({{write::command, 'c'}, {read::start}}, 30s);
 		if(answer == "AAA-.") return;
@@ -140,7 +140,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		// TODO: respect mask
 		auto answer = get({{write::command, 'l'}, {read::start}}, 30s);
 		if(answer == "DDD-.") return;
@@ -159,7 +159,7 @@ namespace linescan{
 	void control_F9S_MCL3::stop(){
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		auto answer = get({{write::command, 'a'}, {read::start}});
 		if(regex_search(answer, move_answer_expected)) return;
 
@@ -174,7 +174,7 @@ namespace linescan{
 	){
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		send({
 			{write::absolute_position_x, x},
 			{write::absolute_position_y, y},
@@ -195,7 +195,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
@@ -226,7 +226,7 @@ namespace linescan{
 
 		deactivate_joystick();
 
-#ifdef MCL3
+#ifdef MCL
 		auto answer = get({
 			{write::preselection_x, x},
 			{write::preselection_y, y},
@@ -251,15 +251,11 @@ namespace linescan{
 	}
 
 	std::array< std::int64_t, 3 > control_F9S_MCL3::position(){
-#ifdef MCL3
 		return {{ read_x(), read_y(), read_z() }};
-#else
-		return {{ x_, y_, z_ }};
-#endif
 	}
 
 	std::array< std::int64_t, 3 > control_F9S_MCL3::preselection(){
-#ifdef MCL3
+#ifdef MCL
 		return {{ read_pre_x(), read_pre_y(), read_pre_z() }};
 #else
 		return {{ pre_x_, pre_y_, pre_z_ }};
@@ -291,21 +287,36 @@ namespace linescan{
 	}
 
 	std::int64_t control_F9S_MCL3::read_x(){
+#ifdef MCL
 		return boost::lexical_cast< std::int64_t >(
 			get({{read::absolute_position_x}})
 		);
+#else
+		return x_;
+#endif
+
 	}
 
 	std::int64_t control_F9S_MCL3::read_y(){
+#ifdef MCL
 		return boost::lexical_cast< std::int64_t >(
 			get({{read::absolute_position_y}})
 		);
+#else
+		return y_;
+#endif
+
 	}
 
 	std::int64_t control_F9S_MCL3::read_z(){
+#ifdef MCL
 		return boost::lexical_cast< std::int64_t >(
 			get({{read::absolute_position_z}})
 		);
+#else
+		return z_;
+#endif
+
 	}
 
 	// TODO: Return a struct with parsed data, throw in error case
