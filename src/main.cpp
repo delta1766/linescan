@@ -32,8 +32,8 @@ int main(int argc, char** argv)try{
 		QMessageBox::Critical,
 		QObject::tr("Crash"),
 		QString("Exit with exception: [%1] %2")
-		.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
-		.arg(e.what()),
+			.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
+			.arg(e.what()),
 		QMessageBox::Ok
 	);
 
