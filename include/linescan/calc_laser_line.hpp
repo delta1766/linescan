@@ -17,15 +17,31 @@
 namespace linescan{
 
 
-	std::vector< mitrax::point< double > > calc_laser_line(
-		mitrax::raw_bitmap< bool > const& image
-	);
+	class calc_laser_line_t{
+	public:
+		std::vector< mitrax::point< double > > operator()(
+			mitrax::raw_bitmap< std::uint8_t > const& image
+		)const;
 
-	std::vector< mitrax::point< double > > calc_laser_line(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
-		std::uint8_t binarize_threshold,
-		std::size_t erode_value
-	);
+		void use_threshold(std::uint8_t threshold, std::size_t erode);
+		void use_sum(std::uint8_t min_value, std::size_t min_sum);
+
+	private:
+		enum class type{
+			threshold,
+			sum
+		};
+
+		type method_ = type::threshold;
+
+		std::uint8_t threshold_ = 255;
+		std::size_t erode_ = 2;
+
+		std::uint8_t min_value_ = 20;
+		std::size_t min_sum_ = 4000;
+	};
+
+	extern calc_laser_line_t calc_laser_line;
 
 
 }

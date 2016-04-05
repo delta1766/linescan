@@ -90,10 +90,9 @@ namespace linescan{
 		std::uint8_t binarize_threshold,
 		std::size_t erode_value
 	){
-		return draw_laser_alignment(
-			bitmap.dims(),
-			calc_laser_line(bitmap, binarize_threshold, erode_value)
-		);
+		calc_laser_line_t calc;
+		calc.use_threshold(binarize_threshold, erode_value);
+		return draw_laser_alignment(bitmap.dims(), calc(bitmap));
 	}
 
 	void draw_align_text(

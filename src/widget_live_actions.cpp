@@ -42,9 +42,11 @@ namespace linescan{
 
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-					auto line = calc_laser_line(
-						bitmap, get_threashold(), get_erode()
+					calc_laser_line_t calc_laser_line;
+					calc_laser_line.use_threshold(
+						get_threashold(), get_erode()
 					);
+					auto line = calc_laser_line(bitmap);
 
 					return std::pair< QImage, QImage >{
 						[this, &line, &bitmap]{
