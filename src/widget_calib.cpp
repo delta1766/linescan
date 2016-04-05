@@ -27,12 +27,8 @@ namespace linescan{
 		widget_processing_base(cam),
 		cam_(cam),
 		mcl3_(mcl3),
-		save_count_line_(0),
-		exception_count_(0),
-		null_pos_(mcl3_.position()),
 		laser_line_(tr("Laser image")),
-		laser_auto_stop_l_(tr("Auto stop")),
-		running_(false)
+		laser_auto_stop_l_(tr("Auto stop"))
 	{
 		radio_buttons_.addButton(&laser_line_);
 

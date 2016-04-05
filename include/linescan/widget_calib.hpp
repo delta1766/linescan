@@ -36,6 +36,13 @@ namespace linescan{
 
 
 	private:
+		enum class step{
+			align,
+			calib_yz,
+			calib_x,
+			complete
+		};
+
 		struct xy_data{
 			xy_data(circle const& c1, circle const& c2, double y, double Z):
 				c1(c1), c2(c2), y(y), Z(Z) {}
@@ -45,6 +52,7 @@ namespace linescan{
 			double y;
 			double Z;
 		};
+
 
 		QImage draw_yz(
 			std::vector< mitrax::point< double > > left_points,
@@ -60,24 +68,22 @@ namespace linescan{
 		void reset();
 		void set_running(bool is_running);
 
-		enum class step{
-			align,
-			calib_yz,
-			calib_x,
-			complete
-		} step_ = step::align;
-
 		void set_step(step s);
 
-		camera& cam_;
-		control_F9S_MCL3& mcl3_;
+
+		step step_ = step::align;
+
+		bool running_ = false;
+
+		std::size_t save_count_line_ = 0;
+		std::size_t exception_count_ = 0;
+		std::array< std::int64_t, 3 > null_pos_{{0, 0, 0}};
 
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
 		std::vector< xy_data > circle_calib_;
 
-		std::size_t save_count_line_;
-		std::size_t exception_count_;
-		std::array< std::int64_t, 3 > null_pos_;
+		camera& cam_;
+		control_F9S_MCL3& mcl3_;
 
 		QRadioButton laser_line_;
 
@@ -85,8 +91,6 @@ namespace linescan{
 		QPushButton laser_start_;
 		QLabel laser_auto_stop_l_;
 		QCheckBox laser_auto_stop_;
-
-		bool running_;
 
 		QTimer timer_;
 	};
