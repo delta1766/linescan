@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/widget_camera_dock.hpp>
+#include <linescan/widgetdock_camera.hpp>
 #include <linescan/exception_catcher.hpp>
 
 
@@ -75,7 +75,7 @@ namespace linescan{
 	}
 
 
-	widget_camera_dock::widget_camera_dock(camera& cam):
+	widgetdock_camera::widgetdock_camera(camera& cam):
 		QDockWidget(tr("Camera settings")),
 		cam_(cam),
 		pixelclock_l_(tr("Pixelclock")),
@@ -283,7 +283,7 @@ namespace linescan{
 		setWidget(&widget_);
 	}
 
-	void widget_camera_dock::set_pixelclock_ranges(){
+	void widgetdock_camera::set_pixelclock_ranges(){
 		auto min_max_inc = cam_.pixelclock_min_max_inc();
 		auto min = min_max_inc[0];
 		auto max = min_max_inc[1];
@@ -320,7 +320,7 @@ namespace linescan{
 		pixelclock_il_.setText(tr("(%1 MHz)").arg(inc));
 	}
 
-	void widget_camera_dock::set_framerate_ranges(){
+	void widgetdock_camera::set_framerate_ranges(){
 		auto min_max_inc = cam_.framerate_min_max_inc();
 		auto min = min_max_inc[0];
 		auto max = min_max_inc[1];
@@ -357,7 +357,7 @@ namespace linescan{
 		framerate_il_.setText(tr("(%1 fps)").arg(inc, 0, 'g', 2));
 	}
 
-	void widget_camera_dock::set_exposure_ranges(){
+	void widgetdock_camera::set_exposure_ranges(){
 		auto min_max_inc = cam_.exposure_in_ms_min_max_inc();
 		auto min = min_max_inc[0];
 		auto max = min_max_inc[1];
@@ -394,7 +394,7 @@ namespace linescan{
 		exposure_il_.setText(tr("(%1 ms)").arg(inc, 0, 'g', 2));
 	}
 
-	void widget_camera_dock::set_gain_ranges(){
+	void widgetdock_camera::set_gain_ranges(){
 		auto min = 0;
 		auto max = 100;
 		auto inc = 1;
@@ -419,7 +419,7 @@ namespace linescan{
 		gain_il_.setText(tr("(%1%)").arg(inc));
 	}
 
-	void widget_camera_dock::set_ranges(){
+	void widgetdock_camera::set_ranges(){
 		set_pixelclock_ranges();
 		set_framerate_ranges();
 		set_exposure_ranges();

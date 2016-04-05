@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__widget_calc_laser_line_dock__hpp_INCLUDED_
-#define _linescan__widget_calc_laser_line_dock__hpp_INCLUDED_
+#ifndef _linescan__widgetdock_calc_laser_line__hpp_INCLUDED_
+#define _linescan__widgetdock_calc_laser_line__hpp_INCLUDED_
 
 #include <QtWidgets/QtWidgets>
 
@@ -15,9 +15,9 @@
 namespace linescan{
 
 
-	class widget_calc_laser_line_dock: public QDockWidget{
+	class widgetdock_calc_laser_line: public QDockWidget{
 	public:
-		widget_calc_laser_line_dock();
+		widgetdock_calc_laser_line();
 
 
 	private:

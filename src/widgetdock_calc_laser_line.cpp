@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#include <linescan/widget_calc_laser_line_dock.hpp>
+#include <linescan/widgetdock_calc_laser_line.hpp>
 
 #include <linescan/calc_laser_line.hpp>
 
@@ -15,7 +15,7 @@ namespace linescan{
 
 
 
-	widget_calc_laser_line_dock::widget_calc_laser_line_dock():
+	widgetdock_calc_laser_line::widgetdock_calc_laser_line():
 		QDockWidget(tr("Laser line")),
 		method_(tr("Calculation method")),
 		method_threshold_(tr("Threshold")),
