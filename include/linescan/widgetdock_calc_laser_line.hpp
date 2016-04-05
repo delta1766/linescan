@@ -21,6 +21,9 @@ namespace linescan{
 
 
 	private:
+		void show_box(QGroupBox& box);
+
+
 		QWidget main_widget_;
 		QVBoxLayout main_layout_;
 

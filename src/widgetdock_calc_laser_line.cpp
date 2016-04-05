@@ -14,7 +14,6 @@
 namespace linescan{
 
 
-
 	widgetdock_calc_laser_line::widgetdock_calc_laser_line():
 		QDockWidget(tr("Laser line")),
 		method_(tr("Calculation method")),
@@ -102,6 +101,25 @@ namespace linescan{
 
 		main_widget_.setLayout(&main_layout_);
 		setWidget(&main_widget_);
+
+
+		sum_.hide();
+
+
+		connect(&method_threshold_, &QRadioButton::released, [this]{
+			show_box(threshold_);
+		});
+
+		connect(&method_sum_, &QRadioButton::released, [this]{
+			show_box(sum_);
+		});
+	}
+
+	void widgetdock_calc_laser_line::show_box(QGroupBox& box){
+		for(auto pointer: {
+			&threshold_,
+			&sum_
+		}) pointer->setVisible(pointer == &box);
 	}
 
 
