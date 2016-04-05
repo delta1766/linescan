@@ -22,11 +22,7 @@ namespace linescan{
 
 	class widget_calib: public widget_processing_base{
 	public:
-		widget_calib(
-			camera& cam,
-			control_F9S_MCL3& mcl3,
-			std::function< void(laser_calibration const&) > set_laser_calib
-		);
+		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
 
 
 		bool is_running()const;
@@ -40,55 +36,44 @@ namespace linescan{
 
 
 	private:
-		struct laser_analyse_data{
-			laser_analyse_data(double x1, double x2, double y_2d, double z_3d):
-				x1(x1), x2(x2), y_2d(y_2d), z_3d(z_3d) {}
-
-			double x1;
-			double x2;
-			double y_2d;
-			double z_3d;
-		};
-
-		struct circle_analyse_data{
-			circle_analyse_data(
-				circle const& c1, circle const& c2, double y_2d, double z_3d
-			):
-				c1(c1), c2(c2), y_2d(y_2d), z_3d(z_3d) {}
+		struct xy_data{
+			xy_data(circle const& c1, circle const& c2, double y, double Z):
+				c1(c1), c2(c2), y(y), Z(Z) {}
 
 			circle c1;
 			circle c2;
-			double y_2d;
-			double z_3d;
+			double y;
+			double Z;
 		};
 
-		QImage draw_analyse(
+		QImage draw_yz(
 			std::vector< mitrax::point< double > > left_points,
 			std::vector< mitrax::point< double > > right_points,
-			std::vector< mitrax::point< double > > y_to_height_points,
+			std::vector< mitrax::point< double > > y_to_Z_points,
 			double min_z, double max_z
 		)const;
 
-		void analyze_laser();
-		void analyze_target();
+		void align_ready();
+		void analyze_yz();
+		void analyze_x();
+
 		void reset();
 		void set_running(bool is_running);
 
 		enum class step{
-			laser,
-			target,
+			align,
+			calib_yz,
+			calib_x,
 			complete
-		} step_ = step::laser;
+		} step_ = step::align;
 
 		void set_step(step s);
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
-		std::function< void(laser_calibration const&) > set_laser_calib_;
 
 		mitrax::raw_bitmap< std::uint8_t > bitmap_;
-		std::vector< laser_analyse_data > laser_calib_;
-		std::vector< circle_analyse_data > circle_calib_;
+		std::vector< xy_data > circle_calib_;
 
 		std::size_t save_count_line_;
 		std::size_t exception_count_;

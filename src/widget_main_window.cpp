@@ -12,6 +12,34 @@
 namespace linescan{
 
 
+// 	auto load_calib = [this](laser_calibration const& calib){
+// 			calib_ = calib;
+// 
+// 			auto cam_y_to_z_map = calib_.cam_y_to_z_map();
+// 			auto left_limit = calib_.left_limit();
+// 			auto right_limit = calib_.right_limit();
+// 
+// 			settings_.beginGroup("calibration");
+// 			settings_.beginGroup("laser");
+// 			settings_.beginGroup("cam_y_to_z_map");
+// 			settings_.setValue("a", cam_y_to_z_map[3]);
+// 			settings_.setValue("b", cam_y_to_z_map[2]);
+// 			settings_.setValue("c", cam_y_to_z_map[1]);
+// 			settings_.setValue("d", cam_y_to_z_map[0]);
+// 			settings_.endGroup();
+// 			settings_.beginGroup("left_limit");
+// 			settings_.setValue("a", left_limit[1]);
+// 			settings_.setValue("b", left_limit[0]);
+// 			settings_.endGroup();
+// 			settings_.beginGroup("right_limit");
+// 			settings_.setValue("a", right_limit[1]);
+// 			settings_.setValue("b", right_limit[0]);
+// 			settings_.endGroup();
+// 			settings_.endGroup();
+// 			settings_.endGroup();
+// 			settings_.sync();
+// 		}
+
 	widget_main_window::widget_main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
@@ -20,33 +48,7 @@ namespace linescan{
 			statusBar()->showMessage(message, 5000);
 		}),
 		laser_alignment_w_(cam_),
-		calib_w_(cam_, mcl3_, [this](laser_calibration const& calib){
-			calib_ = calib;
-
-			auto cam_y_to_z_map = calib_.cam_y_to_z_map();
-			auto left_limit = calib_.left_limit();
-			auto right_limit = calib_.right_limit();
-
-			settings_.beginGroup("calibration");
-			settings_.beginGroup("laser");
-			settings_.beginGroup("cam_y_to_z_map");
-			settings_.setValue("a", cam_y_to_z_map[3]);
-			settings_.setValue("b", cam_y_to_z_map[2]);
-			settings_.setValue("c", cam_y_to_z_map[1]);
-			settings_.setValue("d", cam_y_to_z_map[0]);
-			settings_.endGroup();
-			settings_.beginGroup("left_limit");
-			settings_.setValue("a", left_limit[1]);
-			settings_.setValue("b", left_limit[0]);
-			settings_.endGroup();
-			settings_.beginGroup("right_limit");
-			settings_.setValue("a", right_limit[1]);
-			settings_.setValue("b", right_limit[0]);
-			settings_.endGroup();
-			settings_.endGroup();
-			settings_.endGroup();
-			settings_.sync();
-		})
+		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
 

@@ -23,15 +23,10 @@
 namespace linescan{
 
 
-	widget_calib::widget_calib(
-		camera& cam,
-		control_F9S_MCL3& mcl3,
-		std::function< void(laser_calibration const&) > set_laser_calib
-	):
+	widget_calib::widget_calib(camera& cam, control_F9S_MCL3& mcl3):
 		widget_processing_base(cam),
 		cam_(cam),
 		mcl3_(mcl3),
-		set_laser_calib_(set_laser_calib),
 		save_count_line_(0),
 		exception_count_(0),
 		null_pos_(mcl3_.position()),
@@ -51,7 +46,7 @@ namespace linescan{
 		connect(&laser_line_, &QRadioButton::released, [this]{
 			if(!laser_line_.isChecked()) return;
 
-			if(step_ != step::target){
+			if(step_ != step::calib_yz){
 				image_.set_processor(
 					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
 						auto overlay = draw_laser_alignment(
@@ -83,10 +78,9 @@ namespace linescan{
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
 				switch(step_){
-					case step::laser:
-						analyze_laser();
-						break;
-					case step::target: analyze_target(); break;
+					case step::align: align_ready(); break;
+					case step::calib_yz: analyze_yz(); break;
+					case step::calib_x: analyze_x(); break;
 					case step::complete: reset(); break;
 				}
 			}else{
@@ -97,46 +91,8 @@ namespace linescan{
 		connect(&timer_, &QTimer::timeout, [this]{
 			bool exception = false;
 
-			if(step_ == step::laser) exception |= !exception_catcher([&]{
-				auto name = QString("data/laser/laser_%1.png")
-					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
-					.toStdString();
-
-				++save_count_line_;
-
-#ifdef CAM
-				auto image = cam_.image();
-				(void)name;
-// 				save(image, name);
-#else
-				auto image = load(name);
-#endif
-
-				bitmap_ = mitrax::transform([](auto a, auto b){
-					return std::max(a, b);
-				}, bitmap_, image);
-
-				auto points = calc_laser_line(
-					image, get_threashold(), get_erode()
-				);
-
-				auto line = fit_polynom< 1 >(points);
-
-				image_.set_images(
-					to_image(bitmap_),
-					draw_line(bitmap_.dims(), line)
-				);
-
-				laser_calib_.emplace_back(
-					points.front().x(),
-					points.back().x(),
-					line(std::size_t(bitmap_.cols()) / 2),
-					mcl3_.read_z()
-				);
-			}, false);
-
-			if(step_ == step::target) exception |= !exception_catcher([&]{
-				auto name = QString("data/target/laser_%1.png")
+			if(step_ == step::calib_yz) exception |= !exception_catcher([&]{
+				auto name = QString("data/calib_yz/laser_%1.png")
 					.arg(save_count_line_, 4, 10, QLatin1Char('0'))
 					.toStdString();
 
@@ -164,10 +120,10 @@ namespace linescan{
 					std::vector< mitrax::point< double > > x2;
 					std::vector< mitrax::point< double > > y2;
 					for(auto const& v: circle_calib_){
-						x1.emplace_back(v.z_3d, v.c1.x());
-						y1.emplace_back(v.z_3d, v.c1.y());
-						x2.emplace_back(v.z_3d, v.c2.x());
-						y2.emplace_back(v.z_3d, v.c2.y());
+						x1.emplace_back(v.Z, v.c1.x());
+						y1.emplace_back(v.Z, v.c1.y());
+						x2.emplace_back(v.Z, v.c2.x());
+						y2.emplace_back(v.Z, v.c2.y());
 					}
 
 					return find_calib_circles(
@@ -214,23 +170,13 @@ namespace linescan{
 			}, false);
 
 			if(
-				step_ == step::laser &&
-				laser_calib_.size() > 1 && laser_auto_stop_.isChecked()
-			){
-				auto y1 = cam_.rows() - laser_calib_.front().y_2d;
-				auto y2 = laser_calib_.back().y_2d;
-
-				if(y2 <= y1) analyze_laser();
-			}
-
-			if(
-				step_ == step::target &&
+				step_ == step::calib_yz &&
 				circle_calib_.size() > 1 && laser_auto_stop_.isChecked()
 			){
-				auto y1 = cam_.rows() - circle_calib_.front().y_2d;
-				auto y2 = circle_calib_.back().y_2d;
+				auto y1 = cam_.rows() - circle_calib_.front().y;
+				auto y2 = circle_calib_.back().y;
 
-				if(y2 <= y1) analyze_target();
+				if(y2 <= y1) analyze_yz();
 			}
 
 			if(exception){
@@ -261,7 +207,7 @@ namespace linescan{
 		laser_auto_stop_l_.setEnabled(false);
 		laser_auto_stop_.setEnabled(false);
 
-		set_step(step::laser);
+		set_step(step::calib_yz);
 	}
 
 	bool widget_calib::is_running()const{
@@ -281,15 +227,15 @@ namespace linescan{
 		stop();
 	}
 
-	QImage widget_calib::draw_analyse(
+	QImage widget_calib::draw_yz(
 		std::vector< mitrax::point< double > > left_points,
 		std::vector< mitrax::point< double > > right_points,
-		std::vector< mitrax::point< double > > y_to_height_points,
+		std::vector< mitrax::point< double > > y_to_Z_points,
 		double height_min, double height_max
 	)const{
-		auto left_laser_line = fit_polynom< 1 >(left_points);
-		auto right_laser_line = fit_polynom< 1 >(right_points);
-		auto y_to_height = fit_polynom< 3 >(y_to_height_points);
+		auto left_line = fit_polynom< 1 >(left_points);
+		auto right_line = fit_polynom< 1 >(right_points);
+		auto y_to_Z = fit_polynom< 3 >(y_to_Z_points);
 
 		// Create a transparent Overlay
 		QImage overlay(bitmap_.cols(), bitmap_.rows(), QImage::Format_ARGB32);
@@ -298,15 +244,15 @@ namespace linescan{
 		QPainter painter(&overlay);
 		painter.setRenderHint(QPainter::Antialiasing, true);
 
-		// Draw laser width functions
+		// Draw mm per pixel functions
 		painter.setPen(QPen(QBrush(qRgb(255, 0, 0)), 2));
 		painter.drawLine(
-			left_laser_line(0), 0,
-			left_laser_line(overlay.height() - 1), overlay.height() - 1
+			left_line(0), 0,
+			left_line(overlay.height() - 1), overlay.height() - 1
 		);
 		painter.drawLine(
-			right_laser_line(0), 0,
-			right_laser_line(overlay.height() - 1), overlay.height() - 1
+			right_line(0), 0,
+			right_line(overlay.height() - 1), overlay.height() - 1
 		);
 
 		// draw camera y to Z-Coordinate mapping function
@@ -319,8 +265,8 @@ namespace linescan{
 		for(std::size_t i = 0; i < bitmap_.rows() - 1_R; ++i){
 			auto y = std::size_t(bitmap_.rows()) - i - 1;
 			painter.drawLine(
-				(y_to_height(y) - height_min) * factor, y,
-				(y_to_height(y - 1) - height_min) * factor, y + 1
+				(y_to_Z(y) - height_min) * factor, y,
+				(y_to_Z(y - 1) - height_min) * factor, y + 1
 			);
 		}
 
@@ -344,57 +290,57 @@ namespace linescan{
 		return overlay;
 	}
 
-	void widget_calib::analyze_laser(){
-		if(exception_catcher([this]{
-			std::vector< mitrax::point< double > > left_points;
-			std::vector< mitrax::point< double > > right_points;
-			std::vector< mitrax::point< double > > y_to_height_points;
-			left_points.reserve(laser_calib_.size());
-			right_points.reserve(laser_calib_.size());
-			y_to_height_points.reserve(laser_calib_.size());
-			for(auto const& v: laser_calib_){
-				left_points.emplace_back(v.y_2d, v.x1);
-				right_points.emplace_back(v.y_2d, v.x2);
-				y_to_height_points.emplace_back(v.y_2d, v.z_3d);
-			}
-
-			image_.set_images(to_image(bitmap_), draw_analyse(
-				left_points, right_points, y_to_height_points,
-				laser_calib_.front().z_3d, laser_calib_.back().z_3d
-			));
-
-	// 		laser_calibration calib;
-	// 		calib.set(y_to_height, left_laser_line, right_laser_line);
-	// 		set_laser_calib_(calib);
-		})){
-			set_step(step::target);
-			stop();
-		}else{
-			reset();
-		}
+	void widget_calib::analyze_x(){
+// 		if(exception_catcher([this]{
+// 			std::vector< mitrax::point< double > > left_points;
+// 			std::vector< mitrax::point< double > > right_points;
+// 			std::vector< mitrax::point< double > > y_to_Z_points;
+// 			left_points.reserve(laser_calib_.size());
+// 			right_points.reserve(laser_calib_.size());
+// 			y_to_Z_points.reserve(laser_calib_.size());
+// 			for(auto const& v: laser_calib_){
+// 				left_points.emplace_back(v.y, v.x1);
+// 				right_points.emplace_back(v.y, v.x2);
+// 				y_to_Z_points.emplace_back(v.y, v.Z);
+// 			}
+// 
+// 			image_.set_images(to_image(bitmap_), draw_yz(
+// 				left_points, right_points, y_to_Z_points,
+// 				laser_calib_.front().Z, laser_calib_.back().Z
+// 			));
+// 
+// 	// 		laser_calibration calib;
+// 	// 		calib.set(y_to_Z, left_line, right_line);
+// 	// 		set_laser_calib_(calib);
+// 		})){
+// 			set_step(step::calib_yz);
+// 			stop();
+// 		}else{
+// 			reset();
+// 		}
 	}
 
-	void widget_calib::analyze_target(){
+	void widget_calib::analyze_yz(){
 		if(exception_catcher([this]{
 			std::vector< mitrax::point< double > > left_points;
 			std::vector< mitrax::point< double > > right_points;
-			std::vector< mitrax::point< double > > y_to_height_points;
+			std::vector< mitrax::point< double > > y_to_Z_points;
 			left_points.reserve(circle_calib_.size());
 			right_points.reserve(circle_calib_.size());
-			y_to_height_points.reserve(circle_calib_.size());
+			y_to_Z_points.reserve(circle_calib_.size());
 			for(auto const& v: circle_calib_){
 				left_points.emplace_back(v.c1.y(), v.c1.x());
 				right_points.emplace_back(v.c2.y(), v.c2.x());
-				y_to_height_points.emplace_back(v.y_2d, v.z_3d);
+				y_to_Z_points.emplace_back(v.y, v.Z);
 			}
 
-			image_.set_images(to_image(bitmap_), draw_analyse(
-				left_points, right_points, y_to_height_points,
-				circle_calib_.front().z_3d, circle_calib_.back().z_3d
+			image_.set_images(to_image(bitmap_), draw_yz(
+				left_points, right_points, y_to_Z_points,
+				circle_calib_.front().Z, circle_calib_.back().Z
 			));
 
 	// 		laser_calibration calib;
-	// 		calib.set(y_to_height, left_laser_line, right_laser_line);
+	// 		calib.set(y_to_Z, left_line, right_line);
 	// 		set_laser_calib_(calib);
 		})){
 			set_step(step::complete);
@@ -404,8 +350,12 @@ namespace linescan{
 		}
 	}
 
+	void widget_calib::align_ready(){
+		set_step(step::calib_yz);
+	}
+
 	void widget_calib::reset(){
-		set_step(step::laser);
+		set_step(step::align);
 		stop();
 		image_.start_live();
 	}
@@ -429,18 +379,16 @@ namespace linescan{
 
 		if(is_running){
 			switch(step_){
-				case step::laser:
-					null_pos_ = mcl3_.position();
-					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
-						cam_.cols(), cam_.rows()
-					);
-					laser_calib_.clear();
+				case step::align:
 					break;
-				case step::target:
+				case step::calib_yz:
+					null_pos_ = mcl3_.position();
 					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
 						cam_.cols(), cam_.rows(), 255
 					);
 					circle_calib_.clear();
+					break;
+				case step::calib_x:
 					break;
 				case step::complete:
 					reset();
@@ -477,15 +425,21 @@ namespace linescan{
 		auto text = tr("Step %1 from 2");
 		step_ = s;
 		switch(step_){
-			case step::laser:{
-				step_l_.setText(text.arg(1));
+			case step::align:{
+// 				step_l_.setText(text.arg(1));
+// 				laser_start_.setText(tr("Start"));
+				break;
+			}
+
+			case step::calib_yz:{
+				step_l_.setText(text.arg(2));
 				laser_start_.setText(tr("Start"));
 				break;
 			}
 
-			case step::target:{
-				step_l_.setText(text.arg(2));
-				laser_start_.setText(tr("Start"));
+			case step::calib_x:{
+// 				step_l_.setText(text.arg(1));
+// 				laser_start_.setText(tr("Start"));
 				break;
 			}
 
