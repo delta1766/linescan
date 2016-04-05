@@ -13,7 +13,6 @@
 #include "widget_live_actions.hpp"
 #include "widget_laser_alignment.hpp"
 #include "widget_calib.hpp"
-#include "widget_calib_via_line.hpp"
 #include "control_F9S_MCL3.hpp"
 
 #include <QtWidgets/QtWidgets>
@@ -42,7 +41,6 @@ namespace linescan{
 		widget_live_actions live_actions_w_;
 		widget_laser_alignment laser_alignment_w_;
 		widget_calib calib_w_;
-		widget_calib_via_line calib_via_line_w_;
 	};
 
 
