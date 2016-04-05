@@ -38,7 +38,6 @@ namespace linescan{
 
 		QLabel binarize_threashold_l_;
 		QLabel erode_l_;
-		QLabel sub_pixel_l_;
 		QSpinBox binarize_threashold_;
 		QSpinBox erode_;
 

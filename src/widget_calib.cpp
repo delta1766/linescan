@@ -363,7 +363,6 @@ namespace linescan{
 			eroded_.setEnabled(enabled);
 			binarize_threashold_l_.setEnabled(enabled);
 			erode_l_.setEnabled(enabled);
-			sub_pixel_l_.setEnabled(enabled);
 			binarize_threashold_.setEnabled(enabled);
 			erode_.setEnabled(enabled);
 			laser_line_.setEnabled(enabled);

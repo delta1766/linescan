@@ -38,7 +38,6 @@ namespace linescan{
 
 		binarize_threashold_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 		erode_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-		sub_pixel_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
 		hlayout_.addLayout(&glayout_);
 		hlayout_.addWidget(&image_, 1);
