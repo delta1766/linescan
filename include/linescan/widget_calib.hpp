@@ -12,7 +12,7 @@
 #include "widget_processing_base.hpp"
 #include "control_F9S_MCL3.hpp"
 #include "calibration.hpp"
-#include "circlefind.hpp"
+#include "circle.hpp"
 
 #include <iostream>
 

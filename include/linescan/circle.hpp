@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
-#ifndef _linescan__circlefind__hpp_INCLUDED_
-#define _linescan__circlefind__hpp_INCLUDED_
+#ifndef _linescan__circle__hpp_INCLUDED_
+#define _linescan__circle__hpp_INCLUDED_
 
 #include <mitrax/matrix.hpp>
 
@@ -80,25 +80,6 @@ namespace linescan{
 		return { c.x(), c.y() };
 	}
 
-
-	circle fit_circle(
-		mitrax::raw_bitmap< float > const& image,
-		float x_from, float x_length, std::size_t x_steps,
-		float y_from, float y_length, std::size_t y_steps,
-		float r_from, float r_length, std::size_t r_steps
-	);
-
-	mitrax::raw_bitmap< circle > circlefind(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
-		std::size_t x_count, std::size_t y_count,
-		float radius_in_mm, float distance_in_mm
-	);
-
-	mitrax::raw_bitmap< circle > fine_fit(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
-		mitrax::raw_bitmap< circle > circles,
-		float radius_mm, float distance_mm
-	);
 
 	std::vector< circle > find_calib_circles(
 		mitrax::raw_bitmap< std::uint8_t > const& bitmap

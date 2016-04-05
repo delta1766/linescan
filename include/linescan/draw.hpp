@@ -11,7 +11,7 @@
 
 #include "processing.hpp"
 #include "polynom.hpp"
-#include "circlefind.hpp"
+#include "circle.hpp"
 
 #include <mitrax/matrix.hpp>
 
