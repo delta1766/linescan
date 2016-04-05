@@ -51,6 +51,15 @@ namespace linescan{
 		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
+		addDockWidget(Qt::RightDockWidgetArea, &laser_dock_w_);
+
+		cam_dock_w_.setAllowedAreas(
+			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
+		);
+
+		laser_dock_w_.setAllowedAreas(
+			Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea
+		);
 
 		tabs_w_.addTab(&live_actions_w_, tr("Live"));
 		tabs_w_.addTab(&laser_alignment_w_, tr("Laser align"));

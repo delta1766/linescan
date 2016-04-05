@@ -10,6 +10,7 @@
 #define _linescan__widget_main_window__hpp_INCLUDED_
 
 #include "widget_camera_dock.hpp"
+#include "widget_calc_laser_line_dock.hpp"
 #include "widget_live_actions.hpp"
 #include "widget_laser_alignment.hpp"
 #include "widget_calib.hpp"
@@ -35,6 +36,7 @@ namespace linescan{
 		laser_calibration calib_;
 
 		widget_camera_dock cam_dock_w_;
+		widget_calc_laser_line_dock laser_dock_w_;
 
 		QTabWidget tabs_w_;
 

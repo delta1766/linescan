@@ -23,7 +23,7 @@ namespace linescan{
 
 
 	private:
-		bool is_sub_pixel()const;
+		bool is_subpixel()const;
 
 		message_callback_type message_;
 
@@ -31,8 +31,8 @@ namespace linescan{
 
 		QRadioButton line_;
 
-		QLabel sub_pixel_l_;
-		QCheckBox sub_pixel_;
+		QLabel subpixel_l_;
+		QCheckBox subpixel_;
 		QPushButton save_;
 	};
 

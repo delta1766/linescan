@@ -25,7 +25,7 @@ namespace linescan{
 	protected:
 		std::uint8_t get_threashold()const;
 		std::uint8_t get_erode()const;
-		bool is_sub_pixel()const;
+		bool is_subpixel()const;
 
 
 		QHBoxLayout hlayout_;

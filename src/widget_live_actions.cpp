@@ -23,18 +23,18 @@ namespace linescan{
 		message_(message),
 		save_count_(0),
 		line_(tr("Line image")),
-		sub_pixel_l_(tr("Subpixel")),
+		subpixel_l_(tr("Subpixel")),
 		save_(tr("Save"))
 	{
 		radio_buttons_.addButton(&line_);
 
 		glayout_.addWidget(&line_, 5, 0, 1, 2);
-		glayout_.addWidget(&sub_pixel_l_, 6, 0, 1, 1);
-		glayout_.addWidget(&sub_pixel_, 6, 1, 1, 1);
+		glayout_.addWidget(&subpixel_l_, 6, 0, 1, 1);
+		glayout_.addWidget(&subpixel_, 6, 1, 1, 1);
 		glayout_.addWidget(&save_, 7, 0, 1, 2);
 		glayout_.setRowStretch(8, 1);
 
-		sub_pixel_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		subpixel_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
 
 		connect(&line_, &QRadioButton::released, [this]{
@@ -50,7 +50,7 @@ namespace linescan{
 
 					return std::pair< QImage, QImage >{
 						[this, &line, &bitmap]{
-							if(is_sub_pixel()){
+							if(is_subpixel()){
 								return to_image(draw_laser_line(
 									line, bitmap.cols(), bitmap.rows()
 								));
@@ -78,8 +78,8 @@ namespace linescan{
 		});
 	}
 
-	bool widget_live_actions::is_sub_pixel()const{
-		return sub_pixel_.isChecked();
+	bool widget_live_actions::is_subpixel()const{
+		return subpixel_.isChecked();
 	}
 
 
