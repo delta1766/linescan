@@ -9,6 +9,8 @@
 #include <linescan/calc_laser_line.hpp>
 
 #include <linescan/processing.hpp>
+#include <linescan/to_image.hpp>
+#include <linescan/draw.hpp>
 
 
 namespace linescan{
@@ -55,8 +57,7 @@ namespace linescan{
 			std::size_t erode_value
 		){
 			auto binary = binarize(bitmap, binarize_threshold);
-			binary = erode(binary, erode_value);
-			return calc_via_threshold(binary);
+			return calc_via_threshold(erode(binary, erode_value));
 		}
 
 		std::vector< mitrax::point< double > > calc_via_sum(
@@ -116,6 +117,50 @@ namespace linescan{
 		}
 	}
 
+	QImage calc_laser_line_t::operator()(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
+		as_image_t
+	)const{
+		auto round = [](auto& points){
+			for(auto& p: points){
+				p.x() = static_cast< std::int64_t >(p.x() + 0.5);
+				p.y() = static_cast< std::int64_t >(p.y() + 0.5);
+			}
+		};
+
+		switch(method_){
+			case type::threshold: switch(threshold_mode_){
+				case calc_laser_line_mode::threshold::original:
+					return to_image(image);
+
+				case calc_laser_line_mode::threshold::binarize:
+					return to_image(binarize(image, threshold_));
+
+				case calc_laser_line_mode::threshold::erode:
+					return to_image(
+						erode(binarize(image, threshold_), erode_)
+					);
+
+				case calc_laser_line_mode::threshold::line:
+					auto points = (*this)(image);
+					if(!threshold_subpixel_) round(points);
+					return to_image(draw_laser_line(
+						points, image.cols(), image.rows()
+					));
+			}
+			case type::sum: switch(sum_mode_){
+				case calc_laser_line_mode::sum::original:
+					return to_image(image);
+
+				case calc_laser_line_mode::sum::line:
+					auto points = (*this)(image);
+					if(!sum_subpixel_) round(points);
+					return to_image(draw_laser_line(
+						points, image.cols(), image.rows()
+					));
+			}
+		}
+	}
 
 	void calc_laser_line_t::use(
 		calc_laser_line_mode::threshold mode,

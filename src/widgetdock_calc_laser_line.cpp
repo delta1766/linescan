@@ -108,6 +108,8 @@ namespace linescan{
 
 		constexpr auto released = &QRadioButton::released;
 
+		constexpr auto check_released = &QAbstractButton::released;
+
 		constexpr auto valueChanged =
 			static_cast< void(QSpinBox::*)(int) >(&QSpinBox::valueChanged);
 
@@ -132,6 +134,8 @@ namespace linescan{
 		connect(&threshold_binarize_, valueChanged, update_threshold_i);
 		connect(&threshold_erode_, valueChanged, update_threshold_i);
 
+		connect(&threshold_subpixel_, check_released, update_threshold_v);
+
 		connect(&threshold_show_original_, released, update_threshold_v);
 		connect(&threshold_show_binarize_, released, update_threshold_v);
 		connect(&threshold_show_erode_, released, update_threshold_v);
@@ -140,8 +144,13 @@ namespace linescan{
 		connect(&sum_min_value_, valueChanged, update_sum_i);
 		connect(&sum_min_sum_, valueChanged, update_sum_i);
 
+		connect(&sum_subpixel_, check_released, update_sum_v);
+
 		connect(&sum_show_original_, released, update_sum_v);
 		connect(&sum_show_line_, released, update_sum_v);
+
+		update_sum();
+		update_threshold();
 	}
 
 	void widgetdock_calc_laser_line::show_box(QGroupBox& box){

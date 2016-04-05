@@ -42,27 +42,8 @@ namespace linescan{
 
 			image_.set_processor(
 				[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-					calc_laser_line_t calc_laser_line;
-					calc_laser_line.use(
-						calc_laser_line_mode::threshold::line,
-						get_threashold(),
-						get_erode(),
-						true
-					);
-					auto line = calc_laser_line(bitmap);
-
 					return std::pair< QImage, QImage >{
-						[this, &line, &bitmap]{
-							if(is_subpixel()){
-								return to_image(draw_laser_line(
-									line, bitmap.cols(), bitmap.rows()
-								));
-							}
-
-							return to_image(draw_laser_line_student(
-								line, bitmap.cols(), bitmap.rows()
-							));
-						}(),
+						calc_laser_line(bitmap, as_image),
 						QImage()
 					};
 				});
