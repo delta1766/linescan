@@ -116,19 +116,30 @@ namespace linescan{
 		}
 	}
 
-	void calc_laser_line_t::use_threshold(
-		std::uint8_t threshold, std::size_t erode
+
+	void calc_laser_line_t::use(
+		calc_laser_line_mode::threshold mode,
+		std::uint8_t threshold,
+		std::size_t erode,
+		bool subpixel
 	){
+		threshold_mode_ = mode;
 		threshold_ = threshold;
 		erode_ = erode;
+		threshold_subpixel_ = subpixel;
 		method_ = type::threshold;
 	}
 
-	void calc_laser_line_t::use_sum(
-		std::uint8_t min_value, std::size_t min_sum
+	void calc_laser_line_t::use(
+		calc_laser_line_mode::sum mode,
+		std::uint8_t min_value,
+		std::size_t min_sum,
+		bool subpixel
 	){
+		sum_mode_ = mode;
 		min_value_ = min_value;
 		min_sum_ = min_sum;
+		sum_subpixel_ = subpixel;
 		method_ = type::sum;
 	}
 

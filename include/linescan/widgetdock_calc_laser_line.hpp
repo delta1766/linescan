@@ -23,6 +23,9 @@ namespace linescan{
 	private:
 		void show_box(QGroupBox& box);
 
+		void update_threshold()const;
+		void update_sum()const;
+
 
 		QWidget main_widget_;
 		QVBoxLayout main_layout_;

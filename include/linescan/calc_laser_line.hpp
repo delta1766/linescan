@@ -17,14 +17,39 @@
 namespace linescan{
 
 
+	struct calc_laser_line_mode{
+		enum class threshold{
+			original,
+			binarize,
+			erode,
+			line
+		};
+
+		enum class sum{
+			original,
+			line
+		};
+	};
+
 	class calc_laser_line_t{
 	public:
 		std::vector< mitrax::point< double > > operator()(
 			mitrax::raw_bitmap< std::uint8_t > const& image
 		)const;
 
-		void use_threshold(std::uint8_t threshold, std::size_t erode);
-		void use_sum(std::uint8_t min_value, std::size_t min_sum);
+		void use(
+			calc_laser_line_mode::threshold mode,
+			std::uint8_t threshold,
+			std::size_t erode,
+			bool subpixel
+		);
+
+		void use(
+			calc_laser_line_mode::sum mode,
+			std::uint8_t min_value,
+			std::size_t min_sum,
+			bool subpixel
+		);
 
 	private:
 		enum class type{
@@ -34,11 +59,15 @@ namespace linescan{
 
 		type method_ = type::threshold;
 
+		calc_laser_line_mode::threshold threshold_mode_;
 		std::uint8_t threshold_ = 255;
 		std::size_t erode_ = 2;
+		bool threshold_subpixel_ = true;
 
+		calc_laser_line_mode::sum sum_mode_;
 		std::uint8_t min_value_ = 20;
 		std::size_t min_sum_ = 4000;
+		bool sum_subpixel_ = true;
 	};
 
 	extern calc_laser_line_t calc_laser_line;

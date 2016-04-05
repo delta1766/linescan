@@ -91,7 +91,12 @@ namespace linescan{
 		std::size_t erode_value
 	){
 		calc_laser_line_t calc;
-		calc.use_threshold(binarize_threshold, erode_value);
+		calc.use(
+			calc_laser_line_mode::threshold::line,
+			binarize_threshold,
+			erode_value,
+			true
+		);
 		return draw_laser_alignment(bitmap.dims(), calc(bitmap));
 	}
 

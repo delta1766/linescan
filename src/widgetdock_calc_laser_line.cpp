@@ -106,13 +106,42 @@ namespace linescan{
 		sum_.hide();
 
 
-		connect(&method_threshold_, &QRadioButton::released, [this]{
+		constexpr auto released = &QRadioButton::released;
+
+		constexpr auto valueChanged =
+			static_cast< void(QSpinBox::*)(int) >(&QSpinBox::valueChanged);
+
+		auto const update_threshold_v = [this]{ update_threshold(); };
+		auto const update_threshold_i = [this](int){ update_threshold(); };
+
+		auto const update_sum_v = [this]{ update_sum(); };
+		auto const update_sum_i = [this](int){ update_sum(); };
+
+
+		connect(&method_threshold_, released, [this]{
 			show_box(threshold_);
+			update_threshold();
 		});
 
-		connect(&method_sum_, &QRadioButton::released, [this]{
+		connect(&method_sum_, released, [this]{
 			show_box(sum_);
+			update_sum();
 		});
+
+
+		connect(&threshold_binarize_, valueChanged, update_threshold_i);
+		connect(&threshold_erode_, valueChanged, update_threshold_i);
+
+		connect(&threshold_show_original_, released, update_threshold_v);
+		connect(&threshold_show_binarize_, released, update_threshold_v);
+		connect(&threshold_show_erode_, released, update_threshold_v);
+		connect(&threshold_show_line_, released, update_threshold_v);
+
+		connect(&sum_min_value_, valueChanged, update_sum_i);
+		connect(&sum_min_sum_, valueChanged, update_sum_i);
+
+		connect(&sum_show_original_, released, update_sum_v);
+		connect(&sum_show_line_, released, update_sum_v);
 	}
 
 	void widgetdock_calc_laser_line::show_box(QGroupBox& box){
@@ -120,6 +149,40 @@ namespace linescan{
 			&threshold_,
 			&sum_
 		}) pointer->setVisible(pointer == &box);
+	}
+
+	void widgetdock_calc_laser_line::update_threshold()const{
+		calc_laser_line.use(
+			[this]{
+				if(threshold_show_original_.isChecked()){
+					return calc_laser_line_mode::threshold::original;
+				}
+				if(threshold_show_binarize_.isChecked()){
+					return calc_laser_line_mode::threshold::binarize;
+				}
+				if(threshold_show_erode_.isChecked()){
+					return calc_laser_line_mode::threshold::erode;
+				}
+				return calc_laser_line_mode::threshold::line;
+			}(),
+			threshold_binarize_.value(),
+			threshold_erode_.value(),
+			threshold_subpixel_.isChecked()
+		);
+	}
+
+	void widgetdock_calc_laser_line::update_sum()const{
+		calc_laser_line.use(
+			[this]{
+				if(sum_show_original_.isChecked()){
+					return calc_laser_line_mode::sum::original;
+				}
+				return calc_laser_line_mode::sum::line;
+			}(),
+			sum_min_value_.value(),
+			sum_min_sum_.value(),
+			sum_subpixel_.isChecked()
+		);
 	}
 
 
