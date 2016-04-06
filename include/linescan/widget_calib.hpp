@@ -9,10 +9,11 @@
 #ifndef _linescan__widget_calib__hpp_INCLUDED_
 #define _linescan__widget_calib__hpp_INCLUDED_
 
-#include "widget_processing_base.hpp"
+#include "widget_live_image.hpp"
 #include "control_F9S_MCL3.hpp"
-#include "calibration.hpp"
 #include "circle.hpp"
+
+#include <QtWidgets/QtWidgets>
 
 #include <iostream>
 
@@ -20,7 +21,7 @@
 namespace linescan{
 
 
-	class widget_calib: public widget_processing_base{
+	class widget_calib: public QWidget{
 	public:
 		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
 
@@ -85,12 +86,13 @@ namespace linescan{
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
 
-		QRadioButton laser_line_;
+		QHBoxLayout layout_;
+		QGridLayout main_layout_;
 
 		QLabel step_l_;
 		QPushButton laser_start_;
-		QLabel laser_auto_stop_l_;
-		QCheckBox laser_auto_stop_;
+
+		widget_live_image image_;
 
 		QTimer timer_;
 	};

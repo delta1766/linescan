@@ -24,52 +24,27 @@ namespace linescan{
 
 
 	widget_calib::widget_calib(camera& cam, control_F9S_MCL3& mcl3):
-		widget_processing_base(cam),
 		cam_(cam),
 		mcl3_(mcl3),
-		laser_line_(tr("Laser image")),
-		laser_auto_stop_l_(tr("Auto stop"))
+		image_(cam)
 	{
-		radio_buttons_.addButton(&laser_line_);
+		main_layout_.addWidget(&step_l_, 0, 0, 1, 2);
+		main_layout_.addWidget(&laser_start_, 1, 0, 1, 2);
+		main_layout_.setRowStretch(2, 1);
 
-		glayout_.addWidget(&laser_line_, 5, 0, 1, 2);
-		glayout_.addWidget(&step_l_, 6, 0, 1, 2);
-		glayout_.addWidget(&laser_start_, 7, 0, 1, 2);
-		glayout_.addWidget(&laser_auto_stop_l_, 8, 0, 1, 1);
-		glayout_.addWidget(&laser_auto_stop_, 8, 1, 1, 1);
-		glayout_.setRowStretch(9, 1);
+		layout_.addLayout(&main_layout_);
+		layout_.addWidget(&image_);
 
-		connect(&laser_line_, &QRadioButton::released, [this]{
-			if(!laser_line_.isChecked()) return;
+		setLayout(&layout_);
 
-			if(step_ != step::calib_yz){
-				image_.set_processor(
-					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-						auto overlay = draw_laser_alignment(
-							bitmap, get_threashold(), get_erode()
-						);
 
-						return std::pair< QImage, QImage >(
-							to_image(std::move(bitmap)), overlay
-						);
-					});
-			}else{
-				image_.set_processor(
-					[this](mitrax::raw_bitmap< std::uint8_t >&& bitmap){
-						auto overlay = draw_circle_line(bitmap);
-
-						return std::pair< QImage, QImage >(
-							to_image(std::move(bitmap)), overlay
-						);
-					});
-			}
+		image_.set_processor([this](auto&& image){
+			return std::pair< QImage, QImage >(
+				calc_laser_line(image, as_image),
+				QImage()
+			);
 		});
 
-		auto start_live = [this]{ image_.start_live(); };
-		connect(&original_, &QRadioButton::released, start_live);
-		connect(&binarized_, &QRadioButton::released, start_live);
-		connect(&eroded_, &QRadioButton::released, start_live);
-		connect(&laser_line_, &QRadioButton::released, start_live);
 
 		connect(&laser_start_, &QPushButton::released, [this]{
 			if(running_){
@@ -165,10 +140,7 @@ namespace linescan{
 				mcl3_.move_relative(0, 0, 1000);
 			}, false);
 
-			if(
-				step_ == step::calib_yz &&
-				circle_calib_.size() > 1 && laser_auto_stop_.isChecked()
-			){
+			if(step_ == step::calib_yz && circle_calib_.size() > 1){
 				auto y1 = cam_.rows() - circle_calib_.front().y;
 				auto y2 = circle_calib_.back().y;
 
@@ -199,9 +171,6 @@ namespace linescan{
 		});
 
 		step_l_.setAlignment(Qt::AlignCenter);
-		laser_auto_stop_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-		laser_auto_stop_l_.setEnabled(false);
-		laser_auto_stop_.setEnabled(false);
 
 		set_step(step::calib_yz);
 	}
@@ -357,19 +326,6 @@ namespace linescan{
 	}
 
 	void widget_calib::set_running(bool is_running){
-		auto set_enabled = [this](bool enabled){
-			original_.setEnabled(enabled);
-			binarized_.setEnabled(enabled);
-			eroded_.setEnabled(enabled);
-			binarize_threashold_l_.setEnabled(enabled);
-			erode_l_.setEnabled(enabled);
-			binarize_threashold_.setEnabled(enabled);
-			erode_.setEnabled(enabled);
-			laser_line_.setEnabled(enabled);
-			laser_auto_stop_l_.setEnabled(!enabled);
-			laser_auto_stop_.setEnabled(!enabled);
-		};
-
 		running_ = is_running;
 
 		if(is_running){
@@ -397,20 +353,9 @@ namespace linescan{
 			timer_.start(0);
 			laser_start_.setText(tr("Stop"));
 
-			radio_buttons_.setExclusive(false);
-			original_.setChecked(false);
-			binarized_.setChecked(false);
-			eroded_.setChecked(false);
-			laser_line_.setChecked(false);
-			radio_buttons_.setExclusive(true);
-
-			set_enabled(false);
 		}else{
 			timer_.stop();
 			laser_start_.setText(tr("Start"));
-
-			laser_auto_stop_.setChecked(false);
-			set_enabled(true);
 
 			mcl3_.move_to(null_pos_[0], null_pos_[1], null_pos_[2]);
 		}

@@ -14,7 +14,7 @@
 #include "widget_live_actions.hpp"
 #include "widget_laser_alignment.hpp"
 #include "widget_calib.hpp"
-#include "control_F9S_MCL3.hpp"
+#include "calibration.hpp"
 
 #include <QtWidgets/QtWidgets>
 
