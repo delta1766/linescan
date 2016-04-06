@@ -172,6 +172,10 @@ namespace linescan{
 		set_step(step::calib_yz);
 	}
 
+	widget_calib::~widget_calib(){
+		timer_.disconnect();
+	}
+
 	bool widget_calib::is_running()const{
 		return running_;
 	}

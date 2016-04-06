@@ -25,7 +25,6 @@ namespace linescan{
 			std::function< std::pair< QImage, QImage >(bitmap&&) >;
 
 
-
 		widget_live_image(camera& cam);
 
 		void set_processor(processor1_type const& function);

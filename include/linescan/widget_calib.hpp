@@ -25,6 +25,8 @@ namespace linescan{
 	public:
 		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
 
+		~widget_calib();
+
 
 		bool is_running()const;
 

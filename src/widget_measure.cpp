@@ -52,5 +52,9 @@ namespace linescan{
 		});
 	}
 
+	widget_measure::~widget_measure(){
+		timer_.disconnect();
+	}
+
 
 }

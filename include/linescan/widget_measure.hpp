@@ -24,6 +24,9 @@ namespace linescan{
 	public:
 		widget_measure(camera& cam, control_F9S_MCL3& mcl3);
 
+		~widget_measure();
+
+
 		boost::signals2::signal< void(QString const&) > message;
 
 
