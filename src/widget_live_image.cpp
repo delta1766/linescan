@@ -32,13 +32,13 @@ namespace linescan{
 		is_live_(false),
 		processor_(&standard_processor)
 	{
-		this->connect(&timer_, &QTimer::timeout, [this]{
+		connect(&timer_, &QTimer::timeout, [this]{
 			exception_catcher([&]{
 				auto pair = processor_(cam_.image());
 
-				this->set_images(std::move(pair.first), pair.second);
+				set_images(std::move(pair.first), pair.second);
 
-				if(this->isVisible()) timer_.start(100);
+				if(isVisible()) timer_.start(100);
 			}, false);
 		});
 	}
