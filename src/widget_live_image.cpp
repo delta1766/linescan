@@ -92,8 +92,6 @@ namespace linescan{
 		}
 
 		is_live_ = is_live;
-
-// 		if(live_toggle_callback_) live_toggle_callback_(is_live_);
 	}
 
 
