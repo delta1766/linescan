@@ -45,9 +45,17 @@ namespace linescan{
 	}
 
 	void widget_live_image::set_processor(
-		processor_type const& function
+		processor2_type const& function
 	){
 		processor_ = function;
+	}
+
+	void widget_live_image::set_processor(
+		processor1_type const& function
+	){
+		processor_ = [function](bitmap&& image)->std::pair< QImage, QImage >{
+			return { function(std::move(image)), QImage() };
+		};
 	}
 
 	void widget_live_image::reset_processor(){

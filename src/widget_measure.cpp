@@ -35,10 +35,7 @@ namespace linescan{
 
 
 		image_.set_processor([this](auto&& image){
-			return std::pair< QImage, QImage >(
-				calc_laser_line(image, as_image),
-				QImage()
-			);
+			return calc_laser_line(image, as_image);
 		});
 
 

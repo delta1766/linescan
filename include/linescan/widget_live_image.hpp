@@ -18,15 +18,18 @@ namespace linescan{
 
 	class widget_live_image: public widget_central_image{
 	public:
-		using processor_type =
-			std::function< std::pair< QImage, QImage >(
-				mitrax::raw_bitmap< std::uint8_t >&&
-			) >;
+		using bitmap = mitrax::raw_bitmap< std::uint8_t >;
+
+		using processor1_type = std::function< QImage(bitmap&&) >;
+		using processor2_type =
+			std::function< std::pair< QImage, QImage >(bitmap&&) >;
+
 
 
 		widget_live_image(camera& cam);
 
-		void set_processor(processor_type const& function);
+		void set_processor(processor1_type const& function);
+		void set_processor(processor2_type const& function);
 
 		void reset_processor();
 
@@ -50,7 +53,7 @@ namespace linescan{
 
 		bool is_live_;
 
-		processor_type processor_;
+		processor2_type processor_;
 
 		QTimer timer_;
 	};
