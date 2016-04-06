@@ -34,7 +34,10 @@ namespace linescan{
 
 
 	private:
-		std::size_t save_count_ = 0;
+		std::size_t image_save_count_ = 0;
+		std::size_t measure_save_count_ = 0;
+
+		std::vector< std::array< double, 3 > > points_;
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
@@ -43,6 +46,7 @@ namespace linescan{
 		QHBoxLayout layout_;
 		QGridLayout main_layout_;
 
+		QPushButton start_;
 		QPushButton save_;
 
 		widget_live_image image_;

@@ -9,6 +9,8 @@
 #include <linescan/widget_measure.hpp>
 #include <linescan/calc_laser_line.hpp>
 
+#include <fstream>
+
 
 namespace linescan{
 
@@ -19,19 +21,27 @@ namespace linescan{
 	):
 		cam_(cam),
 		mcl3_(mcl3),
+		start_(tr("Start")),
 		save_(tr("Save")),
 		image_(cam)
 	{
-		(void)cam_;
-		(void)mcl3_;
-
-		main_layout_.addWidget(&save_, 0, 0, 1, 2);
-		main_layout_.setRowStretch(1, 1);
+		main_layout_.addWidget(&start_, 0, 0, 1, 2);
+		main_layout_.addWidget(&save_, 1, 0, 1, 2);
+		main_layout_.setRowStretch(2, 1);
 
 		layout_.addLayout(&main_layout_);
 		layout_.addWidget(&image_);
 
 		setLayout(&layout_);
+
+		start_.setCheckable(true);
+		start_.setEnabled(false);
+
+
+		timer_.setSingleShot(true);
+
+
+		points_.reserve(1'000'000);
 
 
 		image_.set_processor([this](auto&& image){
@@ -43,12 +53,61 @@ namespace linescan{
 			auto image = image_.image();
 
 			auto name = QString("live_%1.png")
-				.arg(save_count_, 4, 10, QLatin1Char('0'));
+				.arg(image_save_count_, 4, 10, QLatin1Char('0'));
 
-			++save_count_;
+			++image_save_count_;
 
 			message(tr("Save image '%1'.").arg(name));
 			image.save(name, "PNG");
+		});
+
+		connect(&start_, &QPushButton::released, [this]{
+			if(start_.isChecked()){
+
+				start_.setText(tr("Stop"));
+
+				points_.clear();
+				image_.stop_live();
+				timer_.start(0);
+			}else{
+				timer_.stop();
+				start_.setText(tr("Start"));
+
+				auto name = QString("measure_%1.asc")
+					.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
+
+				++measure_save_count_;
+
+				message(tr("Save measurement '%1'.").arg(name));
+
+				std::ofstream os(name.toStdString().c_str());
+				for(auto const& p: points_){
+					os << p[0] << ' ' << p[1] << ' ' << p[2] << '\n';
+				}
+
+				image_.start_live();
+			}
+		});
+
+		connect(&timer_, &QTimer::timeout, [this]{
+			std::vector< mitrax::point< double > > points;
+			QImage image;
+			std::tie(points, image) =
+				calc_laser_line(cam_.image(), points_and_image);
+
+			image_.set_images(image, QImage());
+
+			auto Y = mcl3_.read_y();
+			for(auto const& p: points){
+				points_.push_back(std::array< double, 3 >{{
+					calib_.X(p.x(), p.y()),
+					Y / 1000.,
+					calib_.Z(p.y())
+				}});
+			}
+
+			mcl3_.move_relative(0, 100, 0);
+			timer_.start(1);
 		});
 	}
 
@@ -58,6 +117,7 @@ namespace linescan{
 
 	void widget_measure::set_calibration(calibration const& calib){
 		calib_ = calib;
+		if(calib_.is_valid()) start_.setEnabled(true);
 	}
 
 

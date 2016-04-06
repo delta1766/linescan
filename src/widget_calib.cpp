@@ -37,6 +37,9 @@ namespace linescan{
 		setLayout(&layout_);
 
 
+		timer_.setSingleShot(true);
+
+
 		connect(&laser_start_, &QPushButton::released, [this]{
 			switch(step_){
 				case step::align_laser:
@@ -198,6 +201,11 @@ namespace linescan{
 
 		image_.stop_live();
 		timer_.start(0);
+	}
+
+	void widget_calib::showEvent(QShowEvent* event){
+		QWidget::showEvent(event);
+		null_pos_ = mcl3_.position();
 	}
 
 	void widget_calib::hideEvent(QHideEvent* event){

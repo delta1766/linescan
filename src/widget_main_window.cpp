@@ -44,8 +44,8 @@ namespace linescan{
 
 		calib_w_.ready.connect([this](calibration const& calib){
 			auto y_to_Z = calib.y_to_Z();
-			auto y_to_Y_null = calib.y_to_Y_null();
-			auto dx_to_dY = calib.dx_to_dY();
+			auto y_to_X_null = calib.y_to_X_null();
+			auto dx_to_dX = calib.dx_to_dX();
 
 			settings_.beginGroup("calibration");
 			settings_.beginGroup("laser");
@@ -55,13 +55,13 @@ namespace linescan{
 			settings_.setValue("c", y_to_Z[1]);
 			settings_.setValue("d", y_to_Z[0]);
 			settings_.endGroup();
-			settings_.beginGroup("y_to_Y_null");
-			settings_.setValue("a", y_to_Y_null[1]);
-			settings_.setValue("b", y_to_Y_null[0]);
+			settings_.beginGroup("y_to_X_null");
+			settings_.setValue("a", y_to_X_null[1]);
+			settings_.setValue("b", y_to_X_null[0]);
 			settings_.endGroup();
-			settings_.beginGroup("dx_to_dY");
-			settings_.setValue("a", dx_to_dY[1]);
-			settings_.setValue("b", dx_to_dY[0]);
+			settings_.beginGroup("dx_to_dX");
+			settings_.setValue("a", dx_to_dX[1]);
+			settings_.setValue("b", dx_to_dX[0]);
 			settings_.endGroup();
 			settings_.endGroup();
 			settings_.endGroup();
@@ -85,13 +85,13 @@ namespace linescan{
 		auto y_to_Z_c = get("c");
 		auto y_to_Z_d = get("d");
 		settings_.endGroup();
-		settings_.beginGroup("y_to_Y_null");
-		auto y_to_Y_null_a = get("a");
-		auto y_to_Y_null_b = get("b");
+		settings_.beginGroup("y_to_X_null");
+		auto y_to_X_null_a = get("a");
+		auto y_to_X_null_b = get("b");
 		settings_.endGroup();
-		settings_.beginGroup("dx_to_dY");
-		auto dx_to_dY_a = get("a");
-		auto dx_to_dY_b = get("b");
+		settings_.beginGroup("dx_to_dX");
+		auto dx_to_dX_a = get("a");
+		auto dx_to_dX_b = get("b");
 		settings_.endGroup();
 		settings_.endGroup();
 		settings_.endGroup();
@@ -101,10 +101,10 @@ namespace linescan{
 			y_to_Z_b,
 			y_to_Z_c,
 			y_to_Z_d,
-			y_to_Y_null_a,
-			y_to_Y_null_b,
-			dx_to_dY_a,
-			dx_to_dY_b
+			y_to_X_null_a,
+			y_to_X_null_b,
+			dx_to_dX_a,
+			dx_to_dX_b
 		}) if(!pair.second) return;
 
 
@@ -118,20 +118,20 @@ namespace linescan{
 				y_to_Z_a.first
 			}));
 
-		polynom< double, 1 > y_to_Y_null(
+		polynom< double, 1 > y_to_X_null(
 			mitrax::make_col_vector< double >(2_R, {
-				y_to_Y_null_b.first,
-				y_to_Y_null_a.first
+				y_to_X_null_b.first,
+				y_to_X_null_a.first
 			}));
 
-		polynom< double, 1 > dx_to_dY(
+		polynom< double, 1 > dx_to_dX(
 			mitrax::make_col_vector< double >(2_R, {
-				dx_to_dY_b.first,
-				dx_to_dY_a.first
+				dx_to_dX_b.first,
+				dx_to_dX_a.first
 			}));
 
 		calibration calib;
-		calib.set(y_to_Z, y_to_Y_null, dx_to_dY);
+		calib.set(y_to_Z, y_to_X_null, dx_to_dX);
 		measure_w_.set_calibration(calib);
 
 
