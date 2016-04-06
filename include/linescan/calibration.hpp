@@ -15,42 +15,38 @@
 namespace linescan{
 
 
-	class laser_calibration{
+	class calibration{
 	public:
 		void set(
-			polynom< double, 3 > const& cam_y_to_z_map,
-			polynom< double, 1 > const& left_limit,
-			polynom< double, 1 > const& right_limit
+			polynom< double, 3 > const& y_to_Z,
+			polynom< double, 1 > const& y_to_Y_null,
+			polynom< double, 1 > const& dx_to_dY
 		){
-			cam_y_to_z_map_ = cam_y_to_z_map;
-			left_limit_ = left_limit;
-			right_limit_ = right_limit;
-			valid_ = false;
+			y_to_Z_ = y_to_Z;
+			y_to_Y_null_ = y_to_Y_null;
+			dx_to_dY_ = dx_to_dY;
+			valid_ = true;
 		}
 
-		double z(double cam_y)const{
-			return cam_y_to_z_map_(cam_y);
+		double Z(double y)const{
+			return y_to_Z_(y);
 		}
 
-		double left_limit(double cam_y)const{
-			return left_limit_(cam_y);
-		}
-
-		double right_limit(double cam_y)const{
-			return right_limit_(cam_y);
+		double Y(double x, double y)const{
+			return dx_to_dY_(x - y_to_Y_null_(y));
 		}
 
 		bool is_valid()const{ return valid_;}
 
-		polynom< double, 3 > cam_y_to_z_map()const{ return cam_y_to_z_map_;}
-		polynom< double, 1 > left_limit()const{ return left_limit_;}
-		polynom< double, 1 > right_limit()const{ return right_limit_;}
+		polynom< double, 3 > y_to_Z()const{ return y_to_Z_;}
+		polynom< double, 1 > y_to_Y_null()const{ return y_to_Y_null_;}
+		polynom< double, 1 > dx_to_dY()const{ return dx_to_dY_;}
 
 	private:
 		bool valid_ = false;
-		polynom< double, 3 > cam_y_to_z_map_;
-		polynom< double, 1 > left_limit_;
-		polynom< double, 1 > right_limit_;
+		polynom< double, 3 > y_to_Z_;
+		polynom< double, 1 > y_to_Y_null_;
+		polynom< double, 1 > dx_to_dY_;
 	};
 
 

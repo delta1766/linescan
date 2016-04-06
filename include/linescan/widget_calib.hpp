@@ -11,11 +11,12 @@
 
 #include "widget_live_image.hpp"
 #include "control_F9S_MCL3.hpp"
+#include "calibration.hpp"
 #include "circle.hpp"
 
 #include <QtWidgets/QtWidgets>
 
-#include <iostream>
+#include <boost/signals2.hpp>
 
 
 namespace linescan{
@@ -32,6 +33,8 @@ namespace linescan{
 
 		void stop();
 		void start();
+
+		boost::signals2::signal< void(calibration const&) > ready;
 
 
 	protected:

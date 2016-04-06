@@ -12,34 +12,6 @@
 namespace linescan{
 
 
-// 	auto load_calib = [this](laser_calibration const& calib){
-// 			calib_ = calib;
-// 
-// 			auto cam_y_to_z_map = calib_.cam_y_to_z_map();
-// 			auto left_limit = calib_.left_limit();
-// 			auto right_limit = calib_.right_limit();
-// 
-// 			settings_.beginGroup("calibration");
-// 			settings_.beginGroup("laser");
-// 			settings_.beginGroup("cam_y_to_z_map");
-// 			settings_.setValue("a", cam_y_to_z_map[3]);
-// 			settings_.setValue("b", cam_y_to_z_map[2]);
-// 			settings_.setValue("c", cam_y_to_z_map[1]);
-// 			settings_.setValue("d", cam_y_to_z_map[0]);
-// 			settings_.endGroup();
-// 			settings_.beginGroup("left_limit");
-// 			settings_.setValue("a", left_limit[1]);
-// 			settings_.setValue("b", left_limit[0]);
-// 			settings_.endGroup();
-// 			settings_.beginGroup("right_limit");
-// 			settings_.setValue("a", right_limit[1]);
-// 			settings_.setValue("b", right_limit[0]);
-// 			settings_.endGroup();
-// 			settings_.endGroup();
-// 			settings_.endGroup();
-// 			settings_.sync();
-// 		}
-
 	widget_main_window::widget_main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
@@ -70,6 +42,34 @@ namespace linescan{
 			statusBar()->showMessage(message, 5000);
 		});
 
+		calib_w_.ready.connect([this](calibration const& calib){
+			calib_ = calib;
+
+			auto y_to_Z = calib_.y_to_Z();
+			auto y_to_Y_null = calib_.y_to_Y_null();
+			auto dx_to_dY = calib_.dx_to_dY();
+
+			settings_.beginGroup("calibration");
+			settings_.beginGroup("laser");
+			settings_.beginGroup("y_to_Z");
+			settings_.setValue("a", y_to_Z[3]);
+			settings_.setValue("b", y_to_Z[2]);
+			settings_.setValue("c", y_to_Z[1]);
+			settings_.setValue("d", y_to_Z[0]);
+			settings_.endGroup();
+			settings_.beginGroup("y_to_Y_null");
+			settings_.setValue("a", y_to_Y_null[1]);
+			settings_.setValue("b", y_to_Y_null[0]);
+			settings_.endGroup();
+			settings_.beginGroup("dx_to_dY");
+			settings_.setValue("a", dx_to_dY[1]);
+			settings_.setValue("b", dx_to_dY[0]);
+			settings_.endGroup();
+			settings_.endGroup();
+			settings_.endGroup();
+			settings_.sync();
+		});
+
 
 		auto get = [this](auto const& name){
 			bool ok = false;
@@ -79,57 +79,57 @@ namespace linescan{
 
 		settings_.beginGroup("calibration");
 		settings_.beginGroup("laser");
-		settings_.beginGroup("cam_y_to_z_map");
-		auto cam_y_to_z_map_a = get("a");
-		auto cam_y_to_z_map_b = get("b");
-		auto cam_y_to_z_map_c = get("c");
-		auto cam_y_to_z_map_d = get("d");
+		settings_.beginGroup("y_to_Z");
+		auto y_to_Z_a = get("a");
+		auto y_to_Z_b = get("b");
+		auto y_to_Z_c = get("c");
+		auto y_to_Z_d = get("d");
 		settings_.endGroup();
-		settings_.beginGroup("left_limit");
-		auto laser_left_limit_a = get("a");
-		auto laser_left_limit_b = get("b");
+		settings_.beginGroup("y_to_Y_null");
+		auto y_to_Y_null_a = get("a");
+		auto y_to_Y_null_b = get("b");
 		settings_.endGroup();
-		settings_.beginGroup("right_limit");
-		auto laser_right_limit_a = get("a");
-		auto laser_right_limit_b = get("b");
+		settings_.beginGroup("dx_to_dY");
+		auto dx_to_dY_a = get("a");
+		auto dx_to_dY_b = get("b");
 		settings_.endGroup();
 		settings_.endGroup();
 		settings_.endGroup();
 
 		for(auto const& pair: {
-			cam_y_to_z_map_a,
-			cam_y_to_z_map_b,
-			cam_y_to_z_map_c,
-			cam_y_to_z_map_d,
-			laser_left_limit_a,
-			laser_left_limit_b,
-			laser_right_limit_a,
-			laser_right_limit_b
+			y_to_Z_a,
+			y_to_Z_b,
+			y_to_Z_c,
+			y_to_Z_d,
+			y_to_Y_null_a,
+			y_to_Y_null_b,
+			dx_to_dY_a,
+			dx_to_dY_b
 		}) if(!pair.second) return;
 
 		using namespace mitrax::literals;
 
-		polynom< double, 3 > cam_y_to_z_map(
+		polynom< double, 3 > y_to_Z(
 			mitrax::make_col_vector< double >(4_R, {
-				cam_y_to_z_map_d.first,
-				cam_y_to_z_map_c.first,
-				cam_y_to_z_map_b.first,
-				cam_y_to_z_map_a.first
+				y_to_Z_d.first,
+				y_to_Z_c.first,
+				y_to_Z_b.first,
+				y_to_Z_a.first
 			}));
 
-		polynom< double, 1 > laser_left_limit(
+		polynom< double, 1 > y_to_Y_null(
 			mitrax::make_col_vector< double >(2_R, {
-				laser_left_limit_b.first,
-				laser_left_limit_a.first
+				y_to_Y_null_b.first,
+				y_to_Y_null_a.first
 			}));
 
-		polynom< double, 1 > laser_right_limit(
+		polynom< double, 1 > dx_to_dY(
 			mitrax::make_col_vector< double >(2_R, {
-				laser_right_limit_b.first,
-				laser_right_limit_a.first
+				dx_to_dY_b.first,
+				dx_to_dY_a.first
 			}));
 
-		calib_.set(cam_y_to_z_map, laser_left_limit, laser_right_limit);
+		calib_.set(y_to_Z, y_to_Y_null, dx_to_dY);
 
 		mcl3_.set_position(0, 0, 0);
 	}
