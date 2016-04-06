@@ -31,8 +31,6 @@ namespace linescan{
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 
-		calibration calib_;
-
 		widgetdock_camera cam_dock_w_;
 		widgetdock_calc_laser_line laser_dock_w_;
 

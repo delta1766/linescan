@@ -11,6 +11,7 @@
 
 #include "widget_live_image.hpp"
 #include "control_F9S_MCL3.hpp"
+#include "calibration.hpp"
 
 #include <QtWidgets/QtWidgets>
 
@@ -27,6 +28,8 @@ namespace linescan{
 		~widget_measure();
 
 
+		void set_calibration(calibration const& calib);
+
 		boost::signals2::signal< void(QString const&) > message;
 
 
@@ -35,6 +38,7 @@ namespace linescan{
 
 		camera& cam_;
 		control_F9S_MCL3& mcl3_;
+		calibration calib_;
 
 		QHBoxLayout layout_;
 		QGridLayout main_layout_;

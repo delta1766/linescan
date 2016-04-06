@@ -56,5 +56,9 @@ namespace linescan{
 		timer_.disconnect();
 	}
 
+	void widget_measure::set_calibration(calibration const& calib){
+		calib_ = calib;
+	}
+
 
 }

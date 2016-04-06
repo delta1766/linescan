@@ -43,11 +43,9 @@ namespace linescan{
 		});
 
 		calib_w_.ready.connect([this](calibration const& calib){
-			calib_ = calib;
-
-			auto y_to_Z = calib_.y_to_Z();
-			auto y_to_Y_null = calib_.y_to_Y_null();
-			auto dx_to_dY = calib_.dx_to_dY();
+			auto y_to_Z = calib.y_to_Z();
+			auto y_to_Y_null = calib.y_to_Y_null();
+			auto dx_to_dY = calib.dx_to_dY();
 
 			settings_.beginGroup("calibration");
 			settings_.beginGroup("laser");
@@ -68,6 +66,8 @@ namespace linescan{
 			settings_.endGroup();
 			settings_.endGroup();
 			settings_.sync();
+
+			measure_w_.set_calibration(calib);
 		});
 
 
@@ -107,6 +107,7 @@ namespace linescan{
 			dx_to_dY_b
 		}) if(!pair.second) return;
 
+
 		using namespace mitrax::literals;
 
 		polynom< double, 3 > y_to_Z(
@@ -129,7 +130,10 @@ namespace linescan{
 				dx_to_dY_a.first
 			}));
 
-		calib_.set(y_to_Z, y_to_Y_null, dx_to_dY);
+		calibration calib;
+		calib.set(y_to_Z, y_to_Y_null, dx_to_dY);
+		measure_w_.set_calibration(calib);
+
 
 		mcl3_.set_position(0, 0, 0);
 	}
