@@ -37,11 +37,6 @@ namespace linescan{
 		setLayout(&layout_);
 
 
-		image_.set_processor([this](auto&& image){
-			return calc_laser_line(image, as_image);
-		});
-
-
 		connect(&laser_start_, &QPushButton::released, [this]{
 			switch(step_){
 				case step::align_laser:
@@ -325,12 +320,27 @@ namespace linescan{
 			case step::align_laser:{
 				step_l_.setText(text.arg(1));
 				laser_start_.setText(tr("Laser ready"));
+
+				image_.set_processor([this](auto&& image){
+					auto pair = calc_laser_line(image, points_and_image);
+					return std::pair< QImage, QImage >(
+						pair.second,
+						draw_laser_alignment(image.dims(), pair.first)
+  					);
+				});
 				break;
 			}
 
 			case step::align_target:{
 				step_l_.setText(text.arg(2));
 				laser_start_.setText(tr("Target ready"));
+
+				image_.set_processor([this](auto&& image){
+					return std::pair< QImage, QImage >(
+						to_image(image),
+						draw_circle_line(image)
+  					);
+				});
 				break;
 			}
 

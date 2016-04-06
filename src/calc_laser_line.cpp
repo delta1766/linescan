@@ -121,6 +121,14 @@ namespace linescan{
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		as_image_t
 	)const{
+		return (*this)(image, points_and_image).second;
+	}
+
+	std::pair< std::vector< mitrax::point< double > >, QImage >
+	calc_laser_line_t::operator()(
+		mitrax::raw_bitmap< std::uint8_t > const& image,
+		points_and_image_t
+	)const{
 		auto round = [](auto& points){
 			for(auto& p: points){
 				p.x() = static_cast< std::int64_t >(p.x() + 0.5);
@@ -131,33 +139,50 @@ namespace linescan{
 		switch(method_){
 			case type::threshold: switch(threshold_mode_){
 				case calc_laser_line_mode::threshold::original:
-					return to_image(image);
+					return {
+						calc_via_threshold(image, threshold_, erode_),
+						to_image(image)
+					};
 
 				case calc_laser_line_mode::threshold::binarize:
-					return to_image(binarize(image, threshold_));
+					return {
+						calc_via_threshold(image, threshold_, erode_),
+						to_image(binarize(image, threshold_))
+					};
 
 				case calc_laser_line_mode::threshold::erode:
-					return to_image(
-						erode(binarize(image, threshold_), erode_)
-					);
+					return {
+						calc_via_threshold(image, threshold_, erode_),
+						to_image(erode(binarize(image, threshold_), erode_))
+					};
 
 				case calc_laser_line_mode::threshold::line:
 					auto points = (*this)(image);
 					if(!threshold_subpixel_) round(points);
-					return to_image(draw_laser_line(
-						points, image.cols(), image.rows()
-					));
+					return {
+						points,
+						to_image(draw_laser_line(
+							points, image.cols(), image.rows()
+						))
+					};
 			}
+
 			case type::sum: switch(sum_mode_){
 				case calc_laser_line_mode::sum::original:
-					return to_image(image);
+					return {
+						calc_via_sum(image, min_value_, min_sum_),
+						to_image(image)
+					};
 
 				case calc_laser_line_mode::sum::line:
 					auto points = (*this)(image);
 					if(!sum_subpixel_) round(points);
-					return to_image(draw_laser_line(
-						points, image.cols(), image.rows()
-					));
+					return {
+						points,
+						to_image(draw_laser_line(
+							points, image.cols(), image.rows()
+						))
+					};
 			}
 		}
 	}

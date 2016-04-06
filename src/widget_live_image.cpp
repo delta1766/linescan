@@ -39,7 +39,7 @@ namespace linescan{
 				this->set_images(std::move(pair.first), pair.second);
 
 				if(this->isVisible()) timer_.start(100);
-			});
+			}, false);
 		});
 	}
 

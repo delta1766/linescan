@@ -36,15 +36,23 @@ namespace linescan{
 	struct as_image_t{};
 	constexpr auto as_image = as_image_t();
 
+	struct points_and_image_t{};
+	constexpr auto points_and_image = points_and_image_t();
+
 	class calc_laser_line_t{
 	public:
-		std::vector< mitrax::point< double > > operator()(
-			mitrax::raw_bitmap< std::uint8_t > const& image
-		)const;
+		std::vector< mitrax::point< double > >
+		operator()(mitrax::raw_bitmap< std::uint8_t > const& image)const;
 
 		QImage operator()(
 			mitrax::raw_bitmap< std::uint8_t > const& image,
 			as_image_t
+		)const;
+
+		std::pair< std::vector< mitrax::point< double > >, QImage >
+		operator()(
+			mitrax::raw_bitmap< std::uint8_t > const& image,
+			points_and_image_t
 		)const;
 
 		void use(

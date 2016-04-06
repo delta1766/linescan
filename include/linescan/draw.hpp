@@ -43,12 +43,6 @@ namespace linescan{
 	);
 
 	QImage draw_laser_alignment(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
-		std::uint8_t binarize_threshold,
-		std::size_t erode_value
-	);
-
-	QImage draw_laser_alignment(
 		mitrax::bitmap_dims_t const& dims,
 		std::vector< mitrax::point< double > > const& line
 	);
