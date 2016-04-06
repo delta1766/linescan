@@ -47,7 +47,6 @@ namespace linescan{
 		live_actions_w_(cam_, [this](QString const& message){
 			statusBar()->showMessage(message, 5000);
 		}),
-		laser_alignment_w_(cam_),
 		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
@@ -62,7 +61,6 @@ namespace linescan{
 		);
 
 		tabs_w_.addTab(&live_actions_w_, tr("Live"));
-		tabs_w_.addTab(&laser_alignment_w_, tr("Laser align"));
 		tabs_w_.addTab(&calib_w_, tr("Calibration"));
 
 		statusBar();

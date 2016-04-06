@@ -12,7 +12,6 @@
 #include "widgetdock_camera.hpp"
 #include "widgetdock_calc_laser_line.hpp"
 #include "widget_live_actions.hpp"
-#include "widget_laser_alignment.hpp"
 #include "widget_calib.hpp"
 #include "calibration.hpp"
 
@@ -41,7 +40,6 @@ namespace linescan{
 		QTabWidget tabs_w_;
 
 		widget_live_actions live_actions_w_;
-		widget_laser_alignment laser_alignment_w_;
 		widget_calib calib_w_;
 	};
 
