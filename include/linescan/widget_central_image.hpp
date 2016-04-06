@@ -38,26 +38,6 @@ namespace linescan{
 	};
 
 
-	template < typename T >
-	class widget_central_bitmap: public widget_central_image{
-	public:
-		using widget_central_image::set_images;
-
-		void set_images(
-			mitrax::raw_bitmap< T >&& image,
-			QImage const& overlay
-		);
-
-		mitrax::raw_bitmap< T > const& bitmap()const{
-			return bitmap_;
-		}
-
-
-	private:
-		mitrax::raw_bitmap< T > bitmap_;
-	};
-
-
 }
 
 

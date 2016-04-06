@@ -16,21 +16,15 @@
 namespace linescan{
 
 
-	template < typename Image, typename Base >
-	class widget_live_image_base: public Base{
+	class widget_live_image: public widget_central_image{
 	public:
 		using processor_type =
-			std::function< std::pair< Image, QImage >(
+			std::function< std::pair< QImage, QImage >(
 				mitrax::raw_bitmap< std::uint8_t >&&
 			) >;
 
-		using live_toggle_callback = std::function< void(bool) >;
 
-
-		widget_live_image_base(
-			camera& cam,
-			live_toggle_callback const& c = [](bool){}
-		);
+		widget_live_image(camera& cam);
 
 		void set_processor(processor_type const& function);
 
@@ -55,27 +49,10 @@ namespace linescan{
 		camera& cam_;
 
 		bool is_live_;
-		live_toggle_callback live_toggle_callback_;
 
 		processor_type processor_;
 
 		QTimer timer_;
-	};
-
-	class widget_live_image: public widget_live_image_base< 
-		QImage, widget_central_image
-	>{
-		using widget_live_image_base< QImage, widget_central_image >::
-			widget_live_image_base;
-	};
-
-	template < typename T >
-	class widget_live_bitmap: public widget_live_image_base< 
-		mitrax::raw_bitmap< T >, widget_central_bitmap< T >
-	>{
-		using widget_live_image_base<
-			mitrax::raw_bitmap< T >, widget_central_bitmap< T >
-		>::widget_live_image_base;
 	};
 
 
