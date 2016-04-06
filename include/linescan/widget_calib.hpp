@@ -43,9 +43,9 @@ namespace linescan{
 
 	private:
 		enum class step{
-			align,
+			align_laser,
+			align_target,
 			calib_yz,
-			calib_x,
 			complete
 		};
 
@@ -69,7 +69,6 @@ namespace linescan{
 
 		void align_ready();
 		void analyze_yz();
-		void analyze_x();
 
 		void reset();
 		void set_running(bool is_running);
@@ -77,7 +76,7 @@ namespace linescan{
 		void set_step(step s);
 
 
-		step step_ = step::align;
+		step step_ = step::align_laser;
 
 		bool running_ = false;
 
@@ -100,6 +99,9 @@ namespace linescan{
 		widget_live_image image_;
 
 		QTimer timer_;
+
+
+		double const target_distance_in_mm_ = 25;
 	};
 
 

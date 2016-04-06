@@ -31,13 +31,13 @@ namespace linescan{
 			mitrax::raw_col_vector< value_type, Degree + 1 > const& coeffs
 		): coefficients_(coeffs) {}
 
-
-		constexpr value_type& operator[](std::size_t i){
-			return coefficients_[i];
+		constexpr void set(std::size_t i, value_type const& v){
+			assert(i < Degree + 1);
+			coefficients_[i] = v;
 		}
 
-		constexpr value_type const& operator[](std::size_t i)const{
-			return coefficients_[i];
+		constexpr value_type operator[](std::size_t i)const{
+			return i < Degree + 1 ? coefficients_[i] : 0;
 		}
 
 
@@ -125,6 +125,80 @@ namespace linescan{
 	){
 		return (lhs[0] - rhs[0]) / (rhs[1] - lhs[1]);
 	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree >& operator+=(
+		polynom< T, Degree >& a, polynom< T, Degree > const& b
+	){
+		for(std::size_t i = 0; i < Degree + 1; ++i){
+			a.set(i, a[i] + b[i]);
+		}
+		return a;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree >& operator-=(
+		polynom< T, Degree >& a, polynom< T, Degree > const& b
+	){
+		for(std::size_t i = 0; i < Degree + 1; ++i){
+			a.set(i, a[i] - b[i]);
+		}
+		return a;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree > operator+(
+		polynom< T, Degree > const& a, polynom< T, Degree > const& b
+	){
+		auto r = a;
+		return r += b;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree > operator-(
+		polynom< T, Degree > const& a, polynom< T, Degree > const& b
+	){
+		auto r = a;
+		return r -= b;
+	}
+
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree >& operator*=(
+		polynom< T, Degree >& a, T const& b
+	){
+		for(std::size_t i = 0; i < Degree + 1; ++i){
+			a.set(i, a[i] * b);
+		}
+		return a;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree >& operator/=(
+		polynom< T, Degree >& a, T const& b
+	){
+		for(std::size_t i = 0; i < Degree + 1; ++i){
+			a.set(i, a[i] / b);
+		}
+		return a;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree > operator*(
+		polynom< T, Degree > const& a, T const& b
+	){
+		auto r = a;
+		return r *= b;
+	}
+
+	template < typename T, std::size_t Degree >
+	constexpr polynom< T, Degree > operator/(
+		polynom< T, Degree > const& a, T const& b
+	){
+		auto r = a;
+		return r /= b;
+	}
+
 
 }
 

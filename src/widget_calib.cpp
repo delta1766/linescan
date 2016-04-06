@@ -43,15 +43,19 @@ namespace linescan{
 
 
 		connect(&laser_start_, &QPushButton::released, [this]{
-			if(running_){
-				switch(step_){
-					case step::align: align_ready(); break;
-					case step::calib_yz: analyze_yz(); break;
-					case step::calib_x: analyze_x(); break;
-					case step::complete: reset(); break;
-				}
-			}else{
-				start();
+			switch(step_){
+				case step::align_laser:
+					set_step(step::align_target);
+					break;
+				case step::align_target:
+					set_step(step::calib_yz);
+					break;
+				case step::calib_yz:
+					analyze_yz();
+					break;
+				case step::complete:
+					reset();
+					break;
 			}
 		});
 
@@ -93,16 +97,17 @@ namespace linescan{
 						y2.emplace_back(v.Z, v.c2.y());
 					}
 
+					auto Z = mcl3_.read_z() / 1000.;
 					return find_calib_circles(
 						image,
 						circle(
-							fit_polynom< 3 >(x1)(mcl3_.read_z()),
-							fit_polynom< 3 >(y1)(mcl3_.read_z()),
+							fit_polynom< 3 >(x1)(Z),
+							fit_polynom< 3 >(y1)(Z),
 							circle_calib_.back().c1.radius()
 						),
 						circle(
-							fit_polynom< 3 >(x2)(mcl3_.read_z()),
-							fit_polynom< 3 >(y2)(mcl3_.read_z()),
+							fit_polynom< 3 >(x2)(Z),
+							fit_polynom< 3 >(y2)(Z),
 							circle_calib_.back().c2.radius()
 						)
 					);
@@ -128,7 +133,7 @@ namespace linescan{
 
 				auto line = to_polynom(to_point(c[0]), to_point(c[1]));
 				circle_calib_.emplace_back(
-					c[0], c[1], line(cam_.cols() / 2), mcl3_.read_z()
+					c[0], c[1], line(cam_.cols() / 2), mcl3_.read_z() / 1000.
 				);
 			}, false);
 
@@ -168,7 +173,7 @@ namespace linescan{
 
 		step_l_.setAlignment(Qt::AlignCenter);
 
-		set_step(step::calib_yz);
+		set_step(step::align_laser);
 	}
 
 	widget_calib::~widget_calib(){
@@ -180,16 +185,29 @@ namespace linescan{
 	}
 
 	void widget_calib::stop(){
-		set_running(false);
+		timer_.stop();
+		mcl3_.move_to(null_pos_[0], null_pos_[1], null_pos_[2]);
 	}
 
 	void widget_calib::start(){
-		set_running(true);
+		null_pos_ = mcl3_.position();
+
+		bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
+			cam_.cols(), cam_.rows(), 255
+		);
+
+		circle_calib_.clear();
+
+		exception_count_ = 0;
+		save_count_line_ = 0;
+
+		image_.stop_live();
+		timer_.start(0);
 	}
 
 	void widget_calib::hideEvent(QHideEvent* event){
 		QWidget::hideEvent(event);
-		stop();
+		reset();
 	}
 
 	QImage widget_calib::draw_yz(
@@ -243,46 +261,16 @@ namespace linescan{
 			QPoint(2, overlay.height() - 32),
 			QPoint(w / 2, overlay.height())),
 			Qt::AlignLeft | Qt::AlignVCenter,
-			tr("Z = %L1 µm").arg(height_min)
+			tr("Z = %L1 mm").arg(height_min)
 		);
 		painter.drawText(QRect(
 			QPoint(w / 2, overlay.height() - 32),
 			QPoint(w - 2, overlay.height())),
 			Qt::AlignRight | Qt::AlignVCenter,
-			tr("Z = %L1 µm").arg(height_max)
+			tr("Z = %L1 mm").arg(height_max)
 		);
 
 		return overlay;
-	}
-
-	void widget_calib::analyze_x(){
-// 		if(exception_catcher([this]{
-// 			std::vector< mitrax::point< double > > left_points;
-// 			std::vector< mitrax::point< double > > right_points;
-// 			std::vector< mitrax::point< double > > y_to_Z_points;
-// 			left_points.reserve(laser_calib_.size());
-// 			right_points.reserve(laser_calib_.size());
-// 			y_to_Z_points.reserve(laser_calib_.size());
-// 			for(auto const& v: laser_calib_){
-// 				left_points.emplace_back(v.y, v.x1);
-// 				right_points.emplace_back(v.y, v.x2);
-// 				y_to_Z_points.emplace_back(v.y, v.Z);
-// 			}
-// 
-// 			image_.set_images(to_image(bitmap_), draw_yz(
-// 				left_points, right_points, y_to_Z_points,
-// 				laser_calib_.front().Z, laser_calib_.back().Z
-// 			));
-// 
-// 	// 		laser_calibration calib;
-// 	// 		calib.set(y_to_Z, left_line, right_line);
-// 	// 		set_laser_calib_(calib);
-// 		})){
-// 			set_step(step::calib_yz);
-// 			stop();
-// 		}else{
-// 			reset();
-// 		}
 	}
 
 	void widget_calib::analyze_yz(){
@@ -304,9 +292,18 @@ namespace linescan{
 				circle_calib_.front().Z, circle_calib_.back().Z
 			));
 
-	// 		laser_calibration calib;
-	// 		calib.set(y_to_Z, left_line, right_line);
-	// 		set_laser_calib_(calib);
+			auto left_line = fit_polynom< 1 >(left_points);
+			auto right_line = fit_polynom< 1 >(right_points);
+			auto y_to_Z = fit_polynom< 3 >(y_to_Z_points);
+
+			calibration calib;
+			calib.set(
+				y_to_Z,
+				left_line,
+				(right_line - left_line) / target_distance_in_mm_
+			);
+
+			ready(calib);
 		})){
 			set_step(step::complete);
 			stop();
@@ -315,71 +312,32 @@ namespace linescan{
 		}
 	}
 
-	void widget_calib::align_ready(){
-		set_step(step::calib_yz);
-	}
-
 	void widget_calib::reset(){
-		set_step(step::align);
+		set_step(step::align_laser);
 		stop();
 		image_.start_live();
 	}
 
-	void widget_calib::set_running(bool is_running){
-		running_ = is_running;
-
-		if(is_running){
-			switch(step_){
-				case step::align:
-					break;
-				case step::calib_yz:
-					null_pos_ = mcl3_.position();
-					bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
-						cam_.cols(), cam_.rows(), 255
-					);
-					circle_calib_.clear();
-					break;
-				case step::calib_x:
-					break;
-				case step::complete:
-					reset();
-					return;
-			}
-
-			exception_count_ = 0;
-			save_count_line_ = 0;
-
-			image_.stop_live();
-			timer_.start(0);
-			laser_start_.setText(tr("Stop"));
-
-		}else{
-			timer_.stop();
-			laser_start_.setText(tr("Start"));
-
-			mcl3_.move_to(null_pos_[0], null_pos_[1], null_pos_[2]);
-		}
-	}
-
 	void widget_calib::set_step(step s){
-		auto text = tr("Step %1 from 2");
+		auto text = tr("Step %1 from 3");
 		step_ = s;
 		switch(step_){
-			case step::align:{
-// 				step_l_.setText(text.arg(1));
-// 				laser_start_.setText(tr("Start"));
+			case step::align_laser:{
+				step_l_.setText(text.arg(1));
+				laser_start_.setText(tr("Laser ready"));
+				break;
+			}
+
+			case step::align_target:{
+				step_l_.setText(text.arg(2));
+				laser_start_.setText(tr("Target ready"));
 				break;
 			}
 
 			case step::calib_yz:{
-				step_l_.setText(text.arg(2));
-				laser_start_.setText(tr("Start"));
-				break;
-			}
-
-			case step::calib_x:{
-// 				step_l_.setText(text.arg(1));
-// 				laser_start_.setText(tr("Start"));
+				step_l_.setText(text.arg(3));
+				laser_start_.setText(tr("Stop"));
+				start();
 				break;
 			}
 
