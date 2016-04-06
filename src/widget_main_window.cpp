@@ -44,9 +44,7 @@ namespace linescan{
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
 		cam_dock_w_(cam_),
-		live_actions_w_(cam_, [this](QString const& message){
-			statusBar()->showMessage(message, 5000);
-		}),
+		measure_w_(cam_, mcl3_),
 		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
@@ -60,12 +58,18 @@ namespace linescan{
 			Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea
 		);
 
-		tabs_w_.addTab(&live_actions_w_, tr("Live"));
+		tabs_w_.addTab(&measure_w_, tr("Measure"));
 		tabs_w_.addTab(&calib_w_, tr("Calibration"));
 
 		statusBar();
 
 		setCentralWidget(&tabs_w_);
+
+
+		measure_w_.message.connect([this](QString const& message){
+			statusBar()->showMessage(message, 5000);
+		});
+
 
 		auto get = [this](auto const& name){
 			bool ok = false;
