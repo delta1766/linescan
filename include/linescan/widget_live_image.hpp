@@ -9,8 +9,8 @@
 #ifndef _linescan__widget_live_image__hpp_INCLUDED_
 #define _linescan__widget_live_image__hpp_INCLUDED_
 
-#include <linescan/widget_central_image.hpp>
-#include <linescan/camera.hpp>
+#include "widget_central_image.hpp"
+#include "camera.hpp"
 
 
 namespace linescan{

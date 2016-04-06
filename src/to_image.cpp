@@ -8,6 +8,8 @@
 //-----------------------------------------------------------------------------
 #include <linescan/to_image.hpp>
 
+#include <mitrax/transform.hpp>
+
 
 namespace linescan{
 

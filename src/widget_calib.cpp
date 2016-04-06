@@ -14,10 +14,9 @@
 #include <linescan/save.hpp>
 #include <linescan/draw.hpp>
 
-#include <QtCore/QSettings>
+#include <mitrax/transform.hpp>
 
-#include <fstream>
-#include <iomanip>
+#include <QtCore/QSettings>
 
 
 namespace linescan{

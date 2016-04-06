@@ -9,15 +9,11 @@
 #ifndef _linescan__draw__hpp_INCLUDED_
 #define _linescan__draw__hpp_INCLUDED_
 
-#include "processing.hpp"
 #include "polynom.hpp"
 #include "circle.hpp"
 
-#include <mitrax/matrix.hpp>
-
 #include <QtGui/QImage>
 
-#include <cmath>
 #include <vector>
 
 

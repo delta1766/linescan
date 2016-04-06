@@ -10,8 +10,6 @@
 
 #include <png++/png.hpp>
 
-#include <iostream>
-
 
 namespace linescan{
 
@@ -20,8 +18,6 @@ namespace linescan{
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		std::string const& name
 	){
-		std::cout << "write " << name << std::endl;
-
 		png::image< png::gray_pixel > output(image.cols(), image.rows());
 		for(std::size_t y = 0; y < image.rows(); ++y){
 			for(std::size_t x = 0; x < image.cols(); ++x){
@@ -35,8 +31,6 @@ namespace linescan{
 		mitrax::raw_bitmap< bool > const& image,
 		std::string const& name
 	){
-		std::cout << "write " << name << std::endl;
-
 		png::image< png::packed_gray_pixel< 1 > > output(
 			image.cols(),
 			image.rows()

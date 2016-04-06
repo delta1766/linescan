@@ -9,9 +9,6 @@
 #ifndef _linescan__save__hpp_INCLUDED_
 #define _linescan__save__hpp_INCLUDED_
 
-#include "draw.hpp"
-#include "normelize_to_uint8.hpp"
-
 #include <mitrax/convert.hpp>
 
 
@@ -27,27 +24,6 @@ namespace linescan{
 		mitrax::raw_bitmap< bool > const& image,
 		std::string const& name
 	);
-
-	inline void save(
-		mitrax::raw_bitmap< std::int32_t > const& image,
-		std::string const& name
-	){
-		save(normelize_to_uint8(image), name);
-	}
-
-	inline void save(
-		mitrax::raw_bitmap< float > const& image,
-		std::string const& name
-	){
-		save(normelize_to_uint8(image), name);
-	}
-
-	inline void save(
-		mitrax::raw_bitmap< std::int8_t > const& image,
-		std::string const& name
-	){
-		save(mitrax::convert< std::uint8_t >(image), name);
-	}
 
 
 }

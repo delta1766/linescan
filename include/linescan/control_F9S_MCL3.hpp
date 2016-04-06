@@ -11,8 +11,6 @@
 
 #include "control_F9S_base.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 #include <regex>
 
 

@@ -7,13 +7,8 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/draw.hpp>
-#include <linescan/processing.hpp>
-#include <linescan/polynom.hpp>
-#include <linescan/calc_laser_line.hpp>
 
 #include <QtGui/QPainter>
-
-#include <iostream>
 
 
 namespace linescan{
@@ -66,38 +61,6 @@ namespace linescan{
 		draw(image, line);
 
 		return image;
-	}
-
-	mitrax::raw_bitmap< bool > draw_laser_line_student(
-		std::vector< mitrax::point< double > > const& line,
-		std::size_t cols,
-		std::size_t rows
-	){
-		auto image = mitrax::make_bitmap_by_default< bool >(cols, rows);
-
-		for(auto const& p: line){
-			image(
-				static_cast< size_t >(p.x() + 0.5),
-				static_cast< size_t >(p.y() + 0.5)
-			) = true;
-		}
-
-		return image;
-	}
-
-	QImage draw_laser_alignment(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
-		std::uint8_t binarize_threshold,
-		std::size_t erode_value
-	){
-		calc_laser_line_t calc;
-		calc.use(
-			calc_laser_line_mode::threshold::line,
-			binarize_threshold,
-			erode_value,
-			true
-		);
-		return draw_laser_alignment(bitmap.dims(), calc(bitmap));
 	}
 
 	void draw_align_text(

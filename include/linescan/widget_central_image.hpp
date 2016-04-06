@@ -9,8 +9,6 @@
 #ifndef _linescan__widget_central_image__hpp_INCLUDED_
 #define _linescan__widget_central_image__hpp_INCLUDED_
 
-#include <mitrax/matrix.hpp>
-
 #include <QtWidgets/QtWidgets>
 
 

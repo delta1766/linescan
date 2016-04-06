@@ -13,7 +13,6 @@
 #include "widgetdock_calc_laser_line.hpp"
 #include "widget_measure.hpp"
 #include "widget_calib.hpp"
-#include "calibration.hpp"
 
 #include <QtWidgets/QtWidgets>
 

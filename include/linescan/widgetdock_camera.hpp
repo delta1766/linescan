@@ -9,7 +9,7 @@
 #ifndef _linescan__widgetdock_camera__hpp_INCLUDED_
 #define _linescan__widgetdock_camera__hpp_INCLUDED_
 
-#include <linescan/camera.hpp>
+#include "camera.hpp"
 
 #include <QtWidgets/QtWidgets>
 

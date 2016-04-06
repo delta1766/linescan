@@ -16,7 +16,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <thread>
 
 #ifdef HARDWARE
@@ -315,8 +314,6 @@ namespace linescan{
 
 		cols_ = config.nMaxWidth;
 		rows_ = config.nMaxHeight;
-		std::cout << "cam cols(): " << cols_ << std::endl;
-		std::cout << "cam rows(): " << rows_ << std::endl;
 
 		pixel_size_in_um_ = config.wPixelSize / 100.;
 #else

@@ -9,7 +9,7 @@
 #ifndef _linescan__to_image__hpp_INCLUDED_
 #define _linescan__to_image__hpp_INCLUDED_
 
-#include <mitrax/transform.hpp>
+#include <mitrax/matrix.hpp>
 
 #include <QtGui/QImage>
 

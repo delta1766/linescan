@@ -10,15 +10,11 @@
 
 #include <png++/png.hpp>
 
-#include <iostream>
-
 
 namespace linescan{
 
 
 	mitrax::raw_bitmap< std::uint8_t > load(std::string const& name){
-		std::cout << "read " << name << std::endl;
-
 		png::image< png::gray_pixel > output;
 		output.read(name);
 		auto image = mitrax::make_bitmap_by_default< std::uint8_t >(

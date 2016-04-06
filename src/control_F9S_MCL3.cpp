@@ -8,6 +8,8 @@
 //-----------------------------------------------------------------------------
 #include <linescan/control_F9S_MCL3.hpp>
 
+#include <boost/lexical_cast.hpp>
+
 
 namespace linescan{
 

@@ -8,7 +8,6 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_live_image.hpp>
 #include <linescan/exception_catcher.hpp>
-#include <linescan/processing.hpp>
 #include <linescan/to_image.hpp>
 
 
