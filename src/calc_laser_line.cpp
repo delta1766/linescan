@@ -89,7 +89,7 @@ namespace linescan{
 					}
 				}
 
-				auto y = index + bitmap(x, index) / (threshold - sum / 2.);
+				auto y = index + (threshold - (sum / 2.)) / bitmap(x, index);
 
 				result.emplace_back(x, y);
 			}
