@@ -304,9 +304,7 @@ namespace linescan{
 		throw_on_error(is_GetSensorInfo(handle_, &config), "is_GetSensorInfo");
 
 		if(config.nColorMode != IS_COLORMODE_MONOCHROME){
-			throw std::runtime_error(
-				"Camera is not monochrome!"
-			);
+			throw std::runtime_error("Camera is not monochrome!");
 		}
 
 		throw_on_error(
@@ -692,32 +690,42 @@ namespace linescan{
 		using namespace std::literals;
 
 #ifdef CAM
-		int mem_id = 0;
-		char* buffer = nullptr;
+		for(std::size_t i = 0; true; ++i){
+			int mem_id = 0;
+			char* buffer = nullptr;
 
-		throw_on_error(
-			is_AllocImageMem(handle_, cols_, rows_, 8, &buffer, &mem_id),
-			"is_AllocImageMem"
-		);
+			throw_on_error(
+				is_AllocImageMem(handle_, cols_, rows_, 8, &buffer, &mem_id),
+				"is_AllocImageMem"
+			);
 
-		throw_on_error(
-			is_SetImageMem(handle_, buffer, mem_id),
-			"is_SetImageMem"
-		);
+			throw_on_error(
+				is_SetImageMem(handle_, buffer, mem_id),
+				"is_SetImageMem"
+			);
 
-		throw_on_error(is_FreezeVideo(handle_, IS_WAIT), "is_FreezeVideo");
+			auto freeze = is_FreezeVideo(handle_, IS_WAIT);
+			if(freeze != IS_SUCCESS){
+				if(i < 3){
+					++i;
+					continue;
+				}else{
+					throw_on_error(freeze, "is_FreezeVideo");
+				}
+			}
 
-		auto result = mitrax::make_bitmap_by_default< std::uint8_t >(
-			cols_, rows_
-		);
-		std::copy(buffer, buffer + cols_ * rows_, result.begin());
+			auto result = mitrax::make_bitmap_by_default< std::uint8_t >(
+				cols_, rows_
+			);
+			std::copy(buffer, buffer + cols_ * rows_, result.begin());
 
-		throw_on_error(
-			is_FreeImageMem(handle_, buffer, mem_id),
-			"is_FreeImageMem"
-		);
+			throw_on_error(
+				is_FreeImageMem(handle_, buffer, mem_id),
+				"is_FreeImageMem"
+			);
 
-		return result;
+			return result;
+		}
 #else
 		std::ostringstream os;
 		os << "data/object/laser_" << std::setfill('0') << std::setw(4) << i_
