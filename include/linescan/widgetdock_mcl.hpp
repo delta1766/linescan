@@ -33,6 +33,7 @@ namespace linescan{
 		QLabel z_;
 
 		QPushButton joystick_;
+		QPushButton reset_pos_;
 
 		QTimer timer_;
 	};

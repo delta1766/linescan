@@ -17,12 +17,14 @@ namespace linescan{
 	widgetdock_mcl::widgetdock_mcl(control_F9S_MCL3& mcl3):
 		QDockWidget(tr("MCL")),
 		mcl3_(mcl3),
-		joystick_(tr("Joystick"))
+		joystick_(tr("Joystick")),
+		reset_pos_(tr("Reset position"))
 	{
 		layout_.addWidget(&x_);
 		layout_.addWidget(&y_);
 		layout_.addWidget(&z_);
 		layout_.addWidget(&joystick_);
+		layout_.addWidget(&reset_pos_);
 		layout_.addStretch();
 
 		widget_.setLayout(&layout_);
@@ -52,6 +54,15 @@ namespace linescan{
 		connect(&joystick_, &QPushButton::released, [this]{
 			exception_catcher([&]{
 				mcl3_.activate_joystick(joystick_.isChecked());
+			});
+		});
+
+		connect(&reset_pos_, &QPushButton::released, [this]{
+			exception_catcher([&]{
+				mcl3_.set_position(0, 0, 0);
+				std::cout << mcl3_.read_x() << ' ';
+				std::cout << mcl3_.read_y() << ' ';
+				std::cout << mcl3_.read_z() << std::endl;
 			});
 		});
 

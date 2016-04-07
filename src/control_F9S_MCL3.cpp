@@ -190,13 +190,16 @@ namespace linescan{
 		activate_joystick(false);
 
 #ifdef MCL
-		send({
-			{write::absolute_position_x, x},
-			{write::absolute_position_y, y},
-			{write::absolute_position_z, z}
-		});
-		delay();
+		send({{write::absolute_position_x, x}});
+		if(read_x() != x) throw std::logic_error("can't set MCL x-position");
+		position_change();
 
+		send({{write::absolute_position_y, y}});
+		if(read_y() != y) throw std::logic_error("can't set MCL y-position");
+		position_change();
+
+		send({{write::absolute_position_z, z}});
+		if(read_z() != z) throw std::logic_error("can't set MCL z-position");
 		position_change();
 #else
 		x_ = x;

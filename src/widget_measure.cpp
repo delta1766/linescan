@@ -114,7 +114,7 @@ namespace linescan{
 			});
 
 			exception |= !exception_catcher([&]{
-				mcl3_.move_relative(0, 100, 0);
+				mcl3_.move_relative(0, -100, 0);
 			});
 
 			if(exception){
