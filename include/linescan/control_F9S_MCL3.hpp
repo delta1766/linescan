@@ -11,6 +11,8 @@
 
 #include "control_F9S_base.hpp"
 
+#include <boost/signals2.hpp>
+
 #include <regex>
 
 
@@ -49,7 +51,7 @@ namespace linescan{
 		/// Values in µm.
 		void move_relative(std::int64_t x, std::int64_t y, std::int64_t z);
 
-		void activate_joystick();
+		void activate_joystick(bool on);
 
 		/// \brief Get actual position
 		///
@@ -69,6 +71,12 @@ namespace linescan{
 
 		/// \brief Get actual z coordinate in µm
 		std::int64_t read_z();
+
+		boost::signals2::signal<
+			void(std::int64_t x, std::int64_t y, std::int64_t z)
+		> position_changed;
+
+		boost::signals2::signal< void(bool on) > joystick_changed;
 
 
 	protected:
@@ -93,8 +101,6 @@ namespace linescan{
 		std::int64_t z_;
 #endif
 
-
-		void deactivate_joystick();
 
 		std::int64_t read_pre_x();
 
@@ -136,6 +142,9 @@ namespace linescan{
 		void write_motor_speed(std::int64_t value);
 
 		void write_resolution(std::int64_t value);
+
+
+		void position_change();
 
 
 		struct read{

@@ -61,12 +61,12 @@ namespace linescan{
 		std::vector< command > const& commands, std::size_t repetitions
 	){
 		using namespace std::literals;
-		return get(commands, 50ms, repetitions);
+		return get(commands, 200ms, repetitions);
 	}
 
 	std::pair< std::string, bool > control_F9S_base::receive(){
 		using namespace std::literals;
-		return receive(50ms);
+		return receive(200ms);
 	}
 
 	void control_F9S_base::send(std::vector< command > const& commands){
