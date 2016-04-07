@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widget_measure.hpp>
 #include <linescan/calc_laser_line.hpp>
+#include <linescan/exception_catcher.hpp>
 
 #include <fstream>
 
@@ -66,6 +67,8 @@ namespace linescan{
 
 				start_.setText(tr("Stop"));
 
+				exception_count_ = 0;
+
 				points_.clear();
 				image_.stop_live();
 				timer_.start(0);
@@ -90,23 +93,50 @@ namespace linescan{
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{
-			std::vector< mitrax::point< double > > points;
-			QImage image;
-			std::tie(points, image) =
-				calc_laser_line(cam_.image(), points_and_image);
+			bool exception = false;
 
-			image_.set_images(image, QImage());
+			exception |= !exception_catcher([&]{
+				std::vector< mitrax::point< double > > points;
+				QImage image;
+				std::tie(points, image) =
+					calc_laser_line(cam_.image(), points_and_image);
 
-			auto Y = mcl3_.read_y();
-			for(auto const& p: points){
-				points_.push_back(std::array< double, 3 >{{
-					calib_.X(p.x(), p.y()),
-					Y / 1000.,
-					calib_.Z(p.y())
-				}});
+				image_.set_images(image, QImage());
+
+				auto Y = mcl3_.read_y();
+				for(auto const& p: points){
+					points_.push_back(std::array< double, 3 >{{
+						calib_.X(p.x(), p.y()),
+						Y / 1000.,
+						calib_.Z(p.y())
+					}});
+				}
+			});
+
+			exception |= !exception_catcher([&]{
+				mcl3_.move_relative(0, 100, 0);
+			});
+
+			if(exception){
+				++exception_count_;
+			}else{
+				exception_count_ = 0;
 			}
 
-			mcl3_.move_relative(0, 100, 0);
+			if(exception_count_ > 9){
+				QMessageBox box(
+					QMessageBox::Warning,
+					QObject::tr("Error"),
+					tr("%1 errors back-to-back, stop measure?")
+						.arg(exception_count_),
+					QMessageBox::Yes | QMessageBox::No
+				);
+
+				exception_count_ = 0;
+
+				if(box.exec() == QMessageBox::Yes) start_.click();
+			}
+
 			timer_.start(1);
 		});
 	}
