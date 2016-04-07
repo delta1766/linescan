@@ -33,10 +33,10 @@ namespace linescan{
 		sum_show_line_(tr("Show line")),
 		sum_subpixel_l_(tr("Subpixel: "))
 	{
-		method_layout_.addWidget(&method_threshold_);
 		method_layout_.addWidget(&method_sum_);
+		method_layout_.addWidget(&method_threshold_);
 
-		method_threshold_.setChecked(true);
+		method_sum_.setChecked(true);
 
 		method_.setLayout(&method_layout_);
 
@@ -148,8 +148,8 @@ namespace linescan{
 		connect(&sum_show_original_, released, update_sum_v);
 		connect(&sum_show_line_, released, update_sum_v);
 
-		update_sum();
 		update_threshold();
+		update_sum();
 	}
 
 	void widgetdock_calc_laser_line::show_box(QGroupBox& box){
