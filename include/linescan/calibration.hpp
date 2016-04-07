@@ -19,12 +19,12 @@ namespace linescan{
 	public:
 		void set(
 			polynom< double, 3 > const& y_to_Z,
-			polynom< double, 1 > const& y_to_X_null,
-			polynom< double, 1 > const& dx_to_dX
+			polynom< double, 1 > const& y_to_x_null,
+			polynom< double, 1 > const& y_to_dx_div_dX
 		){
 			y_to_Z_ = y_to_Z;
-			y_to_X_null_ = y_to_X_null;
-			dx_to_dX_ = dx_to_dX;
+			y_to_x_null_ = y_to_x_null;
+			y_to_dx_div_dX_ = y_to_dx_div_dX;
 			valid_ = true;
 		}
 
@@ -33,20 +33,20 @@ namespace linescan{
 		}
 
 		double X(double x, double y)const{
-			return dx_to_dX_(x - y_to_X_null_(y));
+			return (x - y_to_x_null_(y)) / y_to_dx_div_dX_(y);
 		}
 
 		bool is_valid()const{ return valid_;}
 
 		polynom< double, 3 > y_to_Z()const{ return y_to_Z_;}
-		polynom< double, 1 > y_to_X_null()const{ return y_to_X_null_;}
-		polynom< double, 1 > dx_to_dX()const{ return dx_to_dX_;}
+		polynom< double, 1 > y_to_x_null()const{ return y_to_x_null_;}
+		polynom< double, 1 > y_to_dx_div_dX()const{ return y_to_dx_div_dX_;}
 
 	private:
 		bool valid_ = false;
 		polynom< double, 3 > y_to_Z_;
-		polynom< double, 1 > y_to_X_null_;
-		polynom< double, 1 > dx_to_dX_;
+		polynom< double, 1 > y_to_x_null_;
+		polynom< double, 1 > y_to_dx_div_dX_;
 	};
 
 
