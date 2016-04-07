@@ -27,58 +27,68 @@ namespace linescan{
 #endif
 	{
 #ifdef MCL
-		write_resolution(10);
+		if(read_leadscrew_pitch_x() != 10000){
+			write_leadscrew_pitch_x(10000);
 
-		auto resolution = read_resolution();
-		if(resolution != 10){
-			throw std::logic_error(
-				"MCL3 init resolution error. (value is '" +
-				std::to_string(resolution) + "', should be '10')"
-			);
+			auto leadscrew_pitch_x = read_leadscrew_pitch_x();
+			if(leadscrew_pitch_x != 10000){
+				throw std::logic_error(
+					"MCL3 init leadscrew_pitch_x error. (value is '" +
+					std::to_string(leadscrew_pitch_x) + "', should be '10000')"
+				);
+			}
 		}
 
 
-		write_ramp(10);
+		if(read_leadscrew_pitch_y() != 10000){
+			write_leadscrew_pitch_y(10000);
 
-		auto ramp = read_ramp();
-		if(ramp != 10){
-			throw std::logic_error(
-				"MCL3 init ramp error. (value is '" +
-				std::to_string(ramp) + "', should be '10')"
-			);
+			auto leadscrew_pitch_y = read_leadscrew_pitch_y();
+			if(leadscrew_pitch_y != 10000){
+				throw std::logic_error(
+					"MCL3 init leadscrew_pitch_y error. (value is '" +
+					std::to_string(leadscrew_pitch_y) + "', should be '10000')"
+				);
+			}
 		}
 
 
-		write_leadscrew_pitch_x(10000);
+		if(read_leadscrew_pitch_z() != 10000){
+			write_leadscrew_pitch_z(10000);
 
-		auto leadscrew_pitch_x = read_leadscrew_pitch_x();
-		if(leadscrew_pitch_x != 10000){
-			throw std::logic_error(
-				"MCL3 init leadscrew_pitch_x error. (value is '" +
-				std::to_string(leadscrew_pitch_x) + "', should be '10000')"
-			);
+			auto leadscrew_pitch_z = read_leadscrew_pitch_z();
+			if(leadscrew_pitch_z != 10000){
+				throw std::logic_error(
+					"MCL3 init leadscrew_pitch_z error. (value is '" +
+					std::to_string(leadscrew_pitch_z) + "', should be '10000')"
+				);
+			}
 		}
 
 
-		write_leadscrew_pitch_y(10000);
+		if(read_resolution() != 10){
+			write_resolution(10);
 
-		auto leadscrew_pitch_y = read_leadscrew_pitch_y();
-		if(leadscrew_pitch_y != 10000){
-			throw std::logic_error(
-				"MCL3 init leadscrew_pitch_y error. (value is '" +
-				std::to_string(leadscrew_pitch_y) + "', should be '10000')"
-			);
+			auto resolution = read_resolution();
+			if(resolution != 10){
+				throw std::logic_error(
+					"MCL3 init resolution error. (value is '" +
+					std::to_string(resolution) + "', should be '10')"
+				);
+			}
 		}
 
 
-		write_leadscrew_pitch_z(10000);
+		if(read_ramp() != 10){
+			write_ramp(10);
 
-		auto leadscrew_pitch_z = read_leadscrew_pitch_z();
-		if(leadscrew_pitch_z != 10000){
-			throw std::logic_error(
-				"MCL3 init leadscrew_pitch_z error. (value is '" +
-				std::to_string(leadscrew_pitch_z) + "', should be '10000')"
-			);
+			auto ramp = read_ramp();
+			if(ramp != 10){
+				throw std::logic_error(
+					"MCL3 init ramp error. (value is '" +
+					std::to_string(ramp) + "', should be '10')"
+				);
+			}
 		}
 #endif
 	}
