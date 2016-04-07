@@ -39,9 +39,9 @@ namespace linescan{
 				auto pair = processor_(cam_.image());
 
 				set_images(std::move(pair.first), pair.second);
-
-				if(isVisible()) timer_.start(100);
 			}, false);
+
+			if(isVisible()) timer_.start(100);
 		});
 	}
 
