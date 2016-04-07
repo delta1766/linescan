@@ -102,7 +102,7 @@ namespace linescan{
 		setWidget(&main_widget_);
 
 
-		sum_.hide();
+		threshold_.hide();
 
 
 		constexpr auto released = &QRadioButton::released;
