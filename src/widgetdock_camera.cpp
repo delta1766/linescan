@@ -151,6 +151,9 @@ namespace linescan{
 		button_layout_.addWidget(&min_light_);
 		button_layout_.addWidget(&max_light_);
 
+		widget_.setLayout(&layout_);
+		setWidget(&widget_);
+
 		set_ranges();
 
 
@@ -278,9 +281,6 @@ namespace linescan{
 				set_ranges();
 			});
 		});
-
-		widget_.setLayout(&layout_);
-		setWidget(&widget_);
 	}
 
 	void widgetdock_camera::set_pixelclock_ranges(){
