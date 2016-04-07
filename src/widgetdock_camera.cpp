@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/widgetdock_camera.hpp>
 #include <linescan/exception_catcher.hpp>
+#include <linescan/block_signals.hpp>
 
 
 namespace linescan{
@@ -39,36 +40,6 @@ namespace linescan{
 			auto inc = object.singleStep();
 
 			return scale_from_slide< T >(value, min, inc);
-		}
-
-		template < typename T >
-		class block_signals_t{
-		public:
-			block_signals_t(T& item):
-				item_(&item){
-					item_->blockSignals(true);
-				}
-
-			block_signals_t(block_signals_t&& v)noexcept:
-				item_(v.item_){
-				v.item_ = nullptr;
-			}
-
-			block_signals_t(block_signals_t const&) = delete;
-
-
-			~block_signals_t(){
-				if(item_) item_->blockSignals(false);
-			}
-
-
-		private:
-			T* item_;
-		};
-
-		template < typename T >
-		auto block_signals(T& item){
-			return block_signals_t< T >(item);
 		}
 
 
