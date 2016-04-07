@@ -29,7 +29,7 @@ int main(int argc, char** argv){
 	}catch(std::exception const& e){
 		QMessageBox box(
 			QMessageBox::Critical,
-			QObject::tr("Crash"),
+			QObject::tr("Error"),
 			QString("Exit with exception: [%1] %2")
 				.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
 				.arg(e.what()),
@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 	}catch(...){
 		QMessageBox box(
 			QMessageBox::Critical,
-			QObject::tr("Fatal Crash"),
+			QObject::tr("Fatal Error"),
 			"Exit with unknown exception!",
 			QMessageBox::Ok
 		);
