@@ -141,6 +141,22 @@ namespace linescan{
 		measure_w_.set_calibration(calib);
 
 
+		settings_.beginGroup("target");
+		auto target_distance_in_mm = get("distance_in_mm");
+		settings_.endGroup();
+
+		if(!target_distance_in_mm.second){
+			target_distance_in_mm.first = 25;
+
+			settings_.beginGroup("target");
+			settings_.setValue("distance_in_mm", target_distance_in_mm.first);
+			settings_.endGroup();
+			settings_.sync();
+		}
+
+		calib_w_.set_target_distance_in_mm(target_distance_in_mm.first);
+
+
 		mcl3_.set_position(0, 0, 0);
 	}
 

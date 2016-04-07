@@ -28,7 +28,11 @@ namespace linescan{
 
 		~widget_calib();
 
+
 		boost::signals2::signal< void(calibration const&) > ready;
+
+
+		void set_target_distance_in_mm(double value);
 
 
 	protected:
@@ -98,7 +102,7 @@ namespace linescan{
 		QTimer timer_;
 
 
-		double const target_distance_in_mm_ = 25;
+		double target_distance_in_mm_ = 25;
 	};
 
 

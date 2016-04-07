@@ -178,6 +178,10 @@ namespace linescan{
 		timer_.disconnect();
 	}
 
+	void widget_calib::set_target_distance_in_mm(double value){
+			target_distance_in_mm_ = value;
+	}
+
 	void widget_calib::stop(){
 		running_ = false;
 
