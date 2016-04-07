@@ -28,12 +28,6 @@ namespace linescan{
 
 		~widget_calib();
 
-
-		bool is_running()const;
-
-		void stop();
-		void start();
-
 		boost::signals2::signal< void(calibration const&) > ready;
 
 
@@ -61,6 +55,10 @@ namespace linescan{
 		};
 
 
+		void stop();
+		void start();
+
+
 		QImage draw_yz(
 			std::vector< mitrax::point< double > > left_points,
 			std::vector< mitrax::point< double > > right_points,
@@ -68,18 +66,16 @@ namespace linescan{
 			double min_z, double max_z
 		)const;
 
-		void align_ready();
 		void analyze_yz();
 
 		void reset();
-		void set_running(bool is_running);
 
 		void set_step(step s);
 
 
 		step step_ = step::align_laser;
+		bool running_ = true;
 
-		bool running_ = false;
 
 		std::size_t save_count_line_ = 0;
 		std::size_t exception_count_ = 0;

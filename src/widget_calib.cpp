@@ -178,11 +178,9 @@ namespace linescan{
 		timer_.disconnect();
 	}
 
-	bool widget_calib::is_running()const{
-		return running_;
-	}
-
 	void widget_calib::stop(){
+		running_ = false;
+
 		timer_.stop();
 		mcl3_.move_to(null_pos_[0], null_pos_[1], null_pos_[2]);
 	}
@@ -198,6 +196,7 @@ namespace linescan{
 
 		exception_count_ = 0;
 		save_count_line_ = 0;
+		running_ = true;
 
 		image_.stop_live();
 		timer_.start(0);
