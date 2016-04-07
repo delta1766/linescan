@@ -103,12 +103,14 @@ namespace linescan{
 
 				image_.set_images(image, QImage());
 
-				auto Y = mcl3_.read_y();
+				auto X = mcl3_.read_x() / 1000.;
+				auto Y = mcl3_.read_y() / 1000.;
+				auto Z = mcl3_.read_z() / 1000.;
 				for(auto const& p: points){
 					points_.push_back(std::array< double, 3 >{{
-						calib_.X(p.x(), p.y()),
-						Y / 1000.,
-						calib_.Z(p.y())
+						X + calib_.X(p.x(), p.y()),
+						Y,
+						Z + calib_.Z(p.y())
 					}});
 				}
 			});
