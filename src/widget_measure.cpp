@@ -22,18 +22,90 @@ namespace linescan{
 	):
 		cam_(cam),
 		mcl3_(mcl3),
-		start_(tr("Start")),
-		save_(tr("Save")),
+		y_l_("<b>" + tr("primary direction (Y)") + "</b>"),
+		y_from_l_(tr("From: ")),
+		y_to_l_(tr("To: ")),
+		y_step_l_(tr("Step: ")),
+		x_l_("<b>" + tr("secondary direction (X)") + "</b>"),
+		x_from_l_(tr("From: ")),
+		x_to_l_(tr("To: ")),
+		x_step_l_(tr("Step: ")),
+		start_(tr("Start measurement")),
+		save_(tr("Save image")),
 		image_(cam)
 	{
-		main_layout_.addWidget(&start_, 0, 0, 1, 2);
-		main_layout_.addWidget(&save_, 1, 0, 1, 2);
-		main_layout_.setRowStretch(2, 1);
+		main_layout_.addWidget(&y_l_, 0, 0, 1, 2);
+		main_layout_.addWidget(&y_from_l_, 1, 0, 1, 1);
+		main_layout_.addWidget(&y_from_, 1, 1, 1, 1);
+		main_layout_.addWidget(&y_to_l_, 2, 0, 1, 1);
+		main_layout_.addWidget(&y_to_, 2, 1, 1, 1);
+		main_layout_.addWidget(&y_step_l_, 3, 0, 1, 1);
+		main_layout_.addWidget(&y_step_, 3, 1, 1, 1);
+
+		main_layout_.addWidget(&x_l_, 4, 0, 1, 2);
+		main_layout_.addWidget(&x_from_l_, 5, 0, 1, 1);
+		main_layout_.addWidget(&x_from_, 5, 1, 1, 1);
+		main_layout_.addWidget(&x_to_l_, 6, 0, 1, 1);
+		main_layout_.addWidget(&x_to_, 6, 1, 1, 1);
+		main_layout_.addWidget(&x_step_l_, 7, 0, 1, 1);
+		main_layout_.addWidget(&x_step_, 7, 1, 1, 1);
+
+		main_layout_.addWidget(&start_, 8, 0, 1, 2);
+		main_layout_.addWidget(&save_, 9, 0, 1, 2);
+		main_layout_.setRowStretch(10, 1);
 
 		layout_.addLayout(&main_layout_);
 		layout_.addWidget(&image_);
 
 		setLayout(&layout_);
+
+
+		y_l_.setAlignment(Qt::AlignCenter);
+		x_l_.setAlignment(Qt::AlignCenter);
+
+		y_from_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		y_to_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		y_step_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+		x_from_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		x_to_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		x_step_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+
+		y_from_.setSuffix(tr(" mm"));
+		y_to_.setSuffix(tr(" mm"));
+		y_step_.setSuffix(tr(" mm"));
+
+		x_from_.setSuffix(tr(" mm"));
+		x_to_.setSuffix(tr(" mm"));
+		x_step_.setSuffix(tr(" mm"));
+
+		y_from_.setDecimals(3);
+		y_to_.setDecimals(3);
+		y_step_.setDecimals(3);
+		y_step_.setSingleStep(0.1);
+
+		x_from_.setDecimals(3);
+		x_to_.setDecimals(3);
+		x_step_.setDecimals(3);
+		x_step_.setSingleStep(0.1);
+
+		y_from_.setRange(-500, 500);
+		y_to_.setRange(-500, 500);
+		y_step_.setRange(-100, 100);
+
+		x_from_.setRange(-500, 500);
+		x_to_.setRange(-500, 500);
+		x_step_.setRange(-100, 100);
+
+		y_from_.setValue(0);
+		y_to_.setValue(-50);
+		y_step_.setValue(-0.1);
+
+		x_from_.setValue(0);
+		x_to_.setValue(0);
+		x_step_.setValue(15);
+
 
 		start_.setCheckable(true);
 		start_.setEnabled(false);

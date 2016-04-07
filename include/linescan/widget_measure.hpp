@@ -47,6 +47,22 @@ namespace linescan{
 		QHBoxLayout layout_;
 		QGridLayout main_layout_;
 
+		QLabel y_l_;
+		QLabel y_from_l_;
+		QDoubleSpinBox y_from_;
+		QLabel y_to_l_;
+		QDoubleSpinBox y_to_;
+		QLabel y_step_l_;
+		QDoubleSpinBox y_step_;
+
+		QLabel x_l_;
+		QLabel x_from_l_;
+		QDoubleSpinBox x_from_;
+		QLabel x_to_l_;
+		QDoubleSpinBox x_to_;
+		QLabel x_step_l_;
+		QDoubleSpinBox x_step_;
+
 		QPushButton start_;
 		QPushButton save_;
 
