@@ -32,6 +32,8 @@ namespace linescan{
 		is_live_(false),
 		processor_(&standard_processor)
 	{
+		timer_.setSingleShot(true);
+
 		connect(&timer_, &QTimer::timeout, [this]{
 			exception_catcher([&]{
 				auto pair = processor_(cam_.image());
