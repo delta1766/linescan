@@ -9,6 +9,7 @@
 #ifndef _linescan__widget_main_window__hpp_INCLUDED_
 #define _linescan__widget_main_window__hpp_INCLUDED_
 
+#include "widgetdock_mcl.hpp"
 #include "widgetdock_camera.hpp"
 #include "widgetdock_calc_laser_line.hpp"
 #include "widget_measure.hpp"
@@ -31,6 +32,7 @@ namespace linescan{
 		control_F9S_MCL3 mcl3_;
 		camera cam_;
 
+		widgetdock_mcl mcl_dock_w_;
 		widgetdock_camera cam_dock_w_;
 		widgetdock_calc_laser_line laser_dock_w_;
 

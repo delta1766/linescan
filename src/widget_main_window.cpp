@@ -15,12 +15,18 @@ namespace linescan{
 	widget_main_window::widget_main_window():
 		mcl3_("/dev/ttyUSB0"),
 		cam_(0),
+		mcl_dock_w_(mcl3_),
 		cam_dock_w_(cam_),
 		measure_w_(cam_, mcl3_),
 		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
-		addDockWidget(Qt::RightDockWidgetArea, &laser_dock_w_);
+		addDockWidget(Qt::LeftDockWidgetArea, &laser_dock_w_);
+		addDockWidget(Qt::RightDockWidgetArea, &mcl_dock_w_);
+
+		mcl_dock_w_.setAllowedAreas(
+			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
+		);
 
 		cam_dock_w_.setAllowedAreas(
 			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
