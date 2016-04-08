@@ -325,7 +325,6 @@ namespace linescan{
 				start_.setChecked(false);
 			}
 			start_.setText(tr("Start measurement"));
-			set_enabled(true);
 
 			auto name = QString("measure_%1.asc")
 				.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
@@ -340,6 +339,13 @@ namespace linescan{
 			}
 
 			image_.start_live();
+
+			auto X = static_cast< std::int64_t >(x_from_.value() * 1000);
+			auto Y = static_cast< std::int64_t >(y_from_.value() * 1000);
+			auto Z = mcl3_.read_z();
+			mcl3_.move_to(X, Y, Z);
+
+			set_enabled(true);
 		});
 	}
 
