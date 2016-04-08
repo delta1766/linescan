@@ -9,6 +9,7 @@
 #include <linescan/widget_measure.hpp>
 #include <linescan/calc_laser_line.hpp>
 #include <linescan/exception_catcher.hpp>
+#include <linescan/block_signals.hpp>
 
 #include <fstream>
 
@@ -88,7 +89,9 @@ namespace linescan{
 		x_from_.setDecimals(3);
 		x_to_.setDecimals(3);
 		x_step_.setDecimals(3);
-		x_step_.setSingleStep(0.1);
+		x_from_.setSingleStep(15);
+		x_to_.setSingleStep(15);
+		x_step_.setSingleStep(15);
 
 		y_from_.setRange(-500, 500);
 		y_to_.setRange(-500, 500);
@@ -122,6 +125,16 @@ namespace linescan{
 		});
 
 
+		auto set_enabled = [this](bool on){
+			y_from_.setEnabled(on);
+			y_to_.setEnabled(on);
+			y_step_.setEnabled(on);
+			x_from_.setEnabled(on);
+			x_to_.setEnabled(on);
+			x_step_.setEnabled(on);
+		};
+
+
 		connect(&save_, &QPushButton::released, [this]{
 			auto image = image_.image();
 
@@ -134,10 +147,73 @@ namespace linescan{
 			image.save(name, "PNG");
 		});
 
-		connect(&start_, &QPushButton::released, [this]{
-			if(start_.isChecked()){
+		struct range_checker{
+			void operator()(double /*dummy*/ = 0){
+				auto block_f = block_signals(from);
+				auto block_t = block_signals(to);
+				auto block_s = block_signals(step);
 
-				start_.setText(tr("Stop"));
+				auto f = from.value();
+				auto t = to.value();
+				auto s = step.value();
+				auto s2 = step2.value();
+
+				start.setEnabled(
+					s != 0 && s2 != 0 && calib.is_valid()
+				);
+
+				if(s >= 0){
+					auto new_f = std::min(f, t);
+					auto new_t = std::max(f, t);
+
+					from.setValue(new_f);
+					to.setValue(new_t);
+
+					from.setRange(-500, new_t);
+					to.setRange(new_f, 500);
+				}else{
+					auto new_f = std::max(f, t);
+					auto new_t = std::min(f, t);
+
+					from.setValue(new_f);
+					to.setValue(new_t);
+
+					from.setRange(new_t, 500);
+					to.setRange(-500, new_f);
+				}
+			}
+
+			QDoubleSpinBox& from;
+			QDoubleSpinBox& to;
+			QDoubleSpinBox& step;
+
+			QPushButton& start;
+			calibration& calib;
+			QDoubleSpinBox& step2;
+		};
+
+		constexpr auto value_changed =
+			static_cast< void(QDoubleSpinBox::*)(double) >
+			(&QDoubleSpinBox::valueChanged);
+
+		auto y_range_checker =
+			range_checker{y_from_, y_to_, y_step_, start_, calib_, x_step_};
+		connect(&y_from_, value_changed, y_range_checker);
+		connect(&y_to_, value_changed, y_range_checker);
+		connect(&y_step_, value_changed, y_range_checker);
+		y_range_checker();
+
+		auto x_range_checker =
+			range_checker{x_from_, x_to_, x_step_, start_, calib_, y_step_};
+		connect(&x_from_, value_changed, x_range_checker);
+		connect(&x_to_, value_changed, x_range_checker);
+		connect(&x_step_, value_changed, x_range_checker);
+		x_range_checker();
+
+		connect(&start_, &QPushButton::released, [this, set_enabled]{
+			if(start_.isChecked()){
+				start_.setText(tr("Stop measurement"));
+				set_enabled(false);
 
 				exception_count_ = 0;
 
@@ -146,7 +222,8 @@ namespace linescan{
 				timer_.start(0);
 			}else{
 				timer_.stop();
-				start_.setText(tr("Start"));
+				start_.setText(tr("Start measurement"));
+				set_enabled(true);
 
 				auto name = QString("measure_%1.asc")
 					.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
