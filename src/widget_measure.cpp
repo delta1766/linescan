@@ -125,16 +125,6 @@ namespace linescan{
 		});
 
 
-		auto set_enabled = [this](bool on){
-			y_from_.setEnabled(on);
-			y_to_.setEnabled(on);
-			y_step_.setEnabled(on);
-			x_from_.setEnabled(on);
-			x_to_.setEnabled(on);
-			x_step_.setEnabled(on);
-		};
-
-
 		connect(&save_, &QPushButton::released, [this]{
 			auto image = image_.image();
 
@@ -210,34 +200,11 @@ namespace linescan{
 		connect(&x_step_, value_changed, x_range_checker);
 		x_range_checker();
 
-		connect(&start_, &QPushButton::released, [this, set_enabled]{
+		connect(&start_, &QPushButton::released, [this]{
 			if(start_.isChecked()){
-				start_.setText(tr("Stop measurement"));
-				set_enabled(false);
-
-				exception_count_ = 0;
-
-				points_.clear();
-				image_.stop_live();
-				timer_.start(0);
+				start();
 			}else{
-				timer_.stop();
-				start_.setText(tr("Start measurement"));
-				set_enabled(true);
-
-				auto name = QString("measure_%1.asc")
-					.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
-
-				++measure_save_count_;
-
-				message(tr("Save measurement '%1'.").arg(name));
-
-				std::ofstream os(name.toStdString().c_str());
-				for(auto const& p: points_){
-					os << p[0] << ' ' << p[1] << ' ' << p[2] << '\n';
-				}
-
-				image_.start_live();
+				stop();
 			}
 		});
 
@@ -265,7 +232,28 @@ namespace linescan{
 			});
 
 			exception |= !exception_catcher([&]{
-				mcl3_.move_relative(0, -100, 0);
+				auto Y = mcl3_.read_y();
+
+				auto Y_s = static_cast< std::int64_t >(y_step_.value() * 1000);
+				auto Y_t = static_cast< std::int64_t >(y_to_.value() * 1000);
+
+				if((Y_s > 0 && Y < Y_t) || (Y_s < 0 && Y > Y_t)){
+					mcl3_.move_relative(0, Y_s, 0);
+					return;
+				}
+
+				auto Y_f = static_cast< std::int64_t >(y_from_.value() * 1000);
+				auto X_s = static_cast< std::int64_t >(x_step_.value() * 1000);
+				auto X_t = static_cast< std::int64_t >(x_to_.value() * 1000);
+
+				auto X = mcl3_.read_x();
+				if((X_s > 0 && X < X_t) || (X_s < 0 && X > X_t)){
+					auto Z = mcl3_.read_z();
+					mcl3_.move_to(X + X_s, Y_f, Z);
+					return;
+				}
+
+				stop();
 			});
 
 			if(exception){
@@ -299,6 +287,60 @@ namespace linescan{
 	void widget_measure::set_calibration(calibration const& calib){
 		calib_ = calib;
 		if(calib_.is_valid()) start_.setEnabled(true);
+	}
+
+	void widget_measure::set_enabled(bool on){
+		y_from_.setEnabled(on);
+		y_to_.setEnabled(on);
+		y_step_.setEnabled(on);
+		x_from_.setEnabled(on);
+		x_to_.setEnabled(on);
+		x_step_.setEnabled(on);
+	}
+
+	void widget_measure::start(){
+		if(!exception_catcher([&]{
+			start_.setText(tr("Stop measurement"));
+			set_enabled(false);
+
+			exception_count_ = 0;
+
+			points_.clear();
+			image_.stop_live();
+
+			auto X = static_cast< std::int64_t >(x_from_.value() * 1000);
+			auto Y = static_cast< std::int64_t >(y_from_.value() * 1000);
+			auto Z = mcl3_.read_z();
+			mcl3_.move_to(X, Y, Z);
+
+			timer_.start(0);
+		})) stop();
+	}
+
+	void widget_measure::stop(){
+		exception_catcher([&]{
+			timer_.stop();
+			{
+				auto block = block_signals(start_);
+				start_.setChecked(false);
+			}
+			start_.setText(tr("Start measurement"));
+			set_enabled(true);
+
+			auto name = QString("measure_%1.asc")
+				.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
+
+			++measure_save_count_;
+
+			message(tr("Save measurement '%1'.").arg(name));
+
+			std::ofstream os(name.toStdString().c_str());
+			for(auto const& p: points_){
+				os << p[0] << ' ' << p[1] << ' ' << p[2] << '\n';
+			}
+
+			image_.start_live();
+		});
 	}
 
 

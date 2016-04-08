@@ -34,6 +34,10 @@ namespace linescan{
 
 
 	private:
+		void start();
+		void stop();
+		void set_enabled(bool on);
+
 		std::size_t image_save_count_ = 0;
 		std::size_t measure_save_count_ = 0;
 		std::size_t exception_count_ = 0;
