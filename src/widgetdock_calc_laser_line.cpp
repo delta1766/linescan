@@ -82,8 +82,8 @@ namespace linescan{
 
 		sum_show_line_.setChecked(true);
 
-		sum_min_value_.setValue(20);
-		sum_min_sum_.setValue(4'000);
+		sum_min_value_.setValue(128);
+		sum_min_sum_.setValue(500);
 		sum_subpixel_.setChecked(true);
 
 		sum_min_value_l_.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
