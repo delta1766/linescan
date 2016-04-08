@@ -201,11 +201,7 @@ namespace linescan{
 		x_range_checker();
 
 		connect(&start_, &QPushButton::released, [this]{
-			if(start_.isChecked()){
-				start();
-			}else{
-				stop();
-			}
+			start_.isChecked() ? start() : stop();
 		});
 
 		connect(&timer_, &QTimer::timeout, [this]{
@@ -273,10 +269,10 @@ namespace linescan{
 
 				exception_count_ = 0;
 
-				if(box.exec() == QMessageBox::Yes) start_.click();
+				if(box.exec() == QMessageBox::Yes) stop();
 			}
 
-			timer_.start(1);
+			if(running_) timer_.start(1);
 		});
 	}
 
@@ -313,12 +309,14 @@ namespace linescan{
 			auto Z = mcl3_.read_z();
 			mcl3_.move_to(X, Y, Z);
 
+			running_ = true;
 			timer_.start(0);
 		})) stop();
 	}
 
 	void widget_measure::stop(){
 		exception_catcher([&]{
+			running_ = false;
 			timer_.stop();
 			{
 				auto block = block_signals(start_);

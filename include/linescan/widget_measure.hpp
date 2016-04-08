@@ -41,6 +41,7 @@ namespace linescan{
 		std::size_t image_save_count_ = 0;
 		std::size_t measure_save_count_ = 0;
 		std::size_t exception_count_ = 0;
+		bool running_ = true;
 
 		std::vector< std::array< double, 3 > > points_;
 
