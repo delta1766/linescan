@@ -10,19 +10,6 @@
 
 #include <thread>
 
-#ifdef HARDWARE
-#ifndef MCL
-#define MCL
-#endif
-#ifndef CAM
-#define CAM
-#endif
-#endif
-
-#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
-#define HARDWARE
-#endif
-
 
 namespace linescan{
 
