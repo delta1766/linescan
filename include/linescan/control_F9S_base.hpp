@@ -15,7 +15,7 @@
 #include <vector>
 #include <mutex>
 
-#ifdef HARDWARE
+#ifndef EMULATION
 #ifndef MCL
 #define MCL
 #endif
@@ -24,8 +24,8 @@
 #endif
 #endif
 
-#if defined(MCL) && defined(CAM) && !defined(HARDWARE)
-#define HARDWARE
+#if !defined(MCL) && !defined(CAM) && defined(EMULATION)
+#define EMULATION
 #endif
 
 
