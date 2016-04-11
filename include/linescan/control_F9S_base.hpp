@@ -24,10 +24,6 @@
 #endif
 #endif
 
-#if !defined(MCL) && !defined(CAM) && defined(EMULATION)
-#define EMULATION
-#endif
-
 
 namespace linescan{
 
