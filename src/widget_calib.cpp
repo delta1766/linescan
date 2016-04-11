@@ -330,7 +330,7 @@ namespace linescan{
 		switch(step_){
 			case step::align_laser:{
 				step_l_.setText(text.arg(1));
-				laser_start_.setText(tr("Laser ready"));
+				laser_start_.setText(tr("Laser aligned"));
 
 				image_.set_processor([this](auto&& image){
 					auto pair = calc_laser_line(image, points_and_image);
@@ -344,7 +344,7 @@ namespace linescan{
 
 			case step::align_target:{
 				step_l_.setText(text.arg(2));
-				laser_start_.setText(tr("Target ready"));
+				laser_start_.setText(tr("Target aligned"));
 
 				image_.set_processor([this](auto&& image){
 					return std::pair< QImage, QImage >(
