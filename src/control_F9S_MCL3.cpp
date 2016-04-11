@@ -118,7 +118,7 @@ namespace linescan{
 		}
 #endif
 
-		joystick_ = true;
+		joystick_ = on;
 		joystick_changed(joystick_);
 	}
 
@@ -144,6 +144,8 @@ namespace linescan{
 		x_ = -500000;
 		y_ = -500000;
 		z_ = -500000;
+
+		position_change();
 #endif
 	}
 
@@ -168,6 +170,8 @@ namespace linescan{
 		x_ = 500000;
 		y_ = 500000;
 		z_ = 500000;
+
+		position_change();
 #endif
 	}
 
@@ -205,6 +209,8 @@ namespace linescan{
 		x_ = x;
 		y_ = y;
 		z_ = z;
+
+		position_change();
 #endif
 	}
 
@@ -238,6 +244,8 @@ namespace linescan{
 		x_ = x;
 		y_ = y;
 		z_ = z;
+
+		position_change();
 #endif
 	}
 
@@ -271,6 +279,8 @@ namespace linescan{
 		pre_x_ = x_;
 		pre_y_ = y_;
 		pre_z_ = z_;
+
+		position_change();
 #endif
 	}
 

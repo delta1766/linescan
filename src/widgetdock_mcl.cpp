@@ -60,9 +60,6 @@ namespace linescan{
 		connect(&reset_pos_, &QPushButton::released, [this]{
 			exception_catcher([&]{
 				mcl3_.set_position(0, 0, 0);
-				std::cout << mcl3_.read_x() << ' ';
-				std::cout << mcl3_.read_y() << ' ';
-				std::cout << mcl3_.read_z() << std::endl;
 			});
 		});
 
