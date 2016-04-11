@@ -21,14 +21,14 @@ namespace linescan{
 		calib_w_(cam_, mcl3_)
 	{
 		addDockWidget(Qt::TopDockWidgetArea, &cam_dock_w_);
-		addDockWidget(Qt::LeftDockWidgetArea, &laser_dock_w_);
 		addDockWidget(Qt::RightDockWidgetArea, &mcl_dock_w_);
+		addDockWidget(Qt::LeftDockWidgetArea, &laser_dock_w_);
 
-		mcl_dock_w_.setAllowedAreas(
+		cam_dock_w_.setAllowedAreas(
 			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
 		);
 
-		cam_dock_w_.setAllowedAreas(
+		mcl_dock_w_.setAllowedAreas(
 			Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea
 		);
 
@@ -39,9 +39,28 @@ namespace linescan{
 		tabs_w_.addTab(&measure_w_, tr("Measure"));
 		tabs_w_.addTab(&calib_w_, tr("Calibration"));
 
+		setCentralWidget(&tabs_w_);
+
+		cam_dock_w_.hide();
+		mcl_dock_w_.hide();
+		laser_dock_w_.hide();
+
+
 		statusBar();
 
-		setCentralWidget(&tabs_w_);
+
+		auto& cam_a = *cam_dock_w_.toggleViewAction();
+		auto& mcl_a = *mcl_dock_w_.toggleViewAction();
+		auto& line_a = *laser_dock_w_.toggleViewAction();
+
+		cam_a.setIcon(QIcon("icon/camera-photo.svg"));
+		mcl_a.setIcon(QIcon("icon/timevault.svg"));
+		line_a.setIcon(QIcon("icon/strigi.svg"));
+
+		auto& toolbar = *addToolBar(tr("Show"));
+		toolbar.addAction(&cam_a);
+		toolbar.addAction(&mcl_a);
+		toolbar.addAction(&line_a);
 
 
 		measure_w_.message.connect([this](QString const& message){
