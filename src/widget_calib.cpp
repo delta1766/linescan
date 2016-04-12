@@ -16,7 +16,7 @@
 
 #include <mitrax/transform.hpp>
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 
 namespace linescan{
