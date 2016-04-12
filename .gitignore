@@ -1,3 +1,8 @@
 # ignore bin directory
 bin
 test/bin
+doc/Linienscanner.aux
+doc/Linienscanner.log
+doc/Linienscanner.out
+doc/Linienscanner.pdf
+doc/Linienscanner.tex.backup
