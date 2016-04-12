@@ -11,13 +11,14 @@
 
 #include "camera.hpp"
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 
 namespace linescan{
 
 
 	class widgetdock_camera: public QDockWidget{
+		Q_OBJECT
 	public:
 		widgetdock_camera(camera& cam);
 

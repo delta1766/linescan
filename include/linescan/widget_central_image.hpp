@@ -9,13 +9,14 @@
 #ifndef _linescan__widget_central_image__hpp_INCLUDED_
 #define _linescan__widget_central_image__hpp_INCLUDED_
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 
 namespace linescan{
 
 
 	class widget_central_image: public QMainWindow{
+		Q_OBJECT
 	public:
 		void set_images(QImage const& image, QImage const& overlay);
 

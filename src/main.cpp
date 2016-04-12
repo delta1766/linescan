@@ -20,10 +20,15 @@ int main(int argc, char** argv){
 		QCoreApplication::setOrganizationName("TU Ilmenau");
 		QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
 		QCoreApplication::setApplicationName("linescan");
-		QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
 		linescan::widget_main_window window;
 		window.showMaximized();
+
+		QTranslator translator;
+		if(translator.load(QString("lang/linescan_de.qm"))){
+			std::cout << "success" << std::endl;
+			app.installTranslator(&translator);
+		}
 
 		return app.exec();
 	}catch(std::exception const& e){

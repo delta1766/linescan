@@ -11,7 +11,7 @@
 
 #include <mitrax/matrix.hpp>
 
-#include <QtGui/QImage>
+#include <QImage>
 
 
 namespace linescan{

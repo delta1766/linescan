@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 #include <linescan/draw.hpp>
 
-#include <QtGui/QPainter>
+#include <QPainter>
 
 
 namespace linescan{

@@ -15,13 +15,14 @@
 #include "widget_measure.hpp"
 #include "widget_calib.hpp"
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 
 namespace linescan{
 
 
 	class widget_main_window: public QMainWindow{
+		Q_OBJECT
 	public:
 		widget_main_window();
 

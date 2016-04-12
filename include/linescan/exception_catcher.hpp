@@ -12,7 +12,7 @@
 #include <exception>
 #include <iostream>
 
-#include <QtWidgets/QMessageBox>
+#include <QMessageBox>
 
 
 namespace linescan{

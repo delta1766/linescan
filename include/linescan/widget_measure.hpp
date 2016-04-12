@@ -13,7 +13,7 @@
 #include "control_F9S_MCL3.hpp"
 #include "calibration.hpp"
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 #include <boost/signals2.hpp>
 
@@ -22,6 +22,7 @@ namespace linescan{
 
 
 	class widget_measure: public QWidget{
+		Q_OBJECT
 	public:
 		widget_measure(camera& cam, control_F9S_MCL3& mcl3);
 

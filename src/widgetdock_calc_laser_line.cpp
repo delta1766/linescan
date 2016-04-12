@@ -69,7 +69,7 @@ namespace linescan{
 
 
 		sum_min_value_.setRange(0, 254);
-		sum_min_sum_.setRange(0, 200'000);
+		sum_min_sum_.setRange(0, 200000);
 
 		sum_layout_.addWidget(&sum_show_original_, 0, 0, 1, 2);
 		sum_layout_.addWidget(&sum_min_value_l_, 1, 0, 1, 1);

@@ -7,7 +7,6 @@
 // file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 //-----------------------------------------------------------------------------
 #include <linescan/camera.hpp>
-
 #include <linescan/load.hpp>
 
 #include <ueye.h>

@@ -14,7 +14,7 @@
 #include "calibration.hpp"
 #include "circle.hpp"
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 #include <boost/signals2.hpp>
 
@@ -23,6 +23,7 @@ namespace linescan{
 
 
 	class widget_calib: public QWidget{
+		Q_OBJECT
 	public:
 		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
 

@@ -17,6 +17,7 @@ namespace linescan{
 
 
 	class widget_live_image: public widget_central_image{
+		Q_OBJECT
 	public:
 		using bitmap = mitrax::raw_bitmap< std::uint8_t >;
 

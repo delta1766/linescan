@@ -12,7 +12,7 @@
 #include "polynom.hpp"
 #include "circle.hpp"
 
-#include <QtGui/QImage>
+#include <QImage>
 
 #include <vector>
 

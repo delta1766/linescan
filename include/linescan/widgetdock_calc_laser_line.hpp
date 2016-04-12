@@ -9,13 +9,14 @@
 #ifndef _linescan__widgetdock_calc_laser_line__hpp_INCLUDED_
 #define _linescan__widgetdock_calc_laser_line__hpp_INCLUDED_
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 
 namespace linescan{
 
 
 	class widgetdock_calc_laser_line: public QDockWidget{
+		Q_OBJECT
 	public:
 		widgetdock_calc_laser_line();
 

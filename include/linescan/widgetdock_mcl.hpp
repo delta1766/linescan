@@ -11,13 +11,14 @@
 
 #include "control_F9S_MCL3.hpp"
 
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 
 namespace linescan{
 
 
 	class widgetdock_mcl: public QDockWidget{
+		Q_OBJECT
 	public:
 		widgetdock_mcl(control_F9S_MCL3& mcl3);
 
