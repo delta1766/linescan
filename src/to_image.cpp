@@ -23,8 +23,8 @@ namespace linescan{
 		std::size_t cols = bitmap.cols();
 		for(std::size_t y = 0; y < bitmap.rows(); ++y){
 			std::copy(
-				bitmap.impl().data().data() + cols * y,
-				bitmap.impl().data().data() + cols * (1 + y),
+				bitmap.data() + cols * y,
+				bitmap.data() + cols * (1 + y),
 				image.bits() + image.bytesPerLine() * y
 			);
 		}
