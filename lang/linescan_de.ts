@@ -32,6 +32,22 @@
         <source>can not make linear function</source>
         <translation>lineare Funktion kann nicht erstellt werden</translation>
     </message>
+    <message>
+        <location filename="../src/main.cpp" line="38"/>
+        <source>Exit with exception: [%1] %2</source>
+        <translation>Beende mit Ausnahme: [%1] %2</translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="49"/>
+        <source>Exit with unknown exception!</source>
+        <translation>Beende mit unbekannter Ausnahme!</translation>
+    </message>
+    <message>
+        <location filename="../src/control_F9S_base.cpp" line="70"/>
+        <location filename="../src/control_F9S_base.cpp" line="81"/>
+        <source>call control_F9S_base::send in simulation mode</source>
+        <translation>control_F9S_base::send wurde im Simmulations-Modus aufgerufen</translation>
+    </message>
 </context>
 <context>
     <name>linescan::widget_calib</name>
