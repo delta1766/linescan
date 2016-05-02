@@ -16,6 +16,12 @@
 int main(int argc, char** argv){
 	QApplication app(argc, argv);
 
+	QTranslator translator;
+	if(translator.load(QString("lang/linescan_de.qm"))){
+		std::cout << "success" << std::endl;
+		app.installTranslator(&translator);
+	}
+
 	try{
 		QCoreApplication::setOrganizationName("TU Ilmenau");
 		QCoreApplication::setOrganizationDomain("tu-ilmenau.de");
@@ -23,12 +29,6 @@ int main(int argc, char** argv){
 
 		linescan::widget_main_window window;
 		window.showMaximized();
-
-		QTranslator translator;
-		if(translator.load(QString("lang/linescan_de.qm"))){
-			std::cout << "success" << std::endl;
-			app.installTranslator(&translator);
-		}
 
 		return app.exec();
 	}catch(std::exception const& e){
