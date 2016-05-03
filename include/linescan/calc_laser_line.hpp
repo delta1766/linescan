@@ -19,7 +19,7 @@
 namespace linescan{
 
 
-	struct calc_laser_line_mode{
+	namespace calc_laser_line_mode{
 		enum class threshold{
 			original,
 			binarize,
