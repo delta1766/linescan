@@ -19,7 +19,9 @@
 namespace linescan{
 
 
+	/// \brief Contains all laser line calculation types
 	namespace calc_laser_line_mode{
+		/// \brief The 4 visualizations of threshold line calculation
 		enum class threshold{
 			original,
 			binarize,
@@ -27,34 +29,51 @@ namespace linescan{
 			line
 		};
 
+		/// \brief The 2 visualizations of sum line calculation
 		enum class sum{
 			original,
 			line
 		};
 	};
 
+
+	/// \brief Overload type for visualization via calc_laser_line_t
 	struct as_image_t{};
+
+	/// \brief Overload object for visualization via calc_laser_line_t
 	constexpr auto as_image = as_image_t();
 
+
+	/// \brief Overload type for visualization and points via calc_laser_line_t
 	struct points_and_image_t{};
+
+	/// \brief Overload object for visualization  and points via
+	///        calc_laser_line_t
 	constexpr auto points_and_image = points_and_image_t();
 
+
+	/// \brief Transform a camera image into vector of 2D laser line points
 	class calc_laser_line_t{
 	public:
+		/// \brief Calculate only the vector of laser 2D line points
 		std::vector< mitrax::point< double > >
 		operator()(mitrax::raw_bitmap< std::uint8_t > const& image)const;
 
+		/// \brief Calculate only the visualization
 		QImage operator()(
 			mitrax::raw_bitmap< std::uint8_t > const& image,
 			as_image_t
 		)const;
 
+		/// \brief Calculate the vector of laser 2D line points and the
+		///        visualization
 		std::pair< std::vector< mitrax::point< double > >, QImage >
 		operator()(
 			mitrax::raw_bitmap< std::uint8_t > const& image,
 			points_and_image_t
 		)const;
 
+		/// \brief Set threshold as method and its parameters
 		void use(
 			calc_laser_line_mode::threshold mode,
 			std::uint8_t threshold,
@@ -62,6 +81,7 @@ namespace linescan{
 			bool subpixel
 		);
 
+		/// \brief Set sum as method and its parameters
 		void use(
 			calc_laser_line_mode::sum mode,
 			std::uint8_t min_value,
@@ -88,6 +108,7 @@ namespace linescan{
 		bool sum_subpixel_ = true;
 	};
 
+	/// \brief Global instance of calc_laser_line_t
 	extern calc_laser_line_t calc_laser_line;
 
 
