@@ -15,9 +15,11 @@
 namespace linescan{
 
 
+	/// \brief Widget for laser line calculation settings
 	class widgetdock_calc_laser_line: public QDockWidget{
 		Q_OBJECT
 	public:
+		/// \brief Constructor
 		widgetdock_calc_laser_line();
 
 

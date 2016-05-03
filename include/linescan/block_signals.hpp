@@ -13,7 +13,7 @@
 namespace linescan{
 
 
-	/// \brief Resource manager for Qt-Signals
+	/// \brief Resource manager for disable/enable Qt-Signals
 	///
 	/// Blocks all signals on construction, and unblocks them on destruction.
 	///

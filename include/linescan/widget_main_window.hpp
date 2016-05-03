@@ -21,9 +21,11 @@
 namespace linescan{
 
 
+	/// \brief The main window
 	class widget_main_window: public QMainWindow{
 		Q_OBJECT
 	public:
+		/// \brief Constructor
 		widget_main_window();
 
 

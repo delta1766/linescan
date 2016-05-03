@@ -17,30 +17,38 @@
 namespace linescan{
 
 
+	/// \brief 1D N-degree polynomial
 	template < typename T, std::size_t Degree >
 	class polynom{
 	public:
+		/// \brief Type of the input and output data
 		using value_type = T;
 
+		/// \brief Degree of the polynom
 		constexpr static std::size_t degree = Degree;
 
 
+		/// \brief All coefficients 0
 		constexpr polynom() = default;
 
+		/// \brief Init with given coefficients
 		constexpr polynom(
 			mitrax::raw_col_vector< value_type, Degree + 1 > const& coeffs
 		): coefficients_(coeffs) {}
 
+		/// \brief Set a coefficient
 		constexpr void set(std::size_t i, value_type const& v){
 			assert(i < Degree + 1);
 			coefficients_[i] = v;
 		}
 
+		/// \brief Get a coefficient
 		constexpr value_type operator[](std::size_t i)const{
 			return i < Degree + 1 ? coefficients_[i] : 0;
 		}
 
 
+		/// \brief Get function value
 		constexpr value_type operator()(value_type const& value)const{
 			value_type sum = 0;
 
@@ -58,6 +66,8 @@ namespace linescan{
 		mitrax::raw_col_vector< T, Degree + 1 > coefficients_;
 	};
 
+
+	/// \brief Create a first-degree polynom from two points
 	template < typename T >
 	constexpr polynom< T, 1 > to_polynom(
 		mitrax::point< T > const& p1, mitrax::point< T > const& p2
@@ -78,6 +88,7 @@ namespace linescan{
 	}
 
 
+	/// \brief Fit a polynom to a list of 2D-Points
 	template < std::size_t Degree, typename Container >
 	auto fit_polynom(Container const& data){
 		using value_type = typename Container::value_type::y_value_type;
@@ -118,6 +129,7 @@ namespace linescan{
 	}
 
 
+	/// \brief Calc intersection of two first-degree polynoms
 	template < typename T >
 	constexpr T intersection(
 		polynom< T, 1 > const& lhs,
@@ -126,6 +138,7 @@ namespace linescan{
 		return (lhs[0] - rhs[0]) / (rhs[1] - lhs[1]);
 	}
 
+	/// \brief Add two polynoms of same degree
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree >& operator+=(
 		polynom< T, Degree >& a, polynom< T, Degree > const& b
@@ -136,6 +149,7 @@ namespace linescan{
 		return a;
 	}
 
+	/// \brief Substract two polynoms of same degree
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree >& operator-=(
 		polynom< T, Degree >& a, polynom< T, Degree > const& b
@@ -146,6 +160,7 @@ namespace linescan{
 		return a;
 	}
 
+	/// \brief Add two polynoms of same degree
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree > operator+(
 		polynom< T, Degree > const& a, polynom< T, Degree > const& b
@@ -154,6 +169,7 @@ namespace linescan{
 		return r += b;
 	}
 
+	/// \brief Substract two polynoms of same degree
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree > operator-(
 		polynom< T, Degree > const& a, polynom< T, Degree > const& b
@@ -163,6 +179,7 @@ namespace linescan{
 	}
 
 
+	/// \brief Multiply a polynom with a value
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree >& operator*=(
 		polynom< T, Degree >& a, T const& b
@@ -173,6 +190,7 @@ namespace linescan{
 		return a;
 	}
 
+	/// \brief Divide a polynom by a value
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree >& operator/=(
 		polynom< T, Degree >& a, T const& b
@@ -183,6 +201,7 @@ namespace linescan{
 		return a;
 	}
 
+	/// \brief Multiply a polynom with a value
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree > operator*(
 		polynom< T, Degree > const& a, T const& b
@@ -191,6 +210,7 @@ namespace linescan{
 		return r *= b;
 	}
 
+	/// \brief Divide a polynom by a value
 	template < typename T, std::size_t Degree >
 	constexpr polynom< T, Degree > operator/(
 		polynom< T, Degree > const& a, T const& b

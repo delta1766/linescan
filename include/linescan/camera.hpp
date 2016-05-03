@@ -27,6 +27,7 @@
 namespace linescan{
 
 
+	/// \brief ueye camera manager
 	class camera{
 	public:
 		/// \brief Constructor with camera id

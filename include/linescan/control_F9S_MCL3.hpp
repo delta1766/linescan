@@ -19,8 +19,10 @@
 namespace linescan{
 
 
+	/// \brief Controller for a MCL box with XYZ translation stage
 	class control_F9S_MCL3: public control_F9S_base{
 	public:
+		/// \brief Open connection to MCL via serial port
 		control_F9S_MCL3(std::string const& device);
 
 
@@ -33,8 +35,10 @@ namespace linescan{
 		/// from the absolut position registers.
 		void move_to_end();
 
+
 		/// \brief Stop all movements
 		void stop();
+
 
 		/// \brief Set positions without movement
 		///
@@ -51,7 +55,10 @@ namespace linescan{
 		/// Values in µm.
 		void move_relative(std::int64_t x, std::int64_t y, std::int64_t z);
 
+
+		/// \brief Enable or disable joystick
 		void activate_joystick(bool on);
+
 
 		/// \brief Get actual position
 		///
@@ -63,6 +70,7 @@ namespace linescan{
 		/// Values in µm.
 		std::array< std::int64_t, 3 > preselection();
 
+
 		/// \brief Get actual x coordinate in µm
 		std::int64_t read_x();
 
@@ -72,14 +80,18 @@ namespace linescan{
 		/// \brief Get actual z coordinate in µm
 		std::int64_t read_z();
 
+
+		/// \brief Signal after a position change
 		boost::signals2::signal<
 			void(std::int64_t x, std::int64_t y, std::int64_t z)
 		> position_changed;
 
+		/// \brief Signal after joystick activation or deactivation
 		boost::signals2::signal< void(bool on) > joystick_changed;
 
 
 	protected:
+		/// \brief Set name to MCL3
 		std::string name()const override;
 
 	private:

@@ -28,37 +28,59 @@
 namespace linescan{
 
 
+	/// \brief Base class for communication with a MCL box
 	class control_F9S_base{
 	public:
+		/// \brief Open a serial port which is connected with a MCL box
 		control_F9S_base(std::string const& device);
 
 
 	protected:
+		/// \brief Command for a MCL box
 		struct command{
+			/// \brief Command with text data or without data
 			command(std::uint8_t address, std::string&& data = ""):
 				address(address), data(std::move(data)) {}
 
+			/// \brief Command a single char as data
 			command(std::uint8_t address, char data):
 				address(address), data(1, data) {}
 
+			/// \brief Command with an integer as data
 			command(std::uint8_t address, std::int64_t data):
 				address(address), data(std::to_string(data)) {}
 
+
+			/// \brief Command as char
 			std::uint8_t address;
+
+			/// \brief Text data of the command
 			std::string data;
 		};
 
 
+		/// \brief Name of the MCL box for error messages
 		virtual std::string name()const = 0;
 
+
+		/// \brief Send commands to MCL
 		void send(std::vector< command > const& commands);
+
+		/// \brief Send raw data to MCL
 		void send(char const* data);
 
+
+		/// \brief Send commands and wait for result from MCL
+		///
+		/// If the box does not answer after 200ms, the send is repeated.
 		std::string get(
 			std::vector< command > const& commands,
 			std::size_t repetitions = 3
 		);
 
+		/// \brief Send commands and wait for result from MCL
+		///
+		/// If the box does not answer after timeout, the send is repeated.
 		template < typename Rep, typename Period >
 		std::string get(
 			std::vector< command > const& commands,
@@ -83,8 +105,14 @@ namespace linescan{
 #endif
 		}
 
+		/// \brief Get answer from MCL
+		///
+		/// Wait maximal 200ms for an answer.
 		std::pair< std::string, bool > receive();
 
+		/// \brief Get answer from MCL
+		///
+		/// Wait maximal timeout for an answer.
 		template < typename Rep, typename Period >
 		std::pair< std::string, bool > receive(
 			std::chrono::duration< Rep, Period > const& timeout

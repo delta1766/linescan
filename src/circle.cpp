@@ -14,7 +14,6 @@
 #include <mitrax/segmentation.hpp>
 #include <mitrax/area_search.hpp>
 
-#include <array>
 #include <cmath>
 
 

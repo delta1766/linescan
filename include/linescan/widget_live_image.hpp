@@ -16,33 +16,56 @@
 namespace linescan{
 
 
+	/// \brief Live image widget
 	class widget_live_image: public widget_central_image{
 		Q_OBJECT
 	public:
+		/// \brief Camera image type
 		using bitmap = mitrax::raw_bitmap< std::uint8_t >;
 
+		/// \brief Processor type without overlay
 		using processor1_type = std::function< QImage(bitmap&&) >;
+
+		/// \brief Processor type with overlay
 		using processor2_type =
 			std::function< std::pair< QImage, QImage >(bitmap&&) >;
 
 
+		/// \brief Constructor
 		widget_live_image(camera& cam);
 
+
+		/// \brief Set image processor without overlay
 		void set_processor(processor1_type const& function);
+
+		/// \brief Set image processor with overlay
 		void set_processor(processor2_type const& function);
 
+
+		/// \brief Set an image processor that simply show's the camera image
 		void reset_processor();
 
+
+		/// \brief true, if live image calculation is enabled
 		bool is_live()const;
 
+		/// \brief Stop live image calculation
+		///
+		/// You can now use the central image functionality.
 		void stop_live();
 
+		/// \brief Start live image calculation
+		///
+		/// Start a loop that gets a camera image, processes it and shows the
+		/// result.
 		void start_live();
 
 
 	protected:
+		/// \brief Start live image
 		virtual void showEvent(QShowEvent* event)override;
 
+		/// \brief Stop live image
 		virtual void hideEvent(QHideEvent* event)override;
 
 

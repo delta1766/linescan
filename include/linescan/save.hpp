@@ -15,11 +15,13 @@
 namespace linescan{
 
 
+	/// \brief Save image as PNG
 	void save(
 		mitrax::raw_bitmap< std::uint8_t > const& image,
 		std::string const& name
 	);
 
+	/// \brief Save image as PNG
 	void save(
 		mitrax::raw_bitmap< bool > const& image,
 		std::string const& name

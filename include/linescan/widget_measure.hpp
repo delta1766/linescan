@@ -21,15 +21,19 @@
 namespace linescan{
 
 
+	/// \brief Measurement widget
 	class widget_measure: public QWidget{
 		Q_OBJECT
 	public:
+		/// \brief Constructor
 		widget_measure(camera& cam, control_F9S_MCL3& mcl3);
 
+		/// \brief Destructor
 		~widget_measure();
 
 
 		void set_calibration(calibration const& calib);
+
 
 		boost::signals2::signal< void(QString const&) > message;
 

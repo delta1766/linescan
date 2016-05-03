@@ -15,13 +15,16 @@
 namespace linescan{
 
 
+	/// \brief median filter
+	///
+	/// Filter has no border handling, so it does shrink the image.
 	template < typename T, size_t C, size_t R, size_t Ck, size_t Rk >
 	constexpr auto median(
 		mitrax::matrix< T, C, R > const& image,
 		mitrax::dims_t< Ck, Rk > const& view_dims
 	){
 		return mitrax::transform_per_view(
-			[](auto m){
+			[](auto&& m){
 				std::sort(m.begin(), m.end());
 				return m.begin()[
 					std::size_t(m.cols()) * std::size_t(m.rows()) / 2

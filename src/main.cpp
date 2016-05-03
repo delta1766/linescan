@@ -35,7 +35,7 @@ int main(int argc, char** argv){
 		QMessageBox box(
 			QMessageBox::Critical,
 			QObject::tr("Error"),
-			QString("Exit with exception: [%1] %2")
+			QObject::tr("Exit with exception: [%1] %2")
 				.arg(boost::typeindex::type_id_runtime(e).pretty_name().c_str())
 				.arg(e.what()),
 			QMessageBox::Ok
@@ -46,7 +46,7 @@ int main(int argc, char** argv){
 		QMessageBox box(
 			QMessageBox::Critical,
 			QObject::tr("Fatal Error"),
-			"Exit with unknown exception!",
+			QObject::tr("Exit with unknown exception!"),
 			QMessageBox::Ok
 		);
 

@@ -24,22 +24,35 @@ namespace linescan{
 	using stop_bits = boost::asio::serial_port_base::stop_bits;
 	using flow_control = boost::asio::serial_port_base::flow_control;
 
+	/// \brief Serial port manager
 	class serial_port{
 	public:
+		/// \brief Callback function type
 		using callback = std::function< void(std::string&&) >;
 
 
+		/// \brief Constructor with simulation support
+		///
+		/// \param callback Is called on every single message receive
+		/// \param separator_active If false it is in simulation mode
+		/// \param separator Separator between receive messages
 		serial_port(
 			callback&& callback,
 			bool separator_active,
 			std::string&& separator
 		);
 
+		/// \brief Constructor
+		///
+		/// \param callback Is called on every single message receive
+		/// \param separator Separator between receive messages
 		serial_port(callback&& callback, std::string&& separator);
 
+		/// \brief Destructor
 		~serial_port();
 
 
+		/// \brief Open connection
 		void open(
 			std::string const& device,
 			unsigned baud_rate,
@@ -49,13 +62,16 @@ namespace linescan{
 			stop_bits::type stop_bits
 		);
 
+		/// \brief Close connection
 		void close();
 
 
+		/// \brief Send text
 		void send(std::string const& text);
 
 
 	private:
+		/// \brief Async read messages
 		void read();
 
 		callback const callback_;

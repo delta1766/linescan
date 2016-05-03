@@ -17,8 +17,10 @@
 namespace linescan{
 
 
+	/// \brief Convert to QImage
 	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap);
 
+	/// \brief Convert to QImage
 	QImage to_image(mitrax::raw_bitmap< bool > const& bitmap);
 
 

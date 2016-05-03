@@ -45,6 +45,7 @@ namespace linescan{
 		std::size_t size,
 		float variance
 	){
+		// create kernel
 		auto vc = mitrax::make_col_vector_by_default< float >(
 			mitrax::rows(size)
 		);
@@ -71,6 +72,7 @@ namespace linescan{
 			vr[i] = vc[i];
 		}
 
+		// apply kernel
 		return transform([](auto v){
 			return static_cast< std::uint8_t >(v);
 		}, convolution(image, vc, vr));

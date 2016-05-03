@@ -17,9 +17,11 @@
 namespace linescan{
 
 
+	/// \brief Widget for MCL settings
 	class widgetdock_mcl: public QDockWidget{
 		Q_OBJECT
 	public:
+		/// \brief Constructor
 		widgetdock_mcl(control_F9S_MCL3& mcl3);
 
 

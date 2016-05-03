@@ -18,12 +18,16 @@
 namespace linescan{
 
 
+	/// \brief Excecutes a function and catch all exceptions, log the exception
+	///        via message box or command line
+	///
+	/// return true if not exception appeared
 	template < typename F >
-	bool exception_catcher(F&& f, bool make_message = true)try{
+	bool exception_catcher(F&& f, bool make_message_box = true)try{
 		f();
 		return true;
 	}catch(std::exception const& error){
-		if(!make_message){
+		if(!make_message_box){
 			std::cerr << "Exception: " << error.what() << std::endl;
 			return false;
 		}
@@ -39,7 +43,7 @@ namespace linescan{
 
 		return false;
 	}catch(...){
-		if(!make_message){
+		if(!make_message_box){
 			std::cerr << "Unknown exception" << std::endl;
 			return false;
 		}

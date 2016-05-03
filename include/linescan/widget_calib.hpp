@@ -22,17 +22,23 @@
 namespace linescan{
 
 
+	/// \brief Calibration widget
 	class widget_calib: public QWidget{
 		Q_OBJECT
 	public:
+		/// \brief Constructor
 		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
 
+		/// \brief Destructor
 		~widget_calib();
 
 
+		/// \brief Signal for calibration has successfully completed
 		boost::signals2::signal< void(calibration const&) > ready;
 
 
+		/// \brief Set the distance between the midpoints of the calibration
+		///        circles
 		void set_target_distance_in_mm(double value);
 
 
