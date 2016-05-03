@@ -70,6 +70,7 @@ namespace linescan{
 
 
 	private:
+		/// \brief Enable/disable live camera processing
 		void set_live(bool is_live);
 
 		camera& cam_;

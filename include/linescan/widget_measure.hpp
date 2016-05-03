@@ -32,22 +32,31 @@ namespace linescan{
 		~widget_measure();
 
 
+		/// \brief Set a calibration
 		void set_calibration(calibration const& calib);
 
 
+		/// \brief Messages are shown in main window status bar
 		boost::signals2::signal< void(QString const&) > message;
 
 
 	private:
+		/// \brief Start measurement
 		void start();
+
+		/// \brief Stop measurement, move MCL to start position
 		void stop();
+
+		/// \brief Enable/disable control spin boxes
 		void set_enabled(bool on);
+
 
 		std::size_t image_save_count_ = 0;
 		std::size_t measure_save_count_ = 0;
 		std::size_t exception_count_ = 0;
 		bool running_ = true;
 
+		/// \brief 3D-coordinates
 		std::vector< std::array< double, 3 > > points_;
 
 		camera& cam_;
