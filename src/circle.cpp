@@ -236,7 +236,7 @@ namespace linescan{
 
 		auto image = mitrax::sub_matrix(bitmap, pos, dims);
 
-		auto scaled = mitrax::make_matrix_by_function(
+		auto scaled = mitrax::make_matrix_fn(
 			(image.dims() + mitrax::dims(2, 2)) / 3,
 			[&image](std::size_t x, std::size_t y){
 				x *= 3;

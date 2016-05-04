@@ -17,7 +17,7 @@ namespace linescan{
 	mitrax::raw_bitmap< std::uint8_t > load(std::string const& name){
 		png::image< png::gray_pixel > output;
 		output.read(name);
-		auto image = mitrax::make_bitmap_by_default< std::uint8_t >(
+		auto image = mitrax::make_bitmap_v< std::uint8_t >(
 			output.get_width(), output.get_height()
 		);
 

@@ -700,9 +700,7 @@ namespace linescan{
 				}
 			}
 
-			auto result = mitrax::make_bitmap_by_default< std::uint8_t >(
-				cols_, rows_
-			);
+			auto result = mitrax::make_bitmap_v< std::uint8_t >(cols_, rows_);
 			std::copy(buffer, buffer + cols_ * rows_, result.begin());
 
 			throw_on_error(

@@ -55,8 +55,7 @@ namespace linescan{
 		std::size_t cols,
 		std::size_t rows
 	){
-		auto image =
-			mitrax::make_bitmap_by_default< std::uint8_t >(cols, rows);
+		auto image = mitrax::make_bitmap_v< std::uint8_t >(cols, rows);
 
 		draw(image, line);
 

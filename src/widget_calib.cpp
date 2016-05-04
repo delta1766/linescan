@@ -192,7 +192,7 @@ namespace linescan{
 	void widget_calib::start(){
 		null_pos_ = mcl3_.position();
 
-		bitmap_ = mitrax::make_bitmap_by_default< std::uint8_t >(
+		bitmap_ = mitrax::make_bitmap_v< std::uint8_t >(
 			cam_.cols(), cam_.rows(), 255
 		);
 

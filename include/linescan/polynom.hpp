@@ -97,7 +97,7 @@ namespace linescan{
 			throw std::logic_error("to less points for polynom fit");
 		}
 
-		auto matrix = mitrax::make_square_matrix_by_function(
+		auto matrix = mitrax::make_square_matrix_fn(
 			mitrax::dims< Degree + 1 >(),
 			[&data](std::size_t x, std::size_t y){
 				auto sum = value_type();
@@ -110,7 +110,7 @@ namespace linescan{
 			}
 		);
 
-		auto vector = mitrax::make_col_vector_by_function(
+		auto vector = mitrax::make_col_vector_fn(
 			mitrax::rows< Degree + 1 >(),
 			[&data](std::size_t i){
 				auto sum = value_type();
