@@ -5,7 +5,7 @@
 \usepackage[autostyle=true,german=quotes]{csquotes}
 \usepackage{graphicx}
 \usepackage{eqlist}
-\usepackage[left=25mm, right=25mm, top=27.5mm, bottom=40mm]{geometry} 
+\usepackage[left=25mm, right=25mm, top=27.5mm, bottom=40mm]{geometry}
 \usepackage{calc}
 \usepackage[justification=centering]{caption}
 \usepackage{subcaption}
@@ -20,7 +20,7 @@
 \usepackage{nicefrac}
 \usepackage{float}
 
-\pdfminorversion=7
+% \pdfminorversion=7
 \usepackage{xmpincl}
 
 \setlength{\headheight}{15mm}
@@ -84,17 +84,22 @@ werden.
 \includegraphics[width=0.7\textwidth]{include/IMG_20160412_140245.jpg}
 \end{center}
 
+\section{Begriffe und Definitionen}
+
+Im vorliegenden Dokument werden 2D-Koordinaten mit Kleinbuchstaben (x, y) bezeichnet.
+Für 3D-Koordinaten werden Großbuchstaben (X, Y, Z) verwendet.
+
 \section{Einschalten}
 
-Als erstes sollte der PC eingeschaltet werden, da das Hochfahren aufgrund der alten Hardware
+Als Erstes sollte der PC eingeschaltet werden, da das Hochfahren aufgrund der alten Hardware
 recht lange dauert. Das Login erfolgt über den Gast-Account.
 
 Das Messgerät wird über einen Steckdosen-Verteiler, welcher sich hinter dem Gerät am Boden befindet
 mit Strom versorgt. Ausgenommen hiervon ist die Kamera, welche ihren Strom per USB bezieht.
 
 Für den Fall, dass Messgerät und PC noch nicht verbunden wurden, erfolgt nachfolgend die Beschreibung
-des Anschließens. Mit dem PC verbunden sind nur die MCL-Boxen, sowie die Kamera. Der Linienlaser kann
-ausschließĺich von Hand am Gerät bedient werden. Die untere MCL-Box steuert den Verschiebetisch in X, Y
+des Anschließens. Mit dem PC verbunden sind nur die MCL-Boxen sowie die Kamera. Der Linienlaser kann
+ausschließlich von Hand am Gerät bedient werden. Die untere MCL-Box steuert den Verschiebetisch in X, Y
 und Z, die obere Box ist für die beiden Drehachsen verantwortlich. Zu beachten ist, dass die drehende
 Box von der Software nicht angesteuert wird, sie muss also nicht angeschlossen werden.\footnote{
 Die Drehachsen sind für den Messvorgang nicht notwendig und besitzen in Kalibrierrichtung keine
@@ -107,7 +112,7 @@ USB-Kabel führt von der Kamera zum PC. Der PC ist also letztlich über 2 USB-Ka
 des Messgeräts verbunden.
 
 Nachdem das System hochgefahren wurde und Sie sich im Gast-Account eingeloggt haben, muss das
-Messprogram »linescan« gestartet werden.
+Messprogramm »linescan« gestartet werden.
 
 \section{Hardware}
 
@@ -137,7 +142,7 @@ ist immer die Steuerung per PC nötig.
 
 \subsection{Kamera (3)}
 
-Die Kamera wird ausschließĺich von der Messsoftware am PC angesteuert.
+Die Kamera wird ausschließlich von der Messsoftware am PC angesteuert.
 
 \newpage
 
@@ -167,13 +172,13 @@ wenn eine gültige Kalibrierung existiert. Die Kalibrierung wird auf der Festpla
 Der Messmodus ist die Hauptkomponente des Programms. Dem Prinzip eines Linienscanners folgend,
 wird für die Messung ein Bild mit der Laserlinie auf dem Messobjekt aufgenommen. Das Bild wird
 in eine Liste von Punkten in der xy-Ebene der Kamera umgewandelt. Entsprechend der Kalibrierung
-werden diese 2D-Punkt in 3D-Punkt transformiert und mit der aktuellen XYZ-Position des
+werden diese 2D-Punkte in 3D-Punkte transformiert und mit der aktuellen XYZ-Position des
 Verschiebetisches (MCL) addiert. Anschließend fährt der Verschiebetisch an die nächste Position,
 wo sich der Vorgang wiederholt.
 
 Die Laserebene ist dabei identisch zur XZ-Ebene. Entsprechend erfolgt die Messung primär entlang
-der Y-Achse. Um Objekte zu messen, welche Breiter als die Laserlinie sind, kann die sekundäre
-Richtung entlang der X-Achse erfolgen. Wurde dass Messfeld in Y-Richtung komplett durchlaufen,
+der Y-Achse. Um Objekte zu messen, welche breiter als die Laserlinie sind, kann die sekundäre
+Richtung entlang der X-Achse erfolgen. Wurde das Messfeld in Y-Richtung komplett durchlaufen,
 fährt der Tisch an die Y-Startposition und verschiebt das Objekt entsprechend der X-Richtung.
 Dann wiederholt sich der Messvorgang in Y-Richtung.
 
@@ -222,7 +227,7 @@ Schnelleinstellung erfolgen.
 Das Linien-Dock kann über den entsprechenden Toolbar-Button ein- und ausgeblendet werden.
 Hier kann primär die Methode zur Detektion der Linie im Bild gewählt werden. Darunter kann
 der gewählte Algorithmus parametriert werden. Zur besseren Veranschaulichung können die einzelnen
-Schritte der Algorithmen durch Auswahl des Entsprechenden RadioButtons dargestellt werden.
+Schritte der Algorithmen durch Auswahl des entsprechenden Radio-Buttons dargestellt werden.
 
 \section{Kalibrierung}
 
@@ -235,7 +240,7 @@ Schritte der Algorithmen durch Auswahl des Entsprechenden RadioButtons dargestel
 
 Die Kalibrierung erfolgt in drei Schritten.
 
-Als erstes wird das Kalibriertarget als Messobjekt eingelegt. Die Z-Achse muss nach ganz unten
+Als Erstes wird das Kalibriertarget als Messobjekt eingelegt. Die Z-Achse muss nach ganz unten
 gefahren werden. Dann wird der Linienlaser angeschaltet. Die Linie sollte zwischen den beiden
 Kreisen liegen. Am PC wird die Linie erkannt und ihr Winkel berechnet. Mit dem Joystick für die
 Drehachsen wird der Laser so ausgerichtet, dass die Linie einen Winkel von annähernd $0\degree$
@@ -248,20 +253,20 @@ Bildviertel befinden. Das Kalibriertarget muss von Hand so ausgerichtet werden, 
 ein Winkel von annähernd $0\degree$ ergibt. Auch dies ist durch einen Klick auf den Button zu
 bestätigen.
 
-Nun fährt der Verfahrtisch in Z-Richtung nach oben, bis die Kalibriertarget-Kreise vom oben
+Nun fährt der Verfahrtisch in Z-Richtung nach oben, bis die Kalibriertarget-Kreise vom oberen
 Bildrand weniger weit entfernt sind, als sie es vom unteren waren. Für jede Position werden die
-xy-Position der Kreismittelpunkte im Kamerabild, sowie der Z-Koordinate des Verfahrtisches
+xy-Position der Kreismittelpunkte im Kamerabild sowie der Z-Koordinate des Verfahrtisches
 aufgenommen.
 
-Ist der Verfahrprozess abgeschlossen, erfolgt die Auswertung der aufgenommen Daten. An die
+Ist der Verfahrprozess abgeschlossen, erfolgt die Auswertung der aufgenommenen Daten. An die
 Positionen der Target-Punkte wird jeweils eine lineare Funktion angefittet. Die linke Linie
 wird als Nullposition im Objektkoordinatensystem definiert. Der Abstand der beiden Funktionen
 ergibt die Umrechnung von Pixeln im mm anhand der y-Koordinate im Bild.
 
 Da die Linien zwischen den beiden Kreisen nicht exakt $0\degree$ zur x-Richtung des Kamerabildes
 haben, wird die y-Koordinate in der Bildmitte bzgl. der x-Richtung berechnet. Dann wird diese
-y-Koordinate des Bilder mit der aufgenommen Z-Koordinate des Verfahrtisches zu einer Menge von
-Punkten kombiniert. An diese wird ein Polynom dritten Gerades angefittet. Damit kann die
+y-Koordinate der Bilder, mit der aufgenommen Z-Koordinate des Verfahrtisches zu einer Menge von
+Punkten kombiniert. An diese wird ein Polynom Dritten Gerades angefittet. Damit kann die
 y-Koordinate des Bildes fortan direkt in die Z-Koordinate des Objektkoordinatensystems
 überführt werden.
 
