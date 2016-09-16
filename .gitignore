@@ -1,8 +1,8 @@
 # ignore bin directory
 bin
 test/bin
-doc/Linienscanner.aux
-doc/Linienscanner.log
-doc/Linienscanner.out
-doc/Linienscanner.pdf
-doc/Linienscanner.tex.backup
+user_doc/Linienscanner.aux
+user_doc/Linienscanner.log
+user_doc/Linienscanner.out
+user_doc/Linienscanner.synctex.gz
+user_doc/Linienscanner.tex.backup
