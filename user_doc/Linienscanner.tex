@@ -269,20 +269,24 @@ der Schwellwert, so wurde für diese x-Position kein Linienpunkt erkannt.
 \begin{minipage}{\textwidth} 
 \textbf{Beispiel: Schwellwert 255}
 
+\begin{minipage}{0.95\textwidth}
 \begin{verbatim}
 y-Position Intensitätswerte Binarisiert
          0                0           0
          1                0           0
-         2               60           0
+         2              120           0
          3              255           1 -> y-Pos: 3
          4              255           1             => y = (3 + 5) / 2 = 4.0
          5              255           1 -> y-Pos: 5
-         6               30           0
+         6              150           0
          7                0           0
          8              255           1
          9                0           0
         10                0           0
 \end{verbatim}
+\end{minipage}\begin{minipage}{0.04\textwidth}
+\includegraphics[width=0.65\textwidth]{include/line_detect_threshold.png}
+\end{minipage}
 \end{minipage}
 
 \paragraph{Methode »Sum«}
@@ -293,21 +297,25 @@ Wie der Name bereits andeutet, basiert diese Methode auf der Summe der Intensit�
 \begin{minipage}{\textwidth} 
 \textbf{Beispiel: Schwellwert 200}
 
+\begin{minipage}{0.95\textwidth}
 \begin{verbatim}
 y-Position    Intensitätswerte    Gewichtet
          0         ·         0      =     0
          1         ·         0      =     0
-         2         ·        60      =   120
+         2         ·       120      =   240
          3         ·       255      =   765
          4         ·       255      =  1020
          5         ·       255      =  1275
-         6         ·        30      =   180
+         6         ·       150      =   900
          7         ·         0      =     0
          8         ·       255      =  2040
          9         ·         0      =     0
         10         ·         0      =     0
-                   Summe: 1110  Summe: 5400  => y = 5400 / 1110 = 4.86
+                   Summe: 1290  Summe: 6240  => y = 6240 / 1290 = 4.84
 \end{verbatim}
+\end{minipage}\begin{minipage}{0.04\textwidth}
+\includegraphics[width=0.65\textwidth]{include/line_detect_sum.png}
+\end{minipage}
 \end{minipage}
 
 \newpage
