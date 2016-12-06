@@ -1,7 +1,5 @@
-path-constant LIBRARIES
-	# path to your libraries directory
-	: /media/data/libraries/src
-	;
+import os ;
+local LIBRARIES = [ os.environ LIBRARIES ] ;
 
 using qt5 : /usr/local/Qt-5.6.0 ;
 using libpng ;
