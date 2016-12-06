@@ -15,7 +15,7 @@ namespace linescan{
 
 
 	void save(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
+		mitrax::std_bitmap< std::uint8_t > const& image,
 		std::string const& name
 	){
 		png::image< png::gray_pixel > output(image.cols(), image.rows());
@@ -28,7 +28,7 @@ namespace linescan{
 	}
 
 	void save(
-		mitrax::raw_bitmap< bool > const& image,
+		mitrax::std_bitmap< bool > const& image,
 		std::string const& name
 	){
 		png::image< png::packed_gray_pixel< 1 > > output(

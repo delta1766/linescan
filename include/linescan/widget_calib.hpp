@@ -24,7 +24,6 @@ namespace linescan{
 
 	/// \brief Calibration widget
 	class widget_calib: public QWidget{
-		Q_OBJECT
 	public:
 		/// \brief Constructor
 		widget_calib(camera& cam, control_F9S_MCL3& mcl3);
@@ -118,7 +117,7 @@ namespace linescan{
 
 
 		/// \brief Minimum values of all calib_yz step positions
-		mitrax::raw_bitmap< std::uint8_t > bitmap_;
+		mitrax::std_bitmap< std::uint8_t > bitmap_;
 
 		/// \brief Data of all MCL position while calib_yz step
 		std::vector< xy_data > circle_calib_;

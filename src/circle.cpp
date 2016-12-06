@@ -29,31 +29,31 @@ namespace linescan{
 		}
 
 
-		auto edge_scharr_x(mitrax::raw_bitmap< float > const& image){
+		auto edge_scharr_x(mitrax::std_bitmap< float > const& image){
 			using namespace mitrax::literals;
 
 			constexpr auto scharr_x_col =
-				mitrax::make_col_vector< float >(3_R, {3, 10, 3});
+				mitrax::make_vector< float >(3_R, {3, 10, 3});
 			constexpr auto scharr_x_row =
-				mitrax::make_row_vector< float >(3_C, {1, 0, -1});
+				mitrax::make_vector< float >(3_C, {1, 0, -1});
 
 			return mitrax::convolution(image, scharr_x_col, scharr_x_row);
 		}
 
 
-		auto edge_scharr_y(mitrax::raw_bitmap< float > const& image){
+		auto edge_scharr_y(mitrax::std_bitmap< float > const& image){
 			using namespace mitrax::literals;
 
 			constexpr auto scharr_y_col =
-				mitrax::make_col_vector< float >(3_R, {1, 0, -1});
+				mitrax::make_vector< float >(3_R, {1, 0, -1});
 			constexpr auto scharr_y_row =
-				mitrax::make_row_vector< float >(3_C, {3, 10, 3});
+				mitrax::make_vector< float >(3_C, {3, 10, 3});
 
 			return mitrax::convolution(image, scharr_y_col, scharr_y_row);
 		}
 
 
-		auto edge_scharr_amplitude(mitrax::raw_bitmap< float > const& image){
+		auto edge_scharr_amplitude(mitrax::std_bitmap< float > const& image){
 			return mitrax::transform([](float x, float y){
 				return std::sqrt(x * x + y * y);
 			}, edge_scharr_x(image), edge_scharr_y(image));
@@ -64,7 +64,7 @@ namespace linescan{
 
 
 	circle fit_circle(
-		mitrax::raw_bitmap< float > const& image,
+		mitrax::std_bitmap< float > const& image,
 		float x_from, float x_length, std::size_t x_steps,
 		float y_from, float y_length, std::size_t y_steps,
 		float r_from, float r_length, std::size_t r_steps
@@ -155,7 +155,7 @@ namespace linescan{
 
 
 	std::tuple< bool, circle, std::uint8_t > find_circle(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
+		mitrax::std_bitmap< std::uint8_t > const& image,
 		float min_radius, std::uint8_t min_diff
 	){
 		auto pair = std::minmax_element(image.begin(), image.end());
@@ -209,7 +209,7 @@ namespace linescan{
 	}
 
 	circle fine_fit(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::std_bitmap< std::uint8_t > const& bitmap,
 		circle const& c, float variance
 	){
 		auto r = c.radius();
@@ -224,7 +224,7 @@ namespace linescan{
 			std::size_t(r * 2 + space)
 		);
 
-		auto dims = mitrax::dims(dim, dim);
+		auto dims = mitrax::dim_pair(dim, dim);
 
 		if(pos.x() + dims.cols() > bitmap.cols()){
 			dims.set_cols(bitmap.cols() - mitrax::cols(pos.x()));
@@ -236,8 +236,9 @@ namespace linescan{
 
 		auto image = mitrax::sub_matrix(bitmap, pos, dims);
 
+		using namespace mitrax::literals;
 		auto scaled = mitrax::make_matrix_fn(
-			(image.dims() + mitrax::dims(2, 2)) / 3,
+			(image.dims() + mitrax::dim_pair(2, 2)) / 3_D,
 			[&image](std::size_t x, std::size_t y){
 				x *= 3;
 				y *= 3;
@@ -276,14 +277,14 @@ namespace linescan{
 	}
 
 	std::pair< circle, bool > find_calib_circle(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::std_bitmap< std::uint8_t > const& bitmap,
 		mitrax::point< std::size_t > const& pos,
-		mitrax::dims_t< 0, 0 > dims
+		mitrax::rt_dim_pair_t dims
 	){
 		using namespace mitrax::literals;
 
 		auto image = mitrax::sub_matrix(bitmap, pos, dims);
-		image = median(image, mitrax::dims(3_C, 3_R));
+		image = median(image, mitrax::dim_pair(3_C, 3_R));
 
 		auto circle_data = find_circle(image, 8, 15);
 
@@ -300,7 +301,7 @@ namespace linescan{
 	}
 
 	std::vector< circle > find_calib_circles(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+		mitrax::std_bitmap< std::uint8_t > const& bitmap
 	){
 		using namespace mitrax::literals;
 
@@ -314,7 +315,7 @@ namespace linescan{
 			bitmap.rows() - bitmap.rows() / 5_R
 		);
 
-		auto dims = mitrax::dims(
+		auto dims = mitrax::dim_pair(
 			bitmap.cols() / 2_C,
 			bitmap.rows() / 5_R
 		);
@@ -331,7 +332,7 @@ namespace linescan{
 	}
 
 	std::vector< circle > find_calib_circles(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::std_bitmap< std::uint8_t > const& bitmap,
 		circle const& c1, circle const& c2
 	){
 		auto d1 = std::size_t(c1.radius() * 2);
@@ -349,12 +350,12 @@ namespace linescan{
 		auto cols = std::size_t(bitmap.cols());
 		auto rows = std::size_t(bitmap.rows());
 
-		auto dims1 = mitrax::dims(
+		auto dims1 = mitrax::dim_pair(
 			pos1.x() + 2 * d1 > cols ? cols - pos1.x() : 2 * d1,
 			pos1.y() + 2 * d1 > rows ? rows - pos1.y() : 2 * d1
 		);
 
-		auto dims2 = mitrax::dims(
+		auto dims2 = mitrax::dim_pair(
 			pos2.x() + 2 * d2 > cols ? cols - pos2.x() : 2 * d2,
 			pos2.y() + 2 * d2 > rows ? rows - pos2.y() : 2 * d2
 		);

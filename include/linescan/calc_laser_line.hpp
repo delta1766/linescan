@@ -57,11 +57,11 @@ namespace linescan{
 	public:
 		/// \brief Calculate only the vector of laser 2D line points
 		std::vector< mitrax::point< double > >
-		operator()(mitrax::raw_bitmap< std::uint8_t > const& image)const;
+		operator()(mitrax::std_bitmap< std::uint8_t > const& image)const;
 
 		/// \brief Calculate only the visualization
 		QImage operator()(
-			mitrax::raw_bitmap< std::uint8_t > const& image,
+			mitrax::std_bitmap< std::uint8_t > const& image,
 			as_image_t
 		)const;
 
@@ -69,7 +69,7 @@ namespace linescan{
 		///        visualization
 		std::pair< std::vector< mitrax::point< double > >, QImage >
 		operator()(
-			mitrax::raw_bitmap< std::uint8_t > const& image,
+			mitrax::std_bitmap< std::uint8_t > const& image,
 			points_and_image_t
 		)const;
 

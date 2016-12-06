@@ -18,10 +18,9 @@ namespace linescan{
 
 	/// \brief Live image widget
 	class widget_live_image: public widget_central_image{
-		Q_OBJECT
 	public:
 		/// \brief Camera image type
-		using bitmap = mitrax::raw_bitmap< std::uint8_t >;
+		using bitmap = mitrax::std_bitmap< std::uint8_t >;
 
 		/// \brief Processor type without overlay
 		using processor1_type = std::function< QImage(bitmap&&) >;

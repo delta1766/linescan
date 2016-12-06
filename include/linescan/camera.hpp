@@ -40,7 +40,7 @@ namespace linescan{
 
 
 		/// \brief Get a camera image
-		mitrax::raw_bitmap< std::uint8_t > image();
+		mitrax::std_bitmap< std::uint8_t > image();
 
 
 		/// \brief Width of the camera in pixel

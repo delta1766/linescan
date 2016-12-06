@@ -21,7 +21,7 @@ namespace linescan{
 	template < typename T, size_t C, size_t R, size_t Ck, size_t Rk >
 	constexpr auto median(
 		mitrax::matrix< T, C, R > const& image,
-		mitrax::dims_t< Ck, Rk > const& view_dims
+		mitrax::auto_dim_pair_t< Ck, Rk > const& view_dims
 	){
 		return mitrax::transform_per_view(
 			[](auto&& m){

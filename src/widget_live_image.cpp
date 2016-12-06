@@ -18,7 +18,7 @@ namespace linescan{
 
 
 		std::pair< QImage, QImage > standard_processor(
-			mitrax::raw_bitmap< std::uint8_t >&& image
+			mitrax::std_bitmap< std::uint8_t >&& image
 		){
 			return { to_image(image), QImage() };
 		}

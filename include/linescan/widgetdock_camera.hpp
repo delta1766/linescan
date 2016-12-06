@@ -19,7 +19,6 @@ namespace linescan{
 
 	/// \brief Widget for camera settings
 	class widgetdock_camera: public QDockWidget{
-		Q_OBJECT
 	public:
 		/// \brief Constructor
 		widgetdock_camera(camera& cam);

@@ -33,7 +33,7 @@ namespace linescan{
 
 		/// \brief Init with given coefficients
 		constexpr polynom(
-			mitrax::raw_col_vector< value_type, Degree + 1 > const& coeffs
+			mitrax::std_col_vector< value_type, Degree + 1 > const& coeffs
 		): coefficients_(coeffs) {}
 
 		/// \brief Set a coefficient
@@ -63,7 +63,7 @@ namespace linescan{
 
 
 	private:
-		mitrax::raw_col_vector< T, Degree + 1 > coefficients_;
+		mitrax::std_col_vector< T, Degree + 1 > coefficients_;
 	};
 
 
@@ -83,7 +83,7 @@ namespace linescan{
 		auto m = dy / dx;
 		auto a = p1.y() - m * p1.x();
 		return polynom< double, 1 >(
-			mitrax::make_col_vector< double >(2_R, {a, m})
+			mitrax::make_vector< double >(2_R, {a, m})
 		);
 	}
 
@@ -97,7 +97,7 @@ namespace linescan{
 			throw std::logic_error("to less points for polynom fit");
 		}
 
-		auto matrix = mitrax::make_square_matrix_fn(
+		auto matrix = mitrax::make_matrix_fn(
 			mitrax::dims< Degree + 1 >(),
 			[&data](std::size_t x, std::size_t y){
 				auto sum = value_type();
@@ -110,7 +110,7 @@ namespace linescan{
 			}
 		);
 
-		auto vector = mitrax::make_col_vector_fn(
+		auto vector = mitrax::make_vector_fn(
 			mitrax::rows< Degree + 1 >(),
 			[&data](std::size_t i){
 				auto sum = value_type();

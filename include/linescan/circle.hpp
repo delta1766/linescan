@@ -98,12 +98,12 @@ namespace linescan{
 
 	/// \brief Find calib circles on bottom of the image
 	std::vector< circle > find_calib_circles(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap
+		mitrax::std_bitmap< std::uint8_t > const& bitmap
 	);
 
 	/// \brief Find calib circles near the given positions
 	std::vector< circle > find_calib_circles(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::std_bitmap< std::uint8_t > const& bitmap,
 		circle const& c1, circle const& c2
 	);
 

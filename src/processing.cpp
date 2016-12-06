@@ -17,8 +17,8 @@
 namespace linescan{
 
 
-	mitrax::raw_bitmap< bool > erode(
-		mitrax::raw_bitmap< bool > const& image,
+	mitrax::std_bitmap< bool > erode(
+		mitrax::std_bitmap< bool > const& image,
 		std::size_t size,
 		bool border_value
 	){
@@ -40,14 +40,14 @@ namespace linescan{
 		);
 	}
 
-	mitrax::raw_bitmap< std::uint8_t > gauss(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
+	mitrax::std_bitmap< std::uint8_t > gauss(
+		mitrax::std_bitmap< std::uint8_t > const& image,
 		std::size_t size,
 		float variance
 	){
 		// create kernel
-		auto vc = mitrax::make_col_vector_v< float >(mitrax::rows(size));
-		auto vr = mitrax::make_row_vector_v< float >(mitrax::cols(size));
+		auto vc = mitrax::make_vector_v< float >(mitrax::rows(size));
+		auto vr = mitrax::make_vector_v< float >(mitrax::cols(size));
 
 		float sum = 0;
 		for(std::size_t i = 0; i < size; ++i){

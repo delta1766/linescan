@@ -14,7 +14,7 @@
 namespace linescan{
 
 
-	QImage to_image(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
+	QImage to_image(mitrax::std_bitmap< std::uint8_t > const& bitmap){
 		QImage image(
 			bitmap.cols(), bitmap.rows(),
 			QImage::Format_Grayscale8
@@ -32,7 +32,7 @@ namespace linescan{
 		return image;
 	}
 
-	QImage to_image(mitrax::raw_bitmap< bool > const& bitmap){
+	QImage to_image(mitrax::std_bitmap< bool > const& bitmap){
 		return to_image(mitrax::transform(
 			[](auto v){ return std::uint8_t(v ? 255 : 0); }, bitmap
 		));

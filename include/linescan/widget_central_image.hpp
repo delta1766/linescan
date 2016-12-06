@@ -17,7 +17,6 @@ namespace linescan{
 
 	/// \brief Show an image and optional an overlay
 	class widget_central_image: public QMainWindow{
-		Q_OBJECT
 	public:
 		/// \brief Set image and overlay
 		void set_images(QImage const& image, QImage const& overlay);

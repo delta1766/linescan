@@ -15,7 +15,7 @@ namespace linescan{
 
 
 	void draw(
-		mitrax::raw_bitmap< std::uint8_t >& image,
+		mitrax::std_bitmap< std::uint8_t >& image,
 		mitrax::point< double > const& point
 	){
 		auto x = static_cast< int >(point.x());
@@ -42,7 +42,7 @@ namespace linescan{
 	}
 
 	void draw(
-		mitrax::raw_bitmap< std::uint8_t >& image,
+		mitrax::std_bitmap< std::uint8_t >& image,
 		std::vector< mitrax::point< double > > const& line
 	){
 		for(std::size_t i = 0; i < line.size(); ++i){
@@ -50,12 +50,13 @@ namespace linescan{
 		}
 	}
 
-	mitrax::raw_bitmap< std::uint8_t > draw_laser_line(
+	mitrax::std_bitmap< std::uint8_t > draw_laser_line(
 		std::vector< mitrax::point< double > > const& line,
 		std::size_t cols,
 		std::size_t rows
 	){
-		auto image = mitrax::make_bitmap_v< std::uint8_t >(cols, rows);
+		auto image = mitrax::make_matrix_v< std::uint8_t >(
+				mitrax::cols(cols), mitrax::rows(rows));
 
 		draw(image, line);
 
@@ -80,7 +81,7 @@ namespace linescan{
 	}
 
 	QImage draw_laser_alignment(
-		mitrax::bitmap_dims_t const& dims,
+		mitrax::rt_dim_pair_t const& dims,
 		std::vector< mitrax::point< double > > const& points
 	){
 		QImage overlay(
@@ -118,7 +119,7 @@ namespace linescan{
 	}
 
 	QImage draw_line(
-		mitrax::bitmap_dims_t const& dims,
+		mitrax::rt_dim_pair_t const& dims,
 		polynom< double, 1 > const& line
 	){
 		QImage overlay(dims.cols(), dims.rows(), QImage::Format_ARGB32);
@@ -144,7 +145,7 @@ namespace linescan{
 	}
 
 	QImage draw_circle_line(
-		mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+		mitrax::std_bitmap< std::uint8_t > const& bitmap,
 		std::vector< circle > const& circles
 	){
 		QImage overlay(
@@ -175,7 +176,7 @@ namespace linescan{
 		return overlay;
 	}
 
-	QImage draw_circle_line(mitrax::raw_bitmap< std::uint8_t > const& bitmap){
+	QImage draw_circle_line(mitrax::std_bitmap< std::uint8_t > const& bitmap){
 		return draw_circle_line(bitmap, find_calib_circles(bitmap));
 	}
 

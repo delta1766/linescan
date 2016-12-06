@@ -16,7 +16,7 @@ namespace linescan{
 
 
 	/// \brief load an 8-bit png image from hard disk
-	mitrax::raw_bitmap< std::uint8_t > load(std::string const& name);
+	mitrax::std_bitmap< std::uint8_t > load(std::string const& name);
 
 
 }

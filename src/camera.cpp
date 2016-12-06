@@ -672,7 +672,7 @@ namespace linescan{
 	}
 
 
-	mitrax::raw_bitmap< std::uint8_t > camera::image(){
+	mitrax::std_bitmap< std::uint8_t > camera::image(){
 		using namespace std::literals;
 
 #ifdef CAM
@@ -700,7 +700,8 @@ namespace linescan{
 				}
 			}
 
-			auto result = mitrax::make_bitmap_v< std::uint8_t >(cols_, rows_);
+			auto result = mitrax::make_matrix_v< std::uint8_t >(
+				mitrax::cols(cols_), mitrax::rows(rows_));
 			std::copy(buffer, buffer + cols_ * rows_, result.begin());
 
 			throw_on_error(

@@ -136,7 +136,7 @@ namespace linescan{
 		using namespace mitrax::literals;
 
 		polynom< double, 3 > y_to_Z(
-			mitrax::make_col_vector< double >(4_R, {
+			mitrax::make_vector< double >(4_R, {
 				y_to_Z_d.first,
 				y_to_Z_c.first,
 				y_to_Z_b.first,
@@ -144,13 +144,13 @@ namespace linescan{
 			}));
 
 		polynom< double, 1 > y_to_x_null(
-			mitrax::make_col_vector< double >(2_R, {
+			mitrax::make_vector< double >(2_R, {
 				y_to_x_null_b.first,
 				y_to_x_null_a.first
 			}));
 
 		polynom< double, 1 > y_to_dx_div_dX(
-			mitrax::make_col_vector< double >(2_R, {
+			mitrax::make_vector< double >(2_R, {
 				y_to_dx_div_dX_b.first,
 				y_to_dx_div_dX_a.first
 			}));

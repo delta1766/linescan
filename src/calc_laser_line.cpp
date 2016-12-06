@@ -20,7 +20,7 @@ namespace linescan{
 
 
 		std::vector< mitrax::point< double > > calc_via_threshold(
-			mitrax::raw_bitmap< bool > const& binary
+			mitrax::std_bitmap< bool > const& binary
 		){
 			std::vector< mitrax::point< double > > result;
 			result.reserve(binary.cols());
@@ -52,7 +52,7 @@ namespace linescan{
 		}
 
 		std::vector< mitrax::point< double > > calc_via_threshold(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+			mitrax::std_bitmap< std::uint8_t > const& bitmap,
 			std::uint8_t binarize_threshold,
 			std::size_t erode_value
 		){
@@ -61,7 +61,7 @@ namespace linescan{
 		}
 
 		std::vector< mitrax::point< double > > calc_via_sum(
-			mitrax::raw_bitmap< std::uint8_t > const& bitmap,
+			mitrax::std_bitmap< std::uint8_t > const& bitmap,
 			std::uint8_t min,
 			std::size_t min_sum
 		){
@@ -107,7 +107,7 @@ namespace linescan{
 
 	std::vector< mitrax::point< double > >
 	calc_laser_line_t::operator()(
-		mitrax::raw_bitmap< std::uint8_t > const& image
+		mitrax::std_bitmap< std::uint8_t > const& image
 	)const{
 		switch(method_){
 			case type::threshold:
@@ -118,7 +118,7 @@ namespace linescan{
 	}
 
 	QImage calc_laser_line_t::operator()(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
+		mitrax::std_bitmap< std::uint8_t > const& image,
 		as_image_t
 	)const{
 		return (*this)(image, points_and_image).second;
@@ -126,7 +126,7 @@ namespace linescan{
 
 	std::pair< std::vector< mitrax::point< double > >, QImage >
 	calc_laser_line_t::operator()(
-		mitrax::raw_bitmap< std::uint8_t > const& image,
+		mitrax::std_bitmap< std::uint8_t > const& image,
 		points_and_image_t
 	)const{
 		auto round = [](auto& points){
