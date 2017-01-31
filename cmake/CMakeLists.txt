@@ -12,8 +12,8 @@ else()
 endif()
 
 include(DownloadProject.cmake)
-download_project(PROJ                bebuch_bitmap
-	GIT_REPOSITORY      "https://github.com/bebuch/bitmap.git"
+download_project(PROJ                bebuch_mitrax
+	GIT_REPOSITORY      "https://github.com/bebuch/mitrax.git"
 	GIT_TAG             "master"
 	${UPDATE_DISCONNECTED_IF_AVAILABLE}
 )
@@ -28,8 +28,8 @@ find_package(Qt5 CONFIG REQUIRED Core Gui Test Widgets)
 
 
 
-include_directories(include)
-file(GLOB sources "src/*.cpp")
+include_directories("../include")
+file(GLOB sources "../src/*.cpp")
 
 add_executable(linescan ${sources})
 qt5_use_modules(linescan Core Gui Test Widgets)
