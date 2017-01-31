@@ -12,11 +12,15 @@ else()
 endif()
 
 include(DownloadProject.cmake)
-download_project(PROJ                bebuch_mitrax
-	GIT_REPOSITORY      "https://github.com/bebuch/mitrax.git"
-	GIT_TAG             "master"
+download_project(
+	PROJ            bebuch_mitrax
+	GIT_REPOSITORY  "https://github.com/bebuch/mitrax.git"
+	GIT_TAG         "master"
 	${UPDATE_DISCONNECTED_IF_AVAILABLE}
 )
+
+add_subdirectory(${bebuch_mitrax_SOURCE_DIR})
+include_directories("${bebuch_mitrax_SOURCE_DIR}/include")
 
 
 # Find includes in corresponding build directories
@@ -33,3 +37,4 @@ file(GLOB sources "../src/*.cpp")
 
 add_executable(linescan ${sources})
 qt5_use_modules(linescan Core Gui Test Widgets)
+target_link_libraries(linescan gtest gmock_main)
