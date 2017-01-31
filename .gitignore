@@ -1,6 +1,4 @@
 # ignore bin directory
-bin
-test/bin
 user_doc/Linienscanner.aux
 user_doc/Linienscanner.log
 user_doc/Linienscanner.out
@@ -8,3 +6,8 @@ user_doc/Linienscanner.synctex.gz
 user_doc/Linienscanner.tex.backup
 doc/html
 data
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CMakeFiles
+build/**
