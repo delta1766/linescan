@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// Copyright (c) 2016 Benjamin Buch
+// Copyright (c) 2016-2018 Benjamin Buch
 //
 // https://github.com/bebuch/linescan
 //
@@ -130,7 +130,7 @@ namespace linescan{
 
 		constexpr auto int_valueChanged =
 			static_cast< void(QSpinBox::*)(int) >(&QSpinBox::valueChanged);
-	
+
 		constexpr auto float_valueChanged =
 			static_cast< void(QDoubleSpinBox::*)(double) >(
 				&QDoubleSpinBox::valueChanged
