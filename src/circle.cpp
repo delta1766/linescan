@@ -153,11 +153,35 @@ namespace linescan{
 	}
 
 
+	template < std::size_t K >
+	mitrax::std_bitmap< std::uint8_t > median(
+		mitrax::std_bitmap< std::uint8_t > const& image
+	){
+		static constexpr std::size_t KS = K * 2 + 1;
+		return mitrax::make_matrix_fn(
+			image.cols() - mitrax::cols< KS >(),
+			image.rows() - mitrax::rows< KS >(),
+			[&image](std::size_t x, std::size_t y){
+				std::array< std::uint8_t, KS * KS > values;
+				for(std::size_t j = 0; j < KS; ++j){
+					for(std::size_t i = 0; i < KS; ++i){
+						values[j * KS + i] = image(x + i, y + j);
+					}
+				}
+				std::sort(begin(values), end(values));
+				return values[values.size() / 2];
+			});
+	}
+
 
 	std::tuple< bool, circle, std::uint8_t > find_circle(
-		mitrax::std_bitmap< std::uint8_t > const& image,
+		mitrax::std_bitmap< std::uint8_t > const& org_image,
 		float min_radius, std::uint8_t min_diff
 	){
+		constexpr std::size_t median_radius = 2;
+		auto image =
+			median< median_radius >(median< median_radius >(org_image));
+
 		auto pair = std::minmax_element(image.begin(), image.end());
 		auto min = *pair.first;
 		auto max = *pair.second;
@@ -200,8 +224,8 @@ namespace linescan{
 		if(!success) return { false, circle(), diff };
 
 		circle c(
-			float(center.x()) / center_count,
-			float(center.y()) / center_count,
+			float(center.x()) / center_count + median_radius * 4,
+			float(center.y()) / center_count + median_radius * 4,
 			std::sqrt(center_count / 3.14159f)
 		);
 
