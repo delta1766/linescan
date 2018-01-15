@@ -133,8 +133,9 @@ namespace linescan{
 
 			++image_save_count_;
 
-			message(tr("Save image '%1'.").arg(name));
-			image.save(name, "PNG");
+			QFileInfo filename(name);
+			message(tr("Save image '%1'.").arg(filename.absoluteFilePath()));
+			image.save(filename.absoluteFilePath(), "PNG");
 		});
 
 		struct range_checker{
