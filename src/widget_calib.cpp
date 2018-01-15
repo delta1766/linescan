@@ -135,7 +135,7 @@ namespace linescan{
 			}, false);
 
 			exception |= !exception_catcher([&]{
-				mcl3_.move_relative(0, 0, 1000);
+				mcl3_.move_relative(0, 0, 5000);
 			}, false);
 
 			if(step_ == step::calib_yz && circle_calib_.size() > 1){
