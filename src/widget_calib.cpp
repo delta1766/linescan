@@ -135,7 +135,7 @@ namespace linescan{
 			}, false);
 
 			exception |= !exception_catcher([&]{
-				mcl3_.move_relative(0, 0, 5000);
+				mcl3_.move_relative(0, 0, 1000);
 			}, false);
 
 			if(step_ == step::calib_yz && circle_calib_.size() > 1){
@@ -279,6 +279,7 @@ namespace linescan{
 	}
 
 	void widget_calib::analyze_yz(){
+		stop();
 		if(exception_catcher([this]{
 			std::vector< mitrax::point< double > > left_points;
 			std::vector< mitrax::point< double > > right_points;
@@ -351,7 +352,6 @@ namespace linescan{
 				.arg(calib_filename.absoluteFilePath()));
 		})){
 			set_step(step::complete);
-			stop();
 		}else{
 			reset();
 		}
