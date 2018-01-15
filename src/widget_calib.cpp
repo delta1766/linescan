@@ -315,7 +315,8 @@ namespace linescan{
 			ready(calib);
 
 			QFileInfo const image_filename(QString("calib.png"));
-			image.save(image_filename.absoluteFilePath(), "PNG");
+			image.convertToFormat(QImage::Format_RGB32)
+				.save(image_filename.absoluteFilePath(), "PNG");
 
 			auto const calib_text =
 				QString("Z(y) = "
@@ -336,7 +337,8 @@ namespace linescan{
 				+ QString("X_stretch_function(y) = (right(y) - left(y)) * mm / "
 					"target_distance_in_mm =  %2 mm * y + %1 mm\n")
 					.arg(stretch_function[0], 0, 'g', 3)
-					.arg(stretch_function[1], 0, 'g', 3);
+					.arg(stretch_function[1], 0, 'g', 3)
+				+ QString("X(y) = X_base(y) + X_stretch_function(y)\n");
 
 			QFileInfo const calib_filename(QString("calib.txt"));
 			QFile file(calib_filename.absoluteFilePath());
