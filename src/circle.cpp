@@ -153,34 +153,13 @@ namespace linescan{
 	}
 
 
-	template < std::size_t K >
-	mitrax::std_bitmap< std::uint8_t > median(
-		mitrax::std_bitmap< std::uint8_t > const& image
-	){
-		static constexpr std::size_t KS = K * 2 + 1;
-		return mitrax::make_matrix_fn(
-			image.cols() - mitrax::cols< KS >(),
-			image.rows() - mitrax::rows< KS >(),
-			[&image](std::size_t x, std::size_t y){
-				std::array< std::uint8_t, KS * KS > values;
-				for(std::size_t j = 0; j < KS; ++j){
-					for(std::size_t i = 0; i < KS; ++i){
-						values[j * KS + i] = image(x + i, y + j);
-					}
-				}
-				std::sort(begin(values), end(values));
-				return values[values.size() / 2];
-			});
-	}
-
-
 	std::tuple< bool, circle, std::uint8_t > find_circle(
 		mitrax::std_bitmap< std::uint8_t > const& org_image,
 		float min_radius, std::uint8_t min_diff
 	){
-		constexpr std::size_t median_radius = 2;
-		auto image =
-			median< median_radius >(median< median_radius >(org_image));
+		constexpr auto K = 5;
+		auto image = median(median(org_image, mitrax::auto_dim_pair_t< K, K >()),
+			mitrax::auto_dim_pair_t< K, K >());
 
 		auto pair = std::minmax_element(image.begin(), image.end());
 		auto min = *pair.first;
@@ -224,8 +203,9 @@ namespace linescan{
 		if(!success) return { false, circle(), diff };
 
 		circle c(
-			float(center.x()) / center_count + median_radius * 4,
-			float(center.y()) / center_count + median_radius * 4,
+			// (K / 2) * 2 -> integer division!
+			float(center.x()) / center_count + (K / 2) * 2,
+			float(center.y()) / center_count + (K / 2) * 2,
 			std::sqrt(center_count / 3.14159f)
 		);
 
@@ -308,7 +288,8 @@ namespace linescan{
 		using namespace mitrax::literals;
 
 		auto image = mitrax::sub_matrix(bitmap, pos, dims);
-		image = median(image, mitrax::dim_pair(3_C, 3_R));
+		image = median(median(image, mitrax::dim_pair(5_C, 5_R)),
+			mitrax::dim_pair(5_C, 5_R));
 
 		auto circle_data = find_circle(image, 8, 15);
 
@@ -316,8 +297,8 @@ namespace linescan{
 
 		auto circle = std::get< 1 >(circle_data);
 
-		circle.x() += pos.x() + 1;
-		circle.y() += pos.y() + 1;
+		circle.x() += pos.x() + 4;
+		circle.y() += pos.y() + 4;
 
 		circle = fine_fit(bitmap, circle, 1);
 
