@@ -336,7 +336,7 @@ namespace linescan{
 
 			auto const name = QString("measure_%1.asc")
 				.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
-			QFileInfo const filename(QString("calib.png"));
+			QFileInfo const filename(name);
 
 			++measure_save_count_;
 
