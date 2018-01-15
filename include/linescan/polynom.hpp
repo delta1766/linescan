@@ -44,7 +44,8 @@ namespace linescan{
 
 		/// \brief Get a coefficient
 		constexpr value_type operator[](std::size_t i)const{
-			return i < Degree + 1 ? coefficients_[i] : 0;
+			assert(i < Degree + 1);
+			return coefficients_[i];
 		}
 
 
