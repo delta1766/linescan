@@ -318,22 +318,22 @@ namespace linescan{
 
 			auto const calib_text =
 				QString("Z(y) = "
-					"%3 mm * y^3 + %2 mm * y^2 + %1 mm * y + %0 mm\n")
+					"%4 mm * y^3 + %3 mm * y^2 + %2 mm * y + %1 mm\n")
 					.arg(y_to_Z[0], 0, 'g', 3)
 					.arg(y_to_Z[1], 0, 'g', 3)
 					.arg(y_to_Z[2], 0, 'g', 3)
 					.arg(y_to_Z[3], 0, 'g', 3)
-				+ QString("left(y) = %1 * y + %0\n")
+				+ QString("left(y) = %2 * y + %1\n")
 					.arg(left_line[0], 0, 'g', 3)
 					.arg(left_line[1], 0, 'g', 3)
-				+ QString("right(y) = %1 * y + %0\n")
+				+ QString("right(y) = %2 * y + %1\n")
 					.arg(right_line[0], 0, 'g', 3)
 					.arg(right_line[1], 0, 'g', 3)
-				+ QString("X_base(y) = left(y) * mm = %1 mm * y + %0 mm\n")
+				+ QString("X_base(y) = left(y) * mm = %2 mm * y + %1 mm\n")
 					.arg(left_line[0], 0, 'g', 3)
 					.arg(left_line[1], 0, 'g', 3)
 				+ QString("X_stretch_function(y) = (right(y) - left(y)) * mm / "
-					"target_distance_in_mm =  %1 mm * y + %0 mm\n")
+					"target_distance_in_mm =  %2 mm * y + %1 mm\n")
 					.arg(stretch_function[0], 0, 'g', 3)
 					.arg(stretch_function[1], 0, 'g', 3);
 
