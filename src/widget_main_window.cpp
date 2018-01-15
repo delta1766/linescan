@@ -62,10 +62,12 @@ namespace linescan{
 		toolbar.addAction(&mcl_a);
 		toolbar.addAction(&line_a);
 
+		auto show_message = [this](QString const& message){
+			statusBar()->showMessage(message, 15000);
+		};
 
-		measure_w_.message.connect([this](QString const& message){
-			statusBar()->showMessage(message, 5000);
-		});
+		measure_w_.message.connect(show_message);
+		calib_w_.message.connect(show_message);
 
 		calib_w_.ready.connect([this](calibration const& calib){
 			auto y_to_Z = calib.y_to_Z();

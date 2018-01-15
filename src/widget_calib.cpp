@@ -25,16 +25,27 @@ namespace linescan{
 	widget_calib::widget_calib(camera& cam, control_F9S_MCL3& mcl3):
 		cam_(cam),
 		mcl3_(mcl3),
+		save_(tr("Save image")),
 		image_(cam)
 	{
 		main_layout_.addWidget(&step_l_, 0, 0, 1, 2);
 		main_layout_.addWidget(&laser_start_, 1, 0, 1, 2);
-		main_layout_.setRowStretch(2, 1);
+		main_layout_.addWidget(&save_, 2, 0, 1, 2);
+		main_layout_.setRowStretch(3, 1);
 
 		layout_.addLayout(&main_layout_);
 		layout_.addWidget(&image_);
 
 		setLayout(&layout_);
+
+
+		save_.hide();
+		connect(&save_, &QPushButton::released, [this]{
+			auto image = image_.image();
+			QFileInfo filename(QString("calib.png"));
+			message(tr("Save image '%1'.").arg(filename.absoluteFilePath()));
+			image.save(filename.absoluteFilePath(), "PNG");
+		});
 
 
 		timer_.setSingleShot(true);
@@ -331,6 +342,7 @@ namespace linescan{
 			case step::align_laser:{
 				step_l_.setText(text.arg(1));
 				laser_start_.setText(tr("Laser aligned"));
+				save_.hide();
 
 				image_.set_processor([this](auto&& image){
 					auto pair = calc_laser_line(image, points_and_image);
@@ -345,6 +357,7 @@ namespace linescan{
 			case step::align_target:{
 				step_l_.setText(text.arg(2));
 				laser_start_.setText(tr("Target aligned"));
+				save_.hide();
 
 				image_.set_processor([this](auto&& image){
 					return std::pair< QImage, QImage >(
@@ -358,6 +371,7 @@ namespace linescan{
 			case step::calib_yz:{
 				step_l_.setText(text.arg(3));
 				laser_start_.setText(tr("Stop"));
+				save_.hide();
 				start();
 				break;
 			}
@@ -365,6 +379,7 @@ namespace linescan{
 			case step::complete:{
 				step_l_.setText(tr("complete"));
 				laser_start_.setText(tr("Reset"));
+				save_.show();
 				break;
 			}
 		}

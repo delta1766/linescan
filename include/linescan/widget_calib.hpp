@@ -41,6 +41,10 @@ namespace linescan{
 		void set_target_distance_in_mm(double value);
 
 
+		/// \brief Messages are shown in main window status bar
+		boost::signals2::signal< void(QString const&) > message;
+
+
 	protected:
 		/// \brief Save MCL position as null position
 		void showEvent(QShowEvent* event);
@@ -135,6 +139,7 @@ namespace linescan{
 
 		QLabel step_l_;
 		QPushButton laser_start_;
+		QPushButton save_;
 
 		widget_live_image image_;
 
