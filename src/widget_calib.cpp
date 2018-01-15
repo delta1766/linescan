@@ -41,8 +41,8 @@ namespace linescan{
 
 		save_.hide();
 		connect(&save_, &QPushButton::released, [this]{
-			auto image = image_.image();
-			QFileInfo filename(QString("calib.png"));
+			auto const image = image_.image();
+			QFileInfo const filename(QString("calib.png"));
 			message(tr("Save image '%1'.").arg(filename.absoluteFilePath()));
 			image.save(filename.absoluteFilePath(), "PNG");
 		});
@@ -309,18 +309,50 @@ namespace linescan{
 				circle_calib_.front().Z, circle_calib_.back().Z
 			));
 
-			auto left_line = fit_polynom< 1 >(left_points);
-			auto right_line = fit_polynom< 1 >(right_points);
-			auto y_to_Z = fit_polynom< 3 >(y_to_Z_points);
+			auto const left_line = fit_polynom< 1 >(left_points);
+			auto const right_line = fit_polynom< 1 >(right_points);
+			auto const y_to_Z = fit_polynom< 3 >(y_to_Z_points);
 
 			calibration calib;
+			auto const stretch_function
+				= (right_line - left_line) / target_distance_in_mm_;
 			calib.set(
 				y_to_Z,
 				left_line,
-				(right_line - left_line) / target_distance_in_mm_
+				stretch_function
 			);
 
 			ready(calib);
+
+			auto const calib_text =
+				QString("Z(y) = "
+					"%3 mm * y^3 + %2 mm * y^2 + %1 mm * y + %0 mm\n")
+					.arg(y_to_Z[0], 0, 'g', 3)
+					.arg(y_to_Z[1], 0, 'g', 3)
+					.arg(y_to_Z[2], 0, 'g', 3)
+					.arg(y_to_Z[3], 0, 'g', 3)
+				+ QString("left(y) = %1 * y + %0\n")
+					.arg(left_line[0], 0, 'g', 3)
+					.arg(left_line[1], 0, 'g', 3)
+				+ QString("right(y) = %1 * y + %0\n")
+					.arg(right_line[0], 0, 'g', 3)
+					.arg(right_line[1], 0, 'g', 3)
+				+ QString("X_base(y) = left(y) * mm = %1 mm * y + %0 mm\n")
+					.arg(left_line[0], 0, 'g', 3)
+					.arg(left_line[1], 0, 'g', 3)
+				+ QString("X_stretch_function(y) = (right(y) - left(y)) * mm / "
+					"target_distance_in_mm =  %1 mm * y + % 0mm\n")
+					.arg(stretch_function[0], 0, 'g', 3)
+					.arg(stretch_function[1], 0, 'g', 3);
+
+			QFileInfo const filename(QString("calib.txt"));
+			QFile file(filename.absoluteFilePath());
+			if(file.open(QIODevice::ReadWrite)) {
+				QTextStream os(&file);
+				os << calib_text;
+			}else{
+				throw std::runtime_error("Can't write result file.");
+			}
 		})){
 			set_step(step::complete);
 			stop();
