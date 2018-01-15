@@ -325,18 +325,6 @@ namespace linescan{
 			}
 			start_.setText(tr("Start measurement"));
 
-			auto name = QString("measure_%1.asc")
-				.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
-
-			++measure_save_count_;
-
-			message(tr("Save measurement '%1'.").arg(name));
-
-			std::ofstream os(name.toStdString().c_str());
-			for(auto const& p: points_){
-				os << p[0] << ' ' << p[1] << ' ' << p[2] << '\n';
-			}
-
 			image_.start_live();
 
 			auto X = static_cast< std::int64_t >(x_from_.value() * 1000);
@@ -345,6 +333,25 @@ namespace linescan{
 			mcl3_.move_to(X, Y, Z);
 
 			set_enabled(true);
+
+			auto const name = QString("measure_%1.asc")
+				.arg(measure_save_count_, 4, 10, QLatin1Char('0'));
+			QFileInfo const filename(QString("calib.png"));
+
+			++measure_save_count_;
+
+			message(tr("Save measurement '%1'.")
+				.arg(filename.absoluteFilePath()));
+
+			QFile file(filename.absoluteFilePath());
+			if(file.open(QIODevice::ReadWrite)) {
+				QTextStream os(&file);
+				for(auto const& p: points_){
+					os << p[0] << ' ' << p[1] << ' ' << p[2] << '\n';
+				}
+			}else{
+				throw std::runtime_error("Can't write result file.");
+			}
 		});
 	}
 
