@@ -25,28 +25,16 @@ namespace linescan{
 	widget_calib::widget_calib(camera& cam, control_F9S_MCL3& mcl3):
 		cam_(cam),
 		mcl3_(mcl3),
-		save_(tr("Save image")),
 		image_(cam)
 	{
 		main_layout_.addWidget(&step_l_, 0, 0, 1, 2);
 		main_layout_.addWidget(&laser_start_, 1, 0, 1, 2);
-		main_layout_.addWidget(&save_, 2, 0, 1, 2);
-		main_layout_.setRowStretch(3, 1);
+		main_layout_.setRowStretch(2, 1);
 
 		layout_.addLayout(&main_layout_);
 		layout_.addWidget(&image_);
 
 		setLayout(&layout_);
-
-
-		save_.hide();
-		connect(&save_, &QPushButton::released, [this]{
-			auto const image = image_.image();
-			QFileInfo const filename(QString("calib.png"));
-			message(tr("Save image '%1'.").arg(filename.absoluteFilePath()));
-			image.save(filename.absoluteFilePath(), "PNG");
-		});
-
 
 		timer_.setSingleShot(true);
 
@@ -304,10 +292,11 @@ namespace linescan{
 				y_to_Z_points.emplace_back(v.y, v.Z);
 			}
 
-			image_.set_images(to_image(bitmap_), draw_yz(
-				left_points, right_points, y_to_Z_points,
-				circle_calib_.front().Z, circle_calib_.back().Z
-			));
+			auto const image = draw_yz(
+					left_points, right_points, y_to_Z_points,
+					circle_calib_.front().Z, circle_calib_.back().Z
+				);
+			image_.set_images(to_image(bitmap_), image);
 
 			auto const left_line = fit_polynom< 1 >(left_points);
 			auto const right_line = fit_polynom< 1 >(right_points);
@@ -323,6 +312,9 @@ namespace linescan{
 			);
 
 			ready(calib);
+
+			QFileInfo const image_filename(QString("calib.png"));
+			image.save(image_filename.absoluteFilePath(), "PNG");
 
 			auto const calib_text =
 				QString("Z(y) = "
@@ -341,18 +333,22 @@ namespace linescan{
 					.arg(left_line[0], 0, 'g', 3)
 					.arg(left_line[1], 0, 'g', 3)
 				+ QString("X_stretch_function(y) = (right(y) - left(y)) * mm / "
-					"target_distance_in_mm =  %1 mm * y + % 0mm\n")
+					"target_distance_in_mm =  %1 mm * y + %0 mm\n")
 					.arg(stretch_function[0], 0, 'g', 3)
 					.arg(stretch_function[1], 0, 'g', 3);
 
-			QFileInfo const filename(QString("calib.txt"));
-			QFile file(filename.absoluteFilePath());
+			QFileInfo const calib_filename(QString("calib.txt"));
+			QFile file(calib_filename.absoluteFilePath());
 			if(file.open(QIODevice::ReadWrite)) {
 				QTextStream os(&file);
 				os << calib_text;
 			}else{
 				throw std::runtime_error("Can't write result file.");
 			}
+
+			message(tr("Save image '%1' and calibration as text '%2'.")
+				.arg(image_filename.absoluteFilePath())
+				.arg(calib_filename.absoluteFilePath()));
 		})){
 			set_step(step::complete);
 			stop();
@@ -374,7 +370,6 @@ namespace linescan{
 			case step::align_laser:{
 				step_l_.setText(text.arg(1));
 				laser_start_.setText(tr("Laser aligned"));
-				save_.hide();
 
 				image_.set_processor([this](auto&& image){
 					auto pair = calc_laser_line(image, points_and_image);
@@ -389,7 +384,6 @@ namespace linescan{
 			case step::align_target:{
 				step_l_.setText(text.arg(2));
 				laser_start_.setText(tr("Target aligned"));
-				save_.hide();
 
 				image_.set_processor([this](auto&& image){
 					return std::pair< QImage, QImage >(
@@ -403,7 +397,6 @@ namespace linescan{
 			case step::calib_yz:{
 				step_l_.setText(text.arg(3));
 				laser_start_.setText(tr("Stop"));
-				save_.hide();
 				start();
 				break;
 			}
@@ -411,7 +404,6 @@ namespace linescan{
 			case step::complete:{
 				step_l_.setText(tr("complete"));
 				laser_start_.setText(tr("Reset"));
-				save_.show();
 				break;
 			}
 		}

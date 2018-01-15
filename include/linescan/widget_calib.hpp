@@ -139,7 +139,6 @@ namespace linescan{
 
 		QLabel step_l_;
 		QPushButton laser_start_;
-		QPushButton save_;
 
 		widget_live_image image_;
 
