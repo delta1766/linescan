@@ -304,12 +304,11 @@ namespace linescan{
 			auto const y_to_Z = fit_polynom< 3 >(y_to_Z_points);
 
 			calibration calib;
-			auto const stretch_function
-				= (right_line - left_line) / target_distance_in_mm_;
+			auto const stretch_function = right_line - left_line;
 			calib.set(
 				y_to_Z,
 				left_line,
-				stretch_function
+				stretch_function / target_distance_in_mm_
 			);
 
 			ready(calib);
@@ -331,14 +330,15 @@ namespace linescan{
 				+ QString("right(y) = %2 * y + %1\n")
 					.arg(right_line[0], 0, 'g', 3)
 					.arg(right_line[1], 0, 'g', 3)
-				+ QString("X_base(y) = left(y) * mm = %2 mm * y + %1 mm\n")
+				+ QString("X_base(x, y) = x - left(y) = %2 * y + %1\n")
 					.arg(left_line[0], 0, 'g', 3)
 					.arg(left_line[1], 0, 'g', 3)
-				+ QString("X_stretch_function(y) = (right(y) - left(y)) * mm / "
-					"target_distance_in_mm =  %2 mm * y + %1 mm\n")
+				+ QString("X_stretch_function(y) = right(y) - left(y) "
+					"=  %2 * y + %1\n")
 					.arg(stretch_function[0], 0, 'g', 3)
 					.arg(stretch_function[1], 0, 'g', 3)
-				+ QString("X(y) = X_base(y) + X_stretch_function(y)\n");
+				+ QString("X(x, y) = X_base(x, y) / X_stretch_function(y) * "
+					"target_distance_in_mm\n");
 
 			QFileInfo const calib_filename(QString("calib.txt"));
 			QFile file(calib_filename.absoluteFilePath());
