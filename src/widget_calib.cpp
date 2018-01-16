@@ -330,7 +330,7 @@ namespace linescan{
 				+ QString("right(y) = %2 * y + %1\n")
 					.arg(right_line[0], 0, 'g', 4)
 					.arg(right_line[1], 0, 'g', 4)
-				+ QString("X_base(x, y) = x - left(y) = %2 * y + %1\n")
+				+ QString("X_base(x, y) = x - left(y) = x - (%2 * y + %1)\n")
 					.arg(left_line[0], 0, 'g', 4)
 					.arg(left_line[1], 0, 'g', 4)
 				+ QString("X_stretch_function(y) = right(y) - left(y) "
